@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { gsap } from 'gsap';
 import { colors } from '../../lib/colors';
+import { liquidGlassStyle } from '../../lib/glass';
 
 export type PillNavItem = {
   label: string;
@@ -312,19 +313,9 @@ const PillNav: React.FC<PillNavProps> = ({
     ['--pill-gap']: '15px'
   } as React.CSSProperties;
 
-  // Apple-style "liquid glass", dark variant: frosted blur + saturation boost
-  // on whatever scrolls behind the nav, over a smoked dark tint. The faint rim
-  // + inner top highlight keep it reading as glass rather than a flat fill.
-  // -webkit- prefix needed for Safari.
-  const glassStyle: React.CSSProperties = {
-    background:
-      'linear-gradient(120deg, rgba(32,32,36,0.55), rgba(13,13,15,0.52) 45%, rgba(9,9,11,0.50) 60%, rgba(26,26,30,0.50))',
-    backdropFilter: 'blur(18px) saturate(170%)',
-    WebkitBackdropFilter: 'blur(18px) saturate(170%)',
-    border: '1px solid rgba(255,255,255,0.09)',
-    boxShadow:
-      'inset 0 1px 1px rgba(255,255,255,0.12), inset 0 -1px 1px rgba(0,0,0,0.25), 0 10px 30px rgba(0,0,0,0.5)'
-  };
+  // Shared liquid-glass material (app/lib/glass.ts) — same object the contact
+  // form panel uses, so the two surfaces can never drift apart.
+  const glassStyle: React.CSSProperties = liquidGlassStyle;
 
   // Shared by both logo branches below; next/image serves a ~47px optimized
   // version of the memoji instead of the full-size PNG.
@@ -457,8 +448,8 @@ const PillNav: React.FC<PillNavProps> = ({
                   </span>
                   {isActive && (
                     <span
-                      className="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 rounded-full z-4"
-                      style={{ background: 'var(--base, #000)' }}
+                      className="absolute left-1/2 bottom-[6px] -translate-x-1/2 w-4 h-[2.5px] rounded-full z-4"
+                      style={{ background: 'currentColor' }}
                       aria-hidden="true"
                     />
                   )}
@@ -478,6 +469,7 @@ const PillNav: React.FC<PillNavProps> = ({
                       className={basePillClasses}
                       style={pillStyle}
                       aria-label={item.ariaLabel || item.label}
+                      aria-current={isActive ? 'page' : undefined}
                       onMouseEnter={() => handleEnter(i)}
                       onMouseLeave={() => handleLeave(i)}
                     >
@@ -490,6 +482,7 @@ const PillNav: React.FC<PillNavProps> = ({
                       className={basePillClasses}
                       style={pillStyle}
                       aria-label={item.ariaLabel || item.label}
+                      aria-current={isActive ? 'page' : undefined}
                       onMouseEnter={() => handleEnter(i)}
                       onMouseLeave={() => handleLeave(i)}
                     >
