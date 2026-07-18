@@ -23,11 +23,18 @@ interface WordEntry {
  
 const Word: React.FC<WordProps> = ({ children, progress, range }) => {
   const opacity = useTransform(progress, range, [0, 1]);
- 
+  const y = useTransform(progress, range, [10, 0]);
+  const blur = useTransform(progress, range, [6, 0]);
+  // Drop the filter entirely once sharp so revealed words don't keep a
+  // compositing layer alive (this paragraph renders ~200 of them).
+  const filter = useTransform(blur, (b) => (b < 0.1 ? "none" : `blur(${b}px)`));
+
   return (
     <span className="relative mt-3 mr-1 text-xl md:text-3xl xl:text-3xl font-unbounded font-light text-neutral-100 ">
       <span className="absolute opacity-20">{children}</span>
-      <motion.span style={{ opacity: opacity }}>{children}</motion.span>
+      <motion.span className="inline-block will-change-transform" style={{ opacity, y, filter }}>
+        {children}
+      </motion.span>
     </span>
   );
 };
@@ -37,8 +44,9 @@ export const ScrollText: React.FC<MagicTextProps> = ({ text, lineBreakSpacing = 
  
   const { scrollYProgress } = useScroll({
     target: container,
- 
-    offset: ["start 0.3", "start 0.01"],
+    // Start when the top of the text enters the lower viewport, finish when
+    // its bottom reaches mid-screen, so the reveal keeps pace with reading.
+    offset: ["start 0.8", "end 0.45"],
   });
   const lines = text.split("\n");
   const entries: WordEntry[] = [];
@@ -72,8 +80,10 @@ export const ScrollText: React.FC<MagicTextProps> = ({ text, lineBreakSpacing = 
           );
         }
 
+        // Each word transitions over ~3 words' worth of progress, so a few
+        // neighbours are always mid-blur — reads as a motion-blurred edge.
         const start = totalWords > 0 ? wordIndex / totalWords : 0;
-        const end = totalWords > 0 ? start + 1 / totalWords : 1;
+        const end = totalWords > 0 ? Math.min(1, start + 3 / totalWords) : 1;
         const currentWord = entry.value ?? "";
         wordIndex += 1;
 

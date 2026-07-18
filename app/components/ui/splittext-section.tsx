@@ -22,7 +22,7 @@ export default function SplitTextSection() {
         >
             <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2">
                 <span className="whitespace-nowrap">Shaping What </span>
-                <span className="whitespace-nowrap font-ibm italic text-slate">Comes Next.</span>
+                <span className="whitespace-nowrap font-ibm font-thin italic text-slate">Comes Next.</span>
             </div>
         </SplitText>
     );
