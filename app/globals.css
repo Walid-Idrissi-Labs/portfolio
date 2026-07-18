@@ -121,3 +121,31 @@ html, body {
     animation: none;
   }
 }
+
+/* Contact page: bottom ticker strip. Content is two identical rows, so a
+   -50% translate loops seamlessly. */
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee-x 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+/* Chrome autofill paints inputs yellow; the endless transition keeps the
+   dark transparent background and brand text color instead. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: #f2e6d8;
+  caret-color: #f2e6d8;
+  transition: background-color 9999s ease-in-out 0s;
+}

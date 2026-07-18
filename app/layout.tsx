@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
-import { ibmFont, unboundedFont } from "./fonts";
+import { dmSerifFont, ibmFont, unboundedFont } from "./fonts";
 import SmoothScroll from "./components/utilities/SmoothScroll";
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${unboundedFont.variable} ${ibmFont.variable}`}>
+    <html lang="en" className={`${unboundedFont.variable} ${ibmFont.variable} ${dmSerifFont.variable}`}>
       <body className="bg-black text-white no-scrollbar">
         <SmoothScroll />
         {children}
