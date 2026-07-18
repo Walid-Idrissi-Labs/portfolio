@@ -1,10 +1,13 @@
+import Link from "next/link";
+import { MoveRight } from "lucide-react";
+
 import { colors } from "./lib/colors";
 
 import AuroraSection from "./components/ui/aurora-section";
 import LogoLoopSection from "./components/ui/logoloop-section";
 import SplitTextSection from "./components/ui/splittext-section";
 import PillNav from "./components/page/pillnav-bit";
-import GradientText from "./components/page/gradienttext-bit";
+import { SectionHeading } from "./components/page/section-heading";
 import BackgroundBeamsSection from "./components/ui/backgroundbeams-section";
 import StaticBackgroundBeamsSection from "./components/ui/staticbackgroundbeams-section";
 import GlowingEffectSection from "./components/ui/glowingeffectgrid-section";
@@ -17,31 +20,6 @@ import { AnimatedContainer } from "./components/utilities/animated-container";
 
 const walid_1 = "/walid_memoji_face1.png";
 const walid_2 = "/walid_memoji_facewmac.png";
-
-const headingColors = [colors.beige_dark, colors.slate, colors.beige_bright];
-
-function SectionHeading({
-  children,
-  animationSpeed,
-  align = "start",
-  sizeClassName = "text-[3rem]",
-}: {
-  children: React.ReactNode;
-  animationSpeed: number;
-  align?: "start" | "end";
-  sizeClassName?: string;
-}) {
-  const alignClassName = align === "end" ? "md:justify-end" : "md:justify-start";
-  return (
-    <div
-      className={`relative w-full flex justify-center ${alignClassName} text-center md:text-left ${sizeClassName} sm:text-[3.6rem] md:text-[3.8rem] lg:text-[4.4] xl:text-[4.7rem] font-unbounded z-1 outline-red-600`}
-    >
-      <GradientText colors={headingColors} animationSpeed={animationSpeed} showBorder={true} className="custom-class">
-        {children}
-      </GradientText>
-    </div>
-  );
-}
 
 export default function Home() {
   return (
@@ -113,6 +91,17 @@ export default function Home() {
               <GlowingEffectSection />
             </div>
           </section>
+
+          <Link
+            href="/projects"
+            className="group -mt-6 mb-8 flex items-center gap-2 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-500 transition-colors duration-300 hover:text-beige_bright"
+          >
+            view the full catalogue
+            <MoveRight
+              className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1.5"
+              strokeWidth={1.5}
+            />
+          </Link>
         </div>
       </section>
 

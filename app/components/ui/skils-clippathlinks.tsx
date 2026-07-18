@@ -2,7 +2,7 @@
 import React from "react";
 import { useAnimate } from "motion/react";
 
-type LogoItem = {
+export type LogoItem = {
   src: string;
   alt: string;
   href: string;
@@ -24,6 +24,8 @@ type ClipPathLinksColorClasses = {
 type ClipPathLinksProps = {
   colors?: Partial<ClipPathLinksColorClasses>;
   typography?: Partial<ClipPathLinksTypographyClasses>;
+  /** Logo grid to render; defaults to the full skills grid used on the home page. */
+  rows?: LogoItem[][];
 };
 
 type ClipPathLinksTypographyClasses = {
@@ -74,13 +76,13 @@ const techLogoRows: LogoItem[][] = [
   ],
 ];
 
-export const ClipPathLinks = ({ colors, typography }: ClipPathLinksProps) => {
+export const ClipPathLinks = ({ colors, typography, rows = techLogoRows }: ClipPathLinksProps) => {
   const colorClasses = { ...DEFAULT_COLOR_CLASSES, ...colors };
   const typographyClasses = { ...DEFAULT_TYPOGRAPHY_CLASSES, ...typography };
 
   return (
     <div className={`w-full overflow-hidden border ${colorClasses.containerBorder}`}>
-      {techLogoRows.map((row, rowIndex) => (
+      {rows.map((row, rowIndex) => (
         <div key={rowIndex} className="grid grid-cols-12">
           {row.map((logo) => (
             <LinkBox
