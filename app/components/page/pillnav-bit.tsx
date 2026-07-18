@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
-import tailwindConfig  from '../../../tailwind.config';
-// import { Link } from 'react-router-dom';
 import Link from 'next/link';
+import Image from 'next/image';
 import { gsap } from 'gsap';
+import { colors } from '../../lib/colors';
 
 export type PillNavItem = {
   label: string;
@@ -23,10 +23,11 @@ export interface PillNavProps {
   pillColor?: string;
   hoveredPillTextColor?: string;
   pillTextColor?: string;
+  /** Text color while the nav overlaps the hero; falls back to pillTextColor after scrolling past it. */
+  heroPillTextColor?: string;
+  heroSelector?: string;
   onMobileMenuClick?: () => void;
   initialLoadAnimation?: boolean;
-  //CUSTOM FOR MOBILE (mostly)
-  mobileBaseColor?: string;  //doesnt work yet
 }
 
 
@@ -39,21 +40,18 @@ const PillNav: React.FC<PillNavProps> = ({
   activeHref,
   className = '',
   ease = 'power3.easeOut',
-//   set in props
-//   baseColor = '#fff',
-//   pillColor = '#060010',
-//   hoveredPillTextColor = '#060010',
-baseColor = tailwindConfig.theme.extend.colors.beige_bright,
-pillColor = tailwindConfig.theme.extend.colors.slate,
-hoveredPillTextColor = tailwindConfig.theme.extend.colors.beige_dark,
-
-mobileBaseColor = tailwindConfig.theme.extend.colors.slate,
+  baseColor = colors.beige_bright,
+  pillColor = colors.slate,
+  hoveredPillTextColor = colors.beige_dark,
   pillTextColor,
+  heroPillTextColor,
+  heroSelector = '#home',
   onMobileMenuClick,
   initialLoadAnimation = true
 }) => {
   const resolvedPillTextColor = pillTextColor ?? baseColor;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
   const circleRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const tlRefs = useRef<Array<gsap.core.Timeline | null>>([]);
   const activeTweenRefs = useRef<Array<gsap.core.Tween | null>>([]);
@@ -226,6 +224,21 @@ mobileBaseColor = tailwindConfig.theme.extend.colors.slate,
   const handleLogoEnter = () => animateLogoTo(1);
   const handleLogoLeave = () => animateLogoTo(0);
 
+  useEffect(() => {
+    if (!heroPillTextColor) return;
+    const hero = document.querySelector(heroSelector);
+    if (!hero) return;
+
+    // Swap once only 15% of the hero is still visible — i.e. ~85% scrolled
+    // through it — rather than waiting for it to fully clear the nav.
+    const observer = new IntersectionObserver(
+      ([entry]) => setPastHero(entry.intersectionRatio < 0.15),
+      { threshold: 0.15 }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [heroPillTextColor, heroSelector]);
+
   const toggleMobileMenu = () => {
     const newState = !isMobileMenuOpen;
     setIsMobileMenuOpen(newState);
@@ -291,14 +304,55 @@ mobileBaseColor = tailwindConfig.theme.extend.colors.slate,
     ['--base']: baseColor,
     ['--pill-bg']: pillColor,
     ['--hover-text']: hoveredPillTextColor,
-    ['--pill-text']: resolvedPillTextColor,
+    ['--pill-text']:
+      heroPillTextColor && !pastHero ? heroPillTextColor : resolvedPillTextColor,
     ['--nav-h']: '47px',
     ['--logo']: '47px',
     ['--pill-pad-x']: '17px',
     ['--pill-gap']: '15px'
-    //MY VARIabLes , MOSTLY FOR MOBILE
-
   } as React.CSSProperties;
+
+  // Apple-style "liquid glass", dark variant: frosted blur + saturation boost
+  // on whatever scrolls behind the nav, over a smoked dark tint. The faint rim
+  // + inner top highlight keep it reading as glass rather than a flat fill.
+  // -webkit- prefix needed for Safari.
+  const glassStyle: React.CSSProperties = {
+    background:
+      'linear-gradient(120deg, rgba(32,32,36,0.55), rgba(13,13,15,0.52) 45%, rgba(9,9,11,0.50) 60%, rgba(26,26,30,0.50))',
+    backdropFilter: 'blur(18px) saturate(170%)',
+    WebkitBackdropFilter: 'blur(18px) saturate(170%)',
+    border: '1px solid rgba(255,255,255,0.09)',
+    boxShadow:
+      'inset 0 1px 1px rgba(255,255,255,0.12), inset 0 -1px 1px rgba(0,0,0,0.25), 0 10px 30px rgba(0,0,0,0.5)'
+  };
+
+  // Shared by both logo branches below; next/image serves a ~47px optimized
+  // version of the memoji instead of the full-size PNG.
+  const logoLayers = (
+    <>
+      <Image
+        src={logos[0]}
+        alt={logoAlt}
+        fill
+        sizes="47px"
+        priority
+        ref={el => {
+          logoLayerRefs.current[0] = el;
+        }}
+        className="object-cover block"
+      />
+      <Image
+        src={logos[1]}
+        alt={logoAlt}
+        fill
+        sizes="47px"
+        ref={el => {
+          logoLayerRefs.current[1] = el;
+        }}
+        className="object-cover block"
+      />
+    </>
+  );
 
   return (
     <div className="absolute top-[1em] z-1000 w-full left-0 md:w-auto md:left-auto">
@@ -319,27 +373,12 @@ mobileBaseColor = tailwindConfig.theme.extend.colors.slate,
             }}
             className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative"
             style={{
+              ...glassStyle,
               width: 'var(--nav-h)',
-              height: 'var(--nav-h)',
-              background: 'var(--base, #000)'
+              height: 'var(--nav-h)'
             }}
           >
-            <img
-              src={logos[0]}
-              alt={logoAlt}
-              ref={el => {
-                logoLayerRefs.current[0] = el;
-              }}
-              className="absolute inset-0 w-full h-full object-cover block"
-            />
-            <img
-              src={logos[1]}
-              alt={logoAlt}
-              ref={el => {
-                logoLayerRefs.current[1] = el;
-              }}
-              className="absolute inset-0 w-full h-full object-cover block"
-            />
+            {logoLayers}
           </Link>
         ) : (
           <a
@@ -352,27 +391,12 @@ mobileBaseColor = tailwindConfig.theme.extend.colors.slate,
             }}
             className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative"
             style={{
+              ...glassStyle,
               width: 'var(--nav-h)',
-              height: 'var(--nav-h)',
-              background: 'var(--base, #000)'
+              height: 'var(--nav-h)'
             }}
           >
-            <img
-              src={logos[0]}
-              alt={logoAlt}
-              ref={el => {
-                logoLayerRefs.current[0] = el;
-              }}
-              className="absolute inset-0 w-full h-full object-cover block"
-            />
-            <img
-              src={logos[1]}
-              alt={logoAlt}
-              ref={el => {
-                logoLayerRefs.current[1] = el;
-              }}
-              className="absolute inset-0 w-full h-full object-cover block"
-            />
+            {logoLayers}
           </a>
         )}
 
@@ -380,8 +404,8 @@ mobileBaseColor = tailwindConfig.theme.extend.colors.slate,
           ref={navItemsRef}
           className="relative items-center rounded-full hidden md:flex ml-1"
           style={{
-            height: 'var(--nav-h)',
-            background: 'var(--base, #000)'
+            ...glassStyle,
+            height: 'var(--nav-h)'
           }}
         >
           <ul
@@ -395,6 +419,7 @@ mobileBaseColor = tailwindConfig.theme.extend.colors.slate,
               const pillStyle: React.CSSProperties = {
                 background: 'var(--pill-bg, #fff)',
                 color: 'var(--pill-text, var(--base, #000))',
+                transition: 'color 0.35s ease',
                 paddingLeft: 'var(--pill-pad-x)',
                 paddingRight: 'var(--pill-pad-x)'
               };
@@ -484,19 +509,18 @@ mobileBaseColor = tailwindConfig.theme.extend.colors.slate,
           aria-expanded={isMobileMenuOpen}
           className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer relative"
           style={{
+            ...glassStyle,
             width: 'var(--nav-h)',
-            height: 'var(--nav-h)',
-            // background: 'var(--base, #000)'
-            background : tailwindConfig.theme.extend.colors.beige_bright , opacity: 0.9
+            height: 'var(--nav-h)'
           }}
         >
           <span
             className="hamburger-line w-5 h-0.5 rounded origin-center transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-            style={{ background: 'var(--pill-bg, #fff)' }}
+            style={{ background: colors.beige_bright }}
           />
           <span
             className="hamburger-line w-5 h-0.5 rounded origin-center transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-            style={{ background: 'var(--pill-bg, #fff)' }}
+            style={{ background: colors.beige_bright }}
           />
         </button>
       </nav>
@@ -507,7 +531,9 @@ mobileBaseColor = tailwindConfig.theme.extend.colors.slate,
         className="md:hidden absolute  top-[3em] left-[3em] right-[3em] rounded-[1.75rem] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-998 origin-top text-center"
         style={{
           ...cssVars,
-          background: 'var(--base, #f0f0f0)'
+          ...glassStyle,
+          backdropFilter: 'blur(24px) saturate(170%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(170%)'
         }}
       >
         <ul className="list-none m-0 p-0 flex flex-col gap-1.75">

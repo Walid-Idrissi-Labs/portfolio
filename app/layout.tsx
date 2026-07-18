@@ -1,24 +1,17 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
-import { ibmFont, unboundedFont , latoFont } from "./fonts";
+import { ibmFont, unboundedFont } from "./fonts";
 import SmoothScroll from "./components/utilities/SmoothScroll";
 
 export const metadata: Metadata = {
   title: "Walid Idrissi",
-  description: "",
+  description: "Portfolio of Walid Idrissi — software engineering student building for the web and the cloud.",
 };
 
-
-
-export default function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en"
-      //data-darkreader-mode="dynamic"
-      //data-darkreader-scheme="dark"
-      //data-darkreader-proxy-injected="true"
-      className={`${unboundedFont.variable} ${ibmFont.variable}  ${latoFont.variable}  `}
-      >
+    <html lang="en" className={`${unboundedFont.variable} ${ibmFont.variable}`}>
       <body className="bg-black text-white no-scrollbar">
         <SmoothScroll />
         {children}

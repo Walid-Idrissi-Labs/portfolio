@@ -14,27 +14,31 @@ import LogoLoop from "./logoloop-bit";
 
 
 // Alternative with image sources
+// each logo carries a `colorSrc`: an exact-geometry duplicate of the gray svg,
+// recolored to the real brand colors (see /public/color/*). it stays hidden
+// until the logo is clicked, then flashes in over the gray one. `color` is the
+// glow tint used during that flash.
 const imageLogos = [
-  { src: "/logo-html5.svg", alt: "HTML5", href: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
-  { src: "/logo-react.svg", alt: "React", href: "https://react.dev/" },
-  { src: "/logo-vue.svg", alt: "VueJS", href: "https://vuejs.org/" },
-  { src: "/logo-javascript.svg", alt: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
-  { src: "/logo-typescript.svg", alt: "TypeScript", href: "https://www.typescriptlang.org/" },
-  { src: "/logo-nextjs.svg", alt: "Next.js", href: "https://nextjs.org/" },
-  { src: "/logo-tailwind.svg", alt: "Tailwind CSS", href: "https://tailwindcss.com/" },
-  { src: "/logo-terraform.svg", alt: "Terraform", href: "https://www.terraform.io/" },
-  { src: "/logo-aws.svg", alt: "AWS", href: "https://aws.amazon.com/" },
-  { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/" },
-  { src: "/logo-postgres.svg", alt: "PostgreSQL", href: "https://www.postgresql.org/" },
-  { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/" },
-  {src : "/logo-three.svg" , alt : "Three.js" , href : "https://threejs.org/"},
-  {src : "/logo-docker.svg" , alt : "Docker" , href : "https://www.docker.com/"},
-  {src : "/logo-laravel.svg" , alt : "Laravel" , href : "https://laravel.com/"},
-  {src : "/logo-mysql.svg" , alt : "MySQL" , href : "https://www.mysql.com/"},
-  {src : "/logo-php.svg" , alt : "PHP" , href : "https://www.php.net/"},
-  { src: "/logo-css3.svg", alt: "CSS3", href: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
-  // { src : "" , alt:"null" , href : "null" } // placeholder to make the loop smoother, it will be hidden with css
-  
+  { src: "/logo-html5.svg",      alt: "HTML5",       colorSrc: "/color/logo-html5.svg",      color: "#E34F26" },
+  { src: "/logo-react.svg",      alt: "React",       colorSrc: "/color/logo-react.svg",      color: "#61DAFB" },
+  { src: "/logo-vue.svg",        alt: "VueJS",       colorSrc: "/color/logo-vue.svg",        color: "#42B883" },
+  { src: "/logo-javascript.svg", alt: "JavaScript",  colorSrc: "/color/logo-javascript.svg", color: "#F7DF1E" },
+  { src: "/logo-typescript.svg", alt: "TypeScript",  colorSrc: "/color/logo-typescript.svg", color: "#3178C6" },
+  { src: "/logo-nextjs.svg",     alt: "Next.js",     colorSrc: "/color/logo-nextjs.svg",     color: "#FFFFFF" },
+  { src: "/logo-tailwind.svg",   alt: "Tailwind CSS", colorSrc: "/color/logo-tailwind.svg",  color: "#38BDF8" },
+  { src: "/logo-terraform.svg",  alt: "Terraform",   colorSrc: "/color/logo-terraform.svg",  color: "#7B42BC" },
+  { src: "/logo-aws.svg",        alt: "AWS",         colorSrc: "/color/logo-aws.svg",        color: "#FF9900" },
+  { src: "/logo-python.svg",     alt: "Python",      colorSrc: "/color/logo-python.svg",     color: "#FFD43B" },
+  { src: "/logo-postgres.svg",   alt: "PostgreSQL",  colorSrc: "/color/logo-postgres.svg",   color: "#336791" },
+  { src: "/logo-bash.svg",       alt: "Bash",        colorSrc: "/color/logo-bash.svg",       color: "#4EAA25" },
+  { src: "/logo-three.svg",      alt: "Three.js",    colorSrc: "/color/logo-three.svg",      color: "#FFFFFF" },
+  { src: "/logo-docker.svg",     alt: "Docker",      colorSrc: "/color/logo-docker.svg",     color: "#2496ED" },
+  { src: "/logo-laravel.svg",    alt: "Laravel",     colorSrc: "/color/logo-laravel.svg",    color: "#FF2D20" },
+  { src: "/logo-mysql.svg",      alt: "MySQL",       colorSrc: "/color/logo-mysql.svg",      color: "#00758F" },
+  { src: "/logo-php.svg",        alt: "PHP",         colorSrc: "/color/logo-php.svg",        color: "#777BB4" },
+  { src: "/logo-css3.svg",       alt: "CSS3",        colorSrc: "/color/logo-css3.svg",       color: "#1572B6" },
+  // { src : "" , alt:"null" } // placeholder to make the loop smoother, it will be hidden with css
+
 ];
 
 

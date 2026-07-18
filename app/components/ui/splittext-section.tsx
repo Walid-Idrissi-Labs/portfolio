@@ -1,19 +1,14 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from 'react';
 import SplitText from './splittext-bit';
 
-
-
-
+const HEADLINE_CLASSES =
+    "text-center text-[2.1rem] text-beige_bright md:text-[4.7rem] lg:text-[5.5rem] xl:text-[6.7rem] font-unbounded opacity-90";
 
 export default function SplitTextSection() {
-
-    const [tailwind , setTailwind] = useState("text-center text-[2.1rem] text-beige_bright  md:text-[4.7rem] lg:text-[5.5rem] xl:text-[6.7rem] font-unbounded   opacity-90")
-
-    return (   
+    return (
         <SplitText
-            className={tailwind}
+            className={HEADLINE_CLASSES}
             delay={140}
             duration={5}
             ease="power3.out"
@@ -24,14 +19,11 @@ export default function SplitTextSection() {
             rootMargin="-100px"
             tag="div"
             textAlign="center"
-            onLetterAnimationComplete={() => null}
         >
             <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2">
                 <span className="whitespace-nowrap">Shaping What </span>
                 <span className="whitespace-nowrap font-ibm italic text-slate">Comes Next.</span>
             </div>
         </SplitText>
-
-    )
-
+    );
 }

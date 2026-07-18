@@ -1,6 +1,4 @@
-"use client"; 
-import { useState, useCallback, useEffect, useRef, ReactNode } from 'react';
-import { motion, useMotionValue, useAnimationFrame, useTransform } from 'motion/react';
+import { ReactNode } from 'react';
 
 interface GradientTextProps {
   children: ReactNode;
@@ -9,10 +7,13 @@ interface GradientTextProps {
   animationSpeed?: number;
   showBorder?: boolean;
   direction?: 'horizontal' | 'vertical' | 'diagonal';
-  pauseOnHover?: boolean;
-  yoyo?: boolean;
 }
 
+// Renders animated gradient text with a pure CSS animation (keyframes in
+// globals.css) instead of a per-frame JS loop, so it ships no client JS and
+// costs nothing when offscreen. The gradient pans one full period (150% of
+// background-position) per 1.5 * animationSpeed seconds, matching the original
+// JS timing of 100% per animationSpeed seconds.
 export default function GradientText({
   children,
   className = '',
@@ -20,92 +21,25 @@ export default function GradientText({
   animationSpeed = 8,
   showBorder = false,
   direction = 'horizontal',
-  pauseOnHover = false,
-  yoyo = false,
 }: GradientTextProps) {
-  const [isPaused, setIsPaused] = useState(false);
-  const progress = useMotionValue(0);
-  const elapsedRef = useRef(0);
-  const lastTimeRef = useRef<number | null>(null);
-
-  const animationDuration = animationSpeed * 1000;
-
-  useAnimationFrame(time => {
-    if (isPaused) {
-      lastTimeRef.current = null;
-      return;
-    }
-
-    if (lastTimeRef.current === null) {
-      lastTimeRef.current = time;
-      return;
-    }
-
-    const deltaTime = time - lastTimeRef.current;
-    lastTimeRef.current = time;
-    elapsedRef.current += deltaTime;
-
-    if (yoyo) {
-      const fullCycle = animationDuration * 2;
-      const cycleTime = elapsedRef.current % fullCycle;
-
-      if (cycleTime < animationDuration) {
-        progress.set((cycleTime / animationDuration) * 100);
-      } else {
-        progress.set(100 - ((cycleTime - animationDuration) / animationDuration) * 100);
-      }
-    } else {
-      // Continuously increase position for seamless looping
-      progress.set((elapsedRef.current / animationDuration) * 100);
-    }
-  });
-
-  useEffect(() => {
-    elapsedRef.current = 0;
-    progress.set(0);
-  }, [animationSpeed, yoyo]);
-
-  const backgroundPosition = useTransform(progress, p => {
-    if (direction === 'horizontal') {
-      return `${p}% 50%`;
-    } else if (direction === 'vertical') {
-      return `50% ${p}%`;
-    } else {
-      // For diagonal, move only horizontally to avoid interference patterns
-      return `${p}% 50%`;
-    }
-  });
-
-  const handleMouseEnter = useCallback(() => {
-    if (pauseOnHover) setIsPaused(true);
-  }, [pauseOnHover]);
-
-  const handleMouseLeave = useCallback(() => {
-    if (pauseOnHover) setIsPaused(false);
-  }, [pauseOnHover]);
-
   const gradientAngle =
     direction === 'horizontal' ? 'to right' : direction === 'vertical' ? 'to bottom' : 'to bottom right';
   // Duplicate first color at the end for seamless looping
   const gradientColors = [...colors, colors[0]].join(', ');
 
-  const gradientStyle = {
+  const gradientStyle: React.CSSProperties = {
     backgroundImage: `linear-gradient(${gradientAngle}, ${gradientColors})`,
     backgroundSize: direction === 'horizontal' ? '300% 100%' : direction === 'vertical' ? '100% 300%' : '300% 300%',
-    backgroundRepeat: 'repeat'
+    backgroundRepeat: 'repeat',
+    animation: `${direction === 'vertical' ? 'gradient-pan-y' : 'gradient-pan-x'} ${animationSpeed * 3}s linear infinite`,
   };
 
   return (
-    <motion.div
-      className={`relative flex  flex-row items-center justify-center rounded-[1.25rem] font-medium backdrop-blur transition-shadow duration-500 overflow-hidden cursor-pointer ${showBorder ? 'py-1 px-2' : ''} ${className}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <div
+      className={`relative flex flex-row items-center justify-center rounded-[1.25rem] font-medium backdrop-blur transition-shadow duration-500 overflow-hidden cursor-pointer ${showBorder ? 'py-1 px-2' : ''} ${className}`}
     >
       {showBorder && (
-        <motion.div
-          className="absolute inset-0 z-0 pointer-events-none rounded-[1.25rem]"
-          style={{ ...gradientStyle, backgroundPosition }}
-        >
+        <div className="absolute inset-0 z-0 pointer-events-none rounded-[1.25rem]" style={gradientStyle}>
           <div
             className="absolute bg-black rounded-[1.25rem] z-[-1]"
             style={{
@@ -116,14 +50,14 @@ export default function GradientText({
               transform: 'translate(-50%, -50%)'
             }}
           />
-        </motion.div>
+        </div>
       )}
-      <motion.div
+      <div
         className="inline-block relative z-2 text-transparent bg-clip-text"
-        style={{ ...gradientStyle, backgroundPosition, WebkitBackgroundClip: 'text' }}
+        style={{ ...gradientStyle, WebkitBackgroundClip: 'text' }}
       >
         {children}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

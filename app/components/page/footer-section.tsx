@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { FacebookIcon, FileIcon, FrameIcon, GithubIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from 'lucide-react';
+import { FileIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
 
 import {RevealLinks} from "../ui/reveallinks-bit"
 import { AnimatedContainer } from '../utilities/animated-container';

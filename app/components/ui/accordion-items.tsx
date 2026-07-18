@@ -77,8 +77,8 @@ export function AccordionSection() {
       <Accordion type="single" collapsible className="">
         {items.map((item) => (
           <AccordionItem value={item.id} key={item.id} className="last:border-b">
-            <AccordionTrigger className="cursor-pointer overflow-hidden pl-6 text-left duration-200 hover:no-underline -space-y-5 data-[state=open]:space-y-0 md:pl-14 [&>svg]:hidden [&_h1]:text-[#d9d9d9] [&_h1]:transition-colors [&_h1]:duration-200 [&_p]:text-[#d9d9d9] [&_p]:transition-colors [&_p]:duration-200 data-[state=open]:[&_h1]:text-beige_bright data-[state=open]:[&_p]:text-beige_bright/90">
-              <div className="flex flex-1 items-start gap-3 md:gap-5">
+            <AccordionTrigger className="cursor-pointer overflow-hidden pl-6 text-left duration-300 ease-in-out hover:no-underline -space-y-5 data-[state=open]:space-y-0 md:pl-14 [&>svg]:hidden [&_h1]:text-[#d9d9d9] [&_h1]:transition-colors [&_h1]:duration-200 [&_p]:text-[#d9d9d9] [&_p]:transition-colors [&_p]:duration-200 data-[state=open]:[&_h1]:text-beige_bright data-[state=open]:[&_p]:text-beige_bright/90">
+              <div className="flex flex-1 items-start gap-3 transition-[margin-block-start,margin-block-end] duration-300 ease-in-out md:gap-5">
                 <p className="pt-1 text-sm md:text-base lg:text-lg">{item.id}</p>
                 <h1
                   className="relative min-w-0 text-left text-[1.7rem] uppercase font-unbounded font-medium leading-none wrap-break-word sm:text-[2.15rem] md:text-5xl md:font-bold lg:text-[4.2rem]"

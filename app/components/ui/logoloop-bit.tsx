@@ -17,6 +17,10 @@ export type LogoItem =
       sizes?: string;
       width?: number;
       height?: number;
+      /** exact-geometry recolored twin, revealed on click */
+      colorSrc?: string;
+      /** brand color used for the glow during the click flash */
+      color?: string;
     };
 
 export interface LogoLoopProps {
@@ -123,7 +127,8 @@ const useAnimationLoop = (
   seqHeight: number,
   isHovered: boolean,
   hoverSpeed: number | undefined,
-  isVertical: boolean
+  isVertical: boolean,
+  paused: boolean
 ) => {
   const rafRef = useRef<number | null>(null);
   const lastTimestampRef = useRef<number | null>(null);
@@ -150,7 +155,14 @@ const useAnimationLoop = (
     }
 
     if (prefersReduced) {
-      track.style.transform = isVertical ? 'translate3d(0, 0, 0)' : 'translate3d(0, 0, 0)';
+      track.style.transform = 'translate3d(0, 0, 0)';
+      return () => {
+        lastTimestampRef.current = null;
+      };
+    }
+
+    // Offscreen: keep the current offset applied but don't run the loop.
+    if (paused) {
       return () => {
         lastTimestampRef.current = null;
       };
@@ -192,7 +204,103 @@ const useAnimationLoop = (
       }
       lastTimestampRef.current = null;
     };
-  }, [targetVelocity, seqWidth, seqHeight, isHovered, hoverSpeed, isVertical]);
+  }, [targetVelocity, seqWidth, seqHeight, isHovered, hoverSpeed, isVertical, paused]);
+};
+
+type InteractiveLogoItem = {
+  src: string;
+  colorSrc?: string;
+  color?: string;
+  alt?: string;
+  title?: string;
+  srcSet?: string;
+  sizes?: string;
+  width?: number;
+  height?: number;
+};
+
+// Renders the gray logo with its recolored twin stacked on top. A click (or
+// Enter/Space) momentarily reveals the real brand colors — the twin pops + glows
+// in, holds, then eases back to gray on its own.
+const InteractiveLogo: React.FC<{ item: InteractiveLogoItem; scaleOnHover: boolean }> = ({
+  item,
+  scaleOnHover
+}) => {
+  const [active, setActive] = useState(false);
+  const timeoutRef = useRef<number | null>(null);
+
+  const flash = useCallback(() => {
+    setActive(true);
+    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => setActive(false), 1300);
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    },
+    []
+  );
+
+  const imgShared =
+    'block object-contain [image-rendering:-webkit-optimize-contrast] [-webkit-user-drag:none]';
+
+  return (
+    <span
+      role="button"
+      tabIndex={0}
+      aria-label={item.alt ?? item.title}
+      onClick={flash}
+      onKeyDown={event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          flash();
+        }
+      }}
+      style={{ ['--logo-color' as string]: item.color ?? '#ffffff' } as React.CSSProperties}
+      className={cx(
+        'relative inline-flex items-center cursor-pointer outline-none',
+        'focus-visible:outline focus-visible:outline-current focus-visible:outline-offset-2',
+        'motion-reduce:transition-none',
+        scaleOnHover && 'transition-transform duration-300 ease-in-out group-hover/item:scale-120'
+      )}
+    >
+      {/* gray base — fades out while the color flash is showing */}
+      <img
+        className={cx(
+          imgShared,
+          'h-(--logoloop-logoHeight) w-auto pointer-events-none',
+          'transition-opacity duration-500 ease-out motion-reduce:transition-none',
+          active ? 'opacity-0' : 'opacity-100'
+        )}
+        src={item.src}
+        srcSet={item.srcSet}
+        sizes={item.sizes}
+        width={item.width}
+        height={item.height}
+        alt={item.alt ?? ''}
+        title={item.title}
+        loading="lazy"
+        decoding="async"
+        draggable={false}
+      />
+      {/* recolored twin — same geometry, absolutely stacked so there's no layout shift */}
+      <img
+        aria-hidden
+        className={cx(
+          imgShared,
+          'absolute inset-0 h-full w-full pointer-events-none',
+          'transition-opacity duration-300 ease-out motion-reduce:transition-none',
+          active ? 'opacity-100 logo-flash' : 'opacity-0'
+        )}
+        src={item.colorSrc}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        draggable={false}
+      />
+    </span>
+  );
 };
 
 export const LogoLoop = React.memo<LogoLoopProps>(
@@ -221,6 +329,16 @@ export const LogoLoop = React.memo<LogoLoopProps>(
     const [seqHeight, setSeqHeight] = useState<number>(0);
     const [copyCount, setCopyCount] = useState<number>(ANIMATION_CONFIG.MIN_COPIES);
     const [isHovered, setIsHovered] = useState<boolean>(false);
+    const [inView, setInView] = useState<boolean>(true);
+
+    // Pause the marquee entirely while it's scrolled out of the viewport.
+    useEffect(() => {
+      const container = containerRef.current;
+      if (!container) return;
+      const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
+      observer.observe(container);
+      return () => observer.disconnect();
+    }, []);
 
     const effectiveHoverSpeed = useMemo(() => {
       if (hoverSpeed !== undefined) return hoverSpeed;
@@ -272,7 +390,7 @@ export const LogoLoop = React.memo<LogoLoopProps>(
 
     useImageLoader(seqRef, updateDimensions, [logos, gap, logoHeight, isVertical]);
 
-    useAnimationLoop(trackRef, targetVelocity, seqWidth, seqHeight, isHovered, effectiveHoverSpeed, isVertical);
+    useAnimationLoop(trackRef, targetVelocity, seqWidth, seqHeight, isHovered, effectiveHoverSpeed, isVertical, !inView);
 
     const cssVariables = useMemo(
       () =>
@@ -337,6 +455,8 @@ export const LogoLoop = React.memo<LogoLoopProps>(
           >
             {(item as any).node}
           </span>
+        ) : (item as any).colorSrc ? (
+          <InteractiveLogo item={item as InteractiveLogoItem} scaleOnHover={scaleOnHover} />
         ) : (
           <img
             className={cx(

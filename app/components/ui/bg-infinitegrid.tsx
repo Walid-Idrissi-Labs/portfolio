@@ -1,20 +1,25 @@
-import React, { useState, useRef, useEffect } from "react";
+"use client";
+
+import { useRef, useEffect } from "react";
 import { cn } from "../../lib/utils";
-import { 
-  motion, 
-  useMotionValue, 
-  useTransform, 
-  useMotionTemplate, 
-  useAnimationFrame 
-} from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useMotionTemplate,
+  useAnimationFrame,
+  type MotionValue,
+} from "motion/react";
 
 type InfiniteGridProps = {
   className?: string;
-  backgroundOnly?: boolean;
 };
 
-export const InfiniteGrid = ({ className, backgroundOnly = false }: InfiniteGridProps) => {
-  const [count, setCount] = useState(0);
+// Grid drift speed in px/s (equivalent to the original 0.5px per frame at 60fps,
+// but consistent on every refresh rate).
+const GRID_SPEED = 30;
+const GRID_SIZE = 40;
+
+export const InfiniteGrid = ({ className }: InfiniteGridProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const mouseX = useMotionValue(0);
@@ -50,15 +55,18 @@ export const InfiniteGrid = ({ className, backgroundOnly = false }: InfiniteGrid
 
   const gridOffsetX = useMotionValue(0);
   const gridOffsetY = useMotionValue(0);
+  const lastTime = useRef<number | null>(null);
 
-  const speedX = 0.5; 
-  const speedY = 0.5;
-
-  useAnimationFrame(() => {
-    const currentX = gridOffsetX.get();
-    const currentY = gridOffsetY.get();
-    gridOffsetX.set((currentX + speedX) % 40);
-    gridOffsetY.set((currentY + speedY) % 40);
+  useAnimationFrame((time) => {
+    if (lastTime.current === null) {
+      lastTime.current = time;
+      return;
+    }
+    const delta = (time - lastTime.current) / 1000;
+    lastTime.current = time;
+    const step = GRID_SPEED * delta;
+    gridOffsetX.set((gridOffsetX.get() + step) % GRID_SIZE);
+    gridOffsetY.set((gridOffsetY.get() + step) % GRID_SIZE);
   });
 
   const maskImage = useMotionTemplate`radial-gradient(300px circle at ${mouseX}px ${mouseY}px, black, transparent)`;
@@ -67,76 +75,47 @@ export const InfiniteGrid = ({ className, backgroundOnly = false }: InfiniteGrid
     <div
       ref={containerRef}
       className={cn(
-        "relative w-full h-screen flex flex-col items-center justify-center overflow-hidden",
-        backgroundOnly ? "bg-black" : "bg-background",
+        "relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-black",
         className
       )}
     >
-      <div className={cn("absolute inset-0 z-0", backgroundOnly ? "opacity-[0.1]" : "opacity-[0.05]")}>
+      <div className="absolute inset-0 z-0 opacity-[0.1]">
         <GridPattern offsetX={gridOffsetX} offsetY={gridOffsetY} />
       </div>
-      <motion.div 
-        className={cn("absolute inset-0 z-0", backgroundOnly ? "opacity-40" : "opacity-40")}
+      <motion.div
+        className="absolute inset-0 z-0 opacity-40"
         style={{ maskImage, WebkitMaskImage: maskImage }}
       >
         <GridPattern offsetX={gridOffsetX} offsetY={gridOffsetY} />
       </motion.div>
 
       <div className="absolute inset-0 pointer-events-none z-0">
-        <div className={cn("absolute right-[-20%] top-[-20%] w-[40%] h-[40%] rounded-full blur-[120px]", backgroundOnly ? "bg-beige_bright/18" : "bg-beige_bright/40")} />
-        <div className={cn("absolute right-[10%] top-[-10%] w-[20%] h-[20%] rounded-full blur-[100px]", backgroundOnly ? "bg-primary/14" : "bg-primary/30")} />
-        <div className={cn("absolute left-[-10%] bottom-[-20%] w-[40%] h-[40%] rounded-full blur-[120px]", backgroundOnly ? "bg-slate/18" : "bg-slate/40")} />
+        <div className="absolute right-[-20%] top-[-20%] w-[40%] h-[40%] rounded-full blur-[120px] bg-beige_bright/18" />
+        <div className="absolute right-[10%] top-[-10%] w-[20%] h-[20%] rounded-full blur-[100px] bg-primary/14" />
+        <div className="absolute left-[-10%] bottom-[-20%] w-[40%] h-[40%] rounded-full blur-[120px] bg-slate/18" />
       </div>
-
-      {!backgroundOnly && (
-      <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-3xl mx-auto space-y-6 pointer-events-none">
-         <div className="space-y-2">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-foreground drop-shadow-sm">
-            The Infinite Grid
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground">
-            Move your cursor to reveal the active grid layer. <br/>
-            The pattern scrolls infinitely in the background.
-          </p>
-        </div>
-        
-        <div className="flex gap-4 pointer-events-auto">
-          <button 
-              onClick={() => setCount(count + 1)}
-              className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-md hover:bg-primary/90 transition-all shadow-md active:scale-95"
-          >
-              Interact ({count})
-          </button>
-          <button 
-              className="px-8 py-3 bg-secondary text-secondary-foreground font-semibold rounded-md hover:bg-secondary/80 transition-all active:scale-95"
-          >
-              Learn More
-          </button>
-        </div>
-      </div>
-      )}
     </div>
   );
 };
 
-const GridPattern = ({ offsetX, offsetY }: { offsetX: any, offsetY: any }) => {
+const GridPattern = ({ offsetX, offsetY }: { offsetX: MotionValue<number>; offsetY: MotionValue<number> }) => {
   return (
     <svg className="w-full h-full">
       <defs>
         <motion.pattern
           id="grid-pattern"
-          width="40"
-          height="40"
+          width={GRID_SIZE}
+          height={GRID_SIZE}
           patternUnits="userSpaceOnUse"
           x={offsetX}
           y={offsetY}
         >
           <path
-            d="M 40 0 L 0 0 0 40"
+            d={`M ${GRID_SIZE} 0 L 0 0 0 ${GRID_SIZE}`}
             fill="none"
             stroke="currentColor"
             strokeWidth="1"
-            className="text-muted-foreground" 
+            className="text-muted-foreground"
           />
         </motion.pattern>
       </defs>

@@ -2,17 +2,17 @@
 
 import * as React from "react"
  
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { useRef } from "react";
- 
+
 export interface MagicTextProps {
   text: string;
   lineBreakSpacing?: number;
 }
- 
+
 interface WordProps {
   children: string;
-  progress: any;
+  progress: MotionValue<number>;
   range: number[];
 }
 

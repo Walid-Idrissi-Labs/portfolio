@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { useAnimate } from "framer-motion";
+import { useAnimate } from "motion/react";
 
 type LogoItem = {
   src: string;
@@ -163,6 +163,8 @@ const LinkBoxContent = ({
       <img
         src={imgSrc}
         alt={imgAlt}
+        loading="lazy"
+        decoding="async"
         className={`${className ?? "max-h-10 max-w-[calc(100%-1.5rem)] object-contain sm:max-h-16 md:max-h-20"} ${imageClassName ?? ""}`}
       />
     </>

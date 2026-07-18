@@ -3,24 +3,16 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "../../lib/utils";
 import { Button } from "../utilities/button"
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "../utilities/field"
+import { Field, FieldLabel } from "../utilities/field"
 import { Alert, AlertDescription, AlertTitle } from "../utilities/alert"
 import { CheckCircle2Icon, HomeIcon } from "lucide-react"
 import { Input } from "../utilities/input"
 import { Label } from "../utilities/label";
-import { Bot } from "lucide-react";
 import { Textarea } from "../utilities/textarea"
 import { SendButton } from "../ui/stateful-button";
 import FadeContent from "./fadeanimation";
 
-import { Spotlight } from "../ui/spotlightbg";
-import {InfiniteGrid} from "../ui/bg-infinitegrid";
+import { InfiniteGrid } from "../ui/bg-infinitegrid";
 
 export function SignupForm() {
   const router = useRouter();
@@ -33,7 +25,6 @@ export function SignupForm() {
   });
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [showFollowup, setShowFollowup] = React.useState(false);
-  const [showError, setShowError] = React.useState(false);
   const hideTimerRef = React.useRef<number | null>(null);
   
   const handleChange = (
@@ -45,10 +36,9 @@ export function SignupForm() {
     });
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const sendMessage = async (): Promise<boolean> => {
     setShowFollowup(false);
-  
+
     const res = await fetch("/api/send", {
       method: "POST",
       headers: {
@@ -56,27 +46,14 @@ export function SignupForm() {
       },
       body: JSON.stringify(form),
     });
-  
-    const data = await res.json();
+
     setShowSuccess(res.ok);
-    setShowError(!res.ok);
+    return res.ok;
   };
 
-  const submitAction = async (): Promise<boolean> => {
-    setShowFollowup(false);
-    const res = await fetch("/api/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
-
-    const data = await res.json();
-
-    setShowSuccess(res.ok);
-
-    return res.ok;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await sendMessage();
   };
 
   React.useEffect(() => {
@@ -100,27 +77,13 @@ export function SignupForm() {
 
   return (
     <>
-      {/* Full-page background with gradient blinds */}
+      {/* Infinite grid background layer */}
+      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
+        <InfiniteGrid className="h-full w-full pointer-events-none" />
+      </div>
 
-              {/* Infinite grid background layer */}
-              <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-                <InfiniteGrid
-                  backgroundOnly
-                  className="h-full w-full pointer-events-none"
-                />
-              </div>
-
-
-                {/* SUCCESS ALERT */}
-      {/* <div
-        className={cn(
-          "fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-full bg-green-500 px-5 py-2 text-sm font-medium text-white shadow-lg transition-all duration-700",
-          showSuccess ? "translate-y-0 opacity-100" : "-translate-y-6 opacity-0 pointer-events-none",
-        )}
-      >
-        Message sent successfully! I will get back to you as soon as possible.
-      </div> */}
-       <div
+      {/* SUCCESS ALERT */}
+      <div
         className={cn(
           "fixed left-1/2 top-4 z-50 -translate-x-1/2  transition-all duration-700 text-md md:text-lg lg:text-xl",
             showSuccess ? "translate-y-0 opacity-100" : "-translate-y-6 opacity-0 pointer-events-none",
@@ -170,7 +133,7 @@ export function SignupForm() {
             Contact Me
           </h2>
           <p className="mt-2 max-w-sm text-sm text-neutral-600 ">
-            Send me a message and I'll get back to you as soon as possible.
+            Send me a message and I&apos;ll get back to you as soon as possible.
           </p>
 
           <form className="mt-8" onSubmit={handleSubmit}>
@@ -202,7 +165,7 @@ export function SignupForm() {
 
 
             <div className="flex m-0.1 mt-3 w-full items-center justify-center">
-              <SendButton onAction={submitAction} type="button">Send message</SendButton>
+              <SendButton onAction={sendMessage} type="button">Send message</SendButton>
             </div>
 
 

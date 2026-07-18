@@ -1,39 +1,18 @@
-/* @import "tailwindcss/theme.css";
-@import "tailwindcss/utilities.css";
- */
 @config "../tailwind.config.ts";
 @import "tailwindcss";
 
-
-
 html, body {
-  margin:0;
+  margin: 0;
   width: 100%;
   max-width: 100%;
   overflow-x: clip;
+  background: #000;
+  color: #fff;
 }
-
-
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
-
-/* :root{
-  --font-mono : var(--font-ibm);
-  --font-unbounded : var(--font-unbounded);
-} */
-
-
-/* @media (prefers-color-scheme: dark) { */
-  html, body {
-    background: #000;
-    color : #fff;
-  }
-/* } */
-
-
 
 @media (prefers-reduced-motion: no-preference) {
   html {
@@ -41,46 +20,65 @@ html, body {
   }
 }
 
-
-
-/* @custom-variant dark (&:where(.dark, .dark *)); */
-
-
-@keyframes spotlight {
-  0% {
-    opacity: 0;
-    transform: translate(-72%, -62%) scale(0.5);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -40%) scale(1);
-  }
+/* Gradient pan for GradientText: 300% of background-position = two full
+   periods of the repeating gradient, so the loop is seamless. */
+@keyframes gradient-pan-x {
+  from { background-position: 0% 50%; }
+  to { background-position: 300% 50%; }
 }
 
+@keyframes gradient-pan-y {
+  from { background-position: 50% 0%; }
+  to { background-position: 50% 300%; }
+}
+
+/* The panel only animates height; the text inside gets its own fade +
+   drift (accordion-text-*) so it stays visually anchored instead of being
+   dragged by the collapsing container. Durations must stay in sync with
+   the trigger's spacing transition (duration-300 in accordion-items.tsx). */
 @keyframes accordion-down {
   from {
     height: 0;
-    opacity: 0;
   }
   to {
     height: var(--radix-accordion-content-height);
-    opacity: 1;
   }
 }
 
 @keyframes accordion-up {
   from {
     height: var(--radix-accordion-content-height);
-    opacity: 1;
   }
   to {
     height: 0;
-    opacity: 0;
   }
 }
 
+@keyframes accordion-text-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  35% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-@import "tailwindcss";
+@keyframes accordion-text-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
 
 @theme inline {
   --shadow-input:
@@ -88,8 +86,38 @@ html, body {
     0px 1px 0px 0px rgba(25, 28, 33, 0.02),
     0px 0px 0px 1px rgba(25, 28, 33, 0.08);
 
-    --animate-spotlight: spotlight 2s ease 0.75s 1 forwards;
-    --animate-accordion-down: accordion-down 0.24s ease-out;
-    --animate-accordion-up: accordion-up 0.2s ease-in;
+  --animate-accordion-down: accordion-down 0.3s ease-out;
+  --animate-accordion-up: accordion-up 0.3s ease-in-out;
+  --animate-accordion-text-in: accordion-text-in 0.3s ease-out;
+  --animate-accordion-text-out: accordion-text-out 0.22s ease-out forwards;
 }
 
+/* logo-loop: the recolored twin "pops" in with a springy scale + brand glow
+   when its logo is clicked. --logo-color is set per logo inline. */
+@keyframes logo-flash {
+  0% {
+    transform: scale(0.82);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  40% {
+    transform: scale(1.16);
+    filter: drop-shadow(0 0 16px var(--logo-color, #fff));
+  }
+  65% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 5px var(--logo-color, #fff));
+  }
+}
+
+.logo-flash {
+  animation: logo-flash 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-flash {
+    animation: none;
+  }
+}

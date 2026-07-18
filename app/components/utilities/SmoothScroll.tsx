@@ -5,18 +5,10 @@ import Lenis from 'lenis';
 
 export default function SmoothScroll() {
   useEffect(() => {
-    const lenis = new Lenis();
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
+    // autoRaf lets Lenis own its animation-frame loop and cancel it on
+    // destroy(), instead of a hand-rolled loop that never got cancelled.
+    const lenis = new Lenis({ autoRaf: true });
+    return () => lenis.destroy();
   }, []);
 
   return null;

@@ -1,20 +1,16 @@
 "use client";
 
- 
-
-import { Box, Lock, Search, Settings, Sparkles , CircleQuestionMark , Construction , Cloud , Terminal} from "lucide-react";
+import Image from "next/image";
+import { Construction, Cloud, Terminal } from "lucide-react";
 
 import { GlowingEffect } from "../ui/glowingeffectgrid-bit";
-
 import { AnimatedContainer } from "../utilities/animated-container";
 
-import tailwindConfig from "@/tailwind.config";
 const url_shortener = "/project-url-shortener.png";
-const tascii = "/project-tascii.png"
+const tascii = "/project-tascii.png";
 
- 
 export default function GlowingEffectSection() {
-return (
+  return (
     <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-136 xl:grid-rows-2">
       <GridItem
         area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
@@ -26,7 +22,6 @@ return (
         duration={1.8}
         delay={0.25}
       />
- 
 
       <GridItem
         area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
@@ -49,7 +44,6 @@ return (
         delay={1.5}
       />
 
-
       <GridItem
         area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
         icon={<Construction className="h-4 w-4 text-faint_white" />}
@@ -59,7 +53,6 @@ return (
         duration={1.8}
         delay={2}
       />
-        
 
       <GridItem
         area="md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]"
@@ -70,22 +63,21 @@ return (
         duration={1.8}
         delay={2.5}
       />
-
     </ul>
   );
 }
- 
+
 interface GridItemProps {
   area: string;
   icon: React.ReactNode;
   title: string;
   description: React.ReactNode;
   href: string;
-  backgroundImage?: string; 
+  backgroundImage?: string;
   delay?: number;
   duration?: number;
 }
- 
+
 const GridItem = ({
   area,
   icon,
@@ -116,149 +108,39 @@ const GridItem = ({
             movementDuration={3}
           />
           <div className="border-0.75 relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl p-6 md:p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]">
+            {/* Background image layer — sits behind everything; the dark
+                overlay fades out on hover to reveal it. */}
+            {backgroundImage && (
+              <>
+                <Image
+                  src={backgroundImage}
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                  sizes="(max-width: 768px) 90vw, (max-width: 1280px) 45vw, 35vw"
+                  className="object-cover object-center transition-opacity duration-500"
+                />
+                <div className="absolute inset-0 bg-black/80 transition-opacity duration-500 group-hover:opacity-0" />
+              </>
+            )}
 
-          {/* Background image layer — sits behind everything */}
-          {backgroundImage && (
-            <>
-              {/*
-                The image itself: 
-                - absolute + inset-0 fills the card
-                - object-cover prevents stretching (crops to fill, like background-size: cover)
-                - w-full h-full ensures it spans the container
-                - transition-opacity so the reveal is smooth
-              */}
-              <img
-                src={backgroundImage}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500"
-              />
-
-              {/*
-                Dark overlay:
-                - Starts nearly opaque (bg-black/80) — image is barely visible
-                - On group hover, fades to transparent (group-hover:opacity-0)
-                - This sits on top of the image but below the content
-                - transition makes the reveal smooth
-              */}
-              <div className="absolute inset-0 bg-black/80 transition-opacity duration-500 group-hover:opacity-0" />
-            </>
-          )}
-
-          {/* Card content — z-10 ensures it always sits above the image and overlay */}
-          <div className="relative z-10 flex flex-1 flex-col justify-between gap-3">
-            <div className="w-fit rounded-lg border border-gray-600 p-2 bg-black/30 backdrop-blur-sm">
-              {icon}
-            </div>
-            <div className="space-y-3">
-              <h3 className="-tracking-4 pt-0.5 font-sans text-xl/[1.375rem] font-semibold text-balance md:text-2xl/[1.875rem] text-faint_white">
-                {title}
-              </h3>
-              <h2 className="font-sans text-sm/[1.125rem] md:text-base/[1.375rem] text-faint_white [&_b]:md:font-semibold [&_strong]:md:font-semibold">
-                {description}
-              </h2>
+            {/* Card content — z-10 ensures it always sits above the image and overlay */}
+            <div className="relative z-10 flex flex-1 flex-col justify-between gap-3">
+              <div className="w-fit rounded-lg border border-gray-600 p-2 bg-black/30 backdrop-blur-sm">
+                {icon}
+              </div>
+              <div className="space-y-3">
+                <h3 className="-tracking-4 pt-0.5 font-sans text-xl/[1.375rem] font-semibold text-balance md:text-2xl/[1.875rem] text-faint_white">
+                  {title}
+                </h3>
+                <h2 className="font-sans text-sm/[1.125rem] md:text-base/[1.375rem] text-faint_white [&_b]:md:font-semibold [&_strong]:md:font-semibold">
+                  {description}
+                </h2>
+              </div>
             </div>
           </div>
-          </div>
-      </a>
-        </AnimatedContainer>
+        </a>
+      </AnimatedContainer>
     </li>
   );
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //   return (
-//     <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-136 xl:grid-rows-2">
-//       <GridItem
-//         area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
-//         icon={<Box className="h-4 w-4 text-faint_white" />}
-//         title="Do things the right way"
-//         description="Running out of copy so I'll write anything."
-//       />
- 
-//       <GridItem
-//         area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
-//         icon={<Settings className="h-4 w-4 text-faint_white" />}
-//         title="The best AI code editor ever."
-//         description="Yes, it's true. I'm not even kidding. Ask my mom if you don't believe me."
-//       />
- 
-//       <GridItem
-//         area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
-//         icon={<Lock className="h-4 w-4 text-faint_white" />}
-//         title="You should buy Aceternity UI Pro"
-//         description="It's the best money you'll ever spend"
-//       />
- 
-//       <GridItem
-//         area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
-//         icon={<Sparkles className="h-4 w-4 text-faint_white" />}
-//         title="This card is also built by Cursor"
-//         description="I'm not even kidding. Ask my mom if you don't believe me."
-//       />
- 
-//       <GridItem
-//         area="md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]"
-//         icon={<Search className="h-4 w-4 text-faint_white" />}
-//         title="Coming soon on Aceternity UI"
-//         description="I'm writing the code as I record this, no shit."
-//       />
-//     </ul>
-//   );
-// }
- 
-// interface GridItemProps {
-//   area: string;
-//   icon: React.ReactNode;
-//   title: string;
-//   description: React.ReactNode;
-// }
- 
-// const GridItem = ({ area, icon, title, description }: GridItemProps) => {
-//   return (
-//     <li className={` min-h-56 list-none ${area}`}>
-//       <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
-//         <GlowingEffect
-//           blur={0.9}
-//           borderWidth={1.5}
-//           spread={0.1}
-//           glow={true}
-//           disabled={false}
-//           proximity={15}
-//           inactiveZone={0.1}
-//         />
-//         <div className="border-0.75 relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl p-6 md:p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]">
-//           <div className="relative flex flex-1 flex-col justify-between gap-3">
-//             <div className="w-fit rounded-lg border border-gray-600 p-2">
-//               {icon}
-//             </div>
-//             <div className="space-y-3">
-//               <h3 className="-tracking-4 pt-0.5 font-sans text-xl/[1.375rem] font-semibold text-balance text- md:text-2xl/[1.875rem] dark:text-white">
-//                 {title}
-//               </h3>
-//               <h2 className="font-sans text-sm/[1.125rem] text-black md:text-base/[1.375rem] dark:text-neutral-400 [&_b]:md:font-semibold [&_strong]:md:font-semibold">
-//                 {description}
-//               </h2>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </li>
-//   );
-// };

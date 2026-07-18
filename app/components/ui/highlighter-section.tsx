@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { cn } from "../../lib/utils";
 import { DIcons } from "dicons";
-import { useAnimate } from "framer-motion";
+import { useAnimate, useInView, type AnimationPlaybackControls } from "motion/react";
 import { Github  , File} from "lucide-react";
 
 import { Button, buttonVariants } from "../utilities/button";
@@ -16,9 +16,11 @@ import { HighlightGroup, Particles } from "./highlighter";
 
 export function HighlighterSection() {
   const [scope, animate] = useAnimate();
+  const controlsRef = React.useRef<AnimationPlaybackControls | null>(null);
+  const inView = useInView(scope);
 
   React.useEffect(() => {
-    animate(
+    controlsRef.current = animate(
       [
         ["#pointer", { left: 200, top: 60 }, { duration: 0 }],
         ["#javascript", { opacity: 1 }, { duration: 0.3 }],
@@ -54,7 +56,19 @@ export function HighlighterSection() {
         repeat: Number.POSITIVE_INFINITY,
       },
     );
+    return () => controlsRef.current?.stop();
   }, [animate]);
+
+  // Pause the looping pointer animation while the card is offscreen.
+  React.useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    if (inView) {
+      controls.play();
+    } else {
+      controls.pause();
+    }
+  }, [inView]);
 
   return (
     <section className="relative mx-auto mb-20 mt-6 w-full max-w-5xl">
@@ -138,7 +152,7 @@ export function HighlighterSection() {
                       </div>
                       <p className="my-1 mb-4 text-slate-400 font-unbounded font-light">
                         Interested in working together, discussing an idea, or
-                        exploring an opportunity? I'd be glad to connect.
+                        exploring an opportunity? I&apos;d be glad to connect.
                       </p>
                       <div className="flex flex-wrap justify-center gap-2">
                         <Link
