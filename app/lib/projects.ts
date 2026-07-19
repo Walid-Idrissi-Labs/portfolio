@@ -226,13 +226,13 @@ export const projects: Project[] = [
   {
     slug: "applyr",
     name: "Applyr",
-    tagline: "A workspace built for hiring momentum — applications, resumes, and follow-ups in one calm hub.",
+    tagline: "A workspace built for hiring momentum,  applications, resumes, and follow-ups in one easy to use app.",
     type: "Full-Stack SaaS",
     year: "2026",
-    status: "completed",
+    status: "in-progress",
     role: "Team of Two",
     icon: "briefcase",
-    heroImage: "/project-applyr.png",
+    heroImage: "/project-applyr-0.png",
     heroImageAlt: "Applyr — job application tracking SaaS",
     seoDescription:
       "Applyr — a job application tracking SaaS with a Laravel API, a React SPA, AI-tailored resumes, and browser extensions that capture listings straight from job boards.",
@@ -241,26 +241,27 @@ export const projects: Project[] = [
       demo: true,
     },
     background: [
-      "Applyr came out of a problem my teammate and I knew personally: the job hunt turns into chaos fast. Spreadsheets, bookmarked listings, five versions of the same resume — we wanted one calm place that holds all of it. So we built it as a real SaaS: a Laravel REST API on one side, a React single-page app on the other, nothing shared between them but a token and a contract.",
-      "The part I'm proudest of is how far we pushed past basic CRUD. Every application moves through a proper pipeline — wishlist to applied to interview to offer — and every status change is logged to its history automatically. Resumes have a master profile that AI tailors per application, with OCR to pull text out of an uploaded PDF and a clean A4 export at the end. We even shipped browser extensions for Chrome and Firefox: they read the job posting you're looking at, extract the company and position with AI, and file the application without you leaving the tab.",
-      "Building it as a duo taught me things solo projects never had to: agreeing on the API before writing either side of it, reviewing each other's assumptions, and keeping fourteen pages of frontend consistent while both of us moved fast. By the end we had auth flows, an admin panel, scheduled reminder emails — the unglamorous plumbing that makes something feel like a product instead of a demo.",
+      "Applyr came out of a problem my classmate and I knew personally, the job hunt thsese days turns quickly into chaos. Spreadsheets, bookmarked listings, five versions of the same resume. The goal was to make a single app that holds all of it. So we built it as a real SaaS: a Laravel REST API for the backend, a React SPA for the frontend, communication between them is done with a token and a contract shared between them, keeping the two apps isolated and secure.",
+      "This app is more than basic CRUD. Every application added moves through a proper pipeline : wishlist to applied to interview to offer, and every status change is logged to its history automatically. Resumes have a master profile that AI tailors per application, with OCR to pull text out of an uploaded PDF and a clean A4 export at the end.",
+      "We also shipped browser extensions for Chrome and Firefox: allowing for quick capture of job listings on the fly and without leaving the tab.",
+      "Building it as a duo taught me things solo projects never had : agreeing on the API before writing either side of it, reviewing each other's assumptions, and keeping fourteen pages of frontend consistent while both of us moved fast, working in git simulatneously and resolving merge conflicts. By the end we had auth flows, an admin panel, scheduled reminder emails.",
     ],
     features: [
       {
         title: "One pipeline, every transition on record",
-        body: "Applications flow from wishlist to accepted through a defined lifecycle, and each status change is written to a history log automatically — the timeline of the hunt writes itself.",
+        body: "Applications flow from wishlist to accepted through a defined coherent lifecycle, and each status change is written to a history log automatically.",
       },
       {
-        title: "Resumes that tailor themselves",
-        body: "A master profile feeds an AI that drafts per-application resume variants. Uploaded PDFs are parsed — with OCR as a fallback — and the result exports as a clean A4 document.",
+        title: "AI Resume tailoring",
+        body: "A master profile feeds an AI that drafts per-application resume variants. Uploaded PDFs are parsed with OCR as a fallback  and the result exports as a clean A4 document.",
       },
       {
-        title: "Capture jobs where they live",
-        body: "Chrome and Firefox extensions send the listing you're viewing to the API, where AI extracts company, position, and language — one click and it's filed in your pipeline.",
+        title: "Capture jobs without leaving the tab",
+        body: "Chrome and Firefox extensions send the listing you're viewing to the API and are directly added to your account.",
       },
       {
-        title: "Two apps, one honest contract",
-        body: "A React SPA talks to a Laravel REST API over Sanctum tokens — 40+ endpoints with form-request validation, API resources, an admin panel, and daily scheduled reminder emails.",
+        title: "Two apps, API Communication",
+        body: "A React SPA talks to a Laravel REST API over Sanctum tokens. 40+ endpoints with form-request validation, API resources, an admin panel, and daily scheduled reminder emails.",
       },
     ],
     stackRows: [
@@ -277,44 +278,82 @@ export const projects: Project[] = [
     ],
     screenshots: [
       {
-        src: "/project-applyr-hero.png",
+        src: "/project-applyr-1.png",
         alt: "Applyr landing page",
-        caption: "the front door — pitch on the left, live pipeline preview on the right",
+        caption: "The landing page, pitching the workspace with a live pipeline preview.",
       },
       {
-        src: "/project-applyr-dashboard.png",
-        alt: "Applyr dashboard with activity and stats",
-        caption: "the dashboard says good morning and keeps the score",
+        src: "/project-applyr-2.png",
+        alt: "Applyr sign-in page",
+        caption: "Signing in to Applyr.",
       },
       {
-        src: "/project-applyr-applications.png",
-        alt: "Applyr applications table",
-        caption: "every application in one honest table — statuses included",
+        src: "/project-applyr-3.png",
+        alt: "Applyr dashboard overview",
+        caption: "The dashboard: recent activity, in-progress applications, and top-level KPIs.",
       },
       {
-        src: "/project-applyr-detail.png",
-        alt: "Applyr application detail view",
-        caption: "one application unpacked: documents, checklist, history, AI actions",
+        src: "/project-applyr-4.png",
+        alt: "Applyr dashboard status breakdown and key indicators",
+        caption: "Further down the dashboard: a status breakdown chart and key indicators.",
       },
       {
-        src: "/project-applyr-resume.png",
-        alt: "Applyr AI resume preview",
-        caption: "the AI tailor at work — version timeline left, fresh A4 right",
+        src: "/project-applyr-5.png",
+        alt: "Applyr applications list",
+        caption: "The full applications list, filterable by status.",
       },
       {
-        src: "/project-applyr-extension.png",
-        alt: "Applyr browser extension capturing a LinkedIn listing",
-        caption: "the extension catching a LinkedIn listing red-handed",
+        src: "/project-applyr-6.png",
+        alt: "Applyr application detail page",
+        caption: "A single application's detail page, with status history and AI actions.",
+      },
+      {
+        src: "/project-applyr-7.png",
+        alt: "Applyr resume workspace",
+        caption: "The resume workspace: a master profile plus tailored drafts per application.",
+      },
+      {
+        src: "/project-applyr-8.png",
+        alt: "Applyr notifications page",
+        caption: "Notifications, logging every status change automatically.",
+      },
+      {
+        src: "/project-applyr-9.png",
+        alt: "Applyr profile page",
+        caption: "The profile page, for account details and password changes.",
+      },
+      {
+        src: "/project-applyr-10.png",
+        alt: "Applyr resume PDF preview with AI refine",
+        caption: "A resume PDF preview, with version history and a Refine with AI action.",
+      },
+      {
+        src: "/project-applyr-11.png",
+        alt: "Applyr dashboard in dark mode",
+        caption: "The dashboard again, this time in dark mode.",
+      },
+      {
+        src: "/project-applyr-12.png",
+        alt: "Applyr browser extension capturing a job listing",
+        caption: "The browser extension, capturing a job listing straight from the job board.",
       },
     ],
   },
+
+
+
+
+
+
+
+
   {
     slug: "sla-monitor",
     name: "SLA Monitor",
-    tagline: "A serverless AWS platform that watches endpoints minute by minute, detects incidents, and grades every week against its SLA.",
+    tagline: "A serverless AWS platform that monitors endpoints minute by minute, detects incidents, and generates weekly SLA reports.",
     type: "Cloud Architecture",
     year: "2026",
-    status: "completed",
+    status: "in-progress",
     role: "Solo Project",
     icon: "activity",
     heroImage: "/project-sla-monitor.png",
@@ -327,26 +366,29 @@ export const projects: Project[] = [
       demo: true,
     },
     background: [
-      "After the URL shortener I wanted the next size up: not a service that answers when called, but a system that runs on its own schedule, around the clock, and holds itself accountable. Uptime monitoring was the perfect excuse — everyone claims 99.9%, so I built the thing that checks.",
-      "The architecture is event-driven end to end. EventBridge wakes a Monitor Lambda every minute to probe each target and log status and latency; an SLA Processor runs hourly to turn consecutive failures into incidents — and to close them when things recover; and every Monday a Report Generator aggregates the week into the full metric suite: uptime, p50/p95/p99 latency, error rate, MTTR, MTBF — judged against each project's own thresholds and emailed out via SES. Five Lambdas in total, and each one has an IAM role scoped to exactly the tables and actions it needs. The read-only API physically cannot write.",
-      "Everything is Terraform — reusable modules for DynamoDB, IAM, Cognito, API Gateway, and a Lambda factory that hashes the source and redeploys only what changed, with remote state in Terraform Cloud. Auth runs through Cognito with Google OAuth wired in as an identity provider. It's the first project where I stopped feeling like I was using AWS and started feeling like I was operating it.",
+      "After the URL shortener I set my goal on a more ambitious project, and a project that would deepen my understanding of Cloud Architectures, and my engineering approach and problem solving.",
+      "I built it in the order the problem itself demanded. First the Monitor Lambda: EventBridge wakes it every minute, it probes each target, and logs status and latency to DynamoDB.", 
+      "Only once that history existed could I reason about the next question. One failed ping isn't an incident, three in a row is, so the SLA Processor came next, running hourly, opening incidents on consecutive failures and closing them the moment a target recovers.", 
+      "The Report Generator came last, because it needed the other two to already be trustworthy: every Monday it rolls the week into uptime, p50/p95/p99 latency, error rate, MTTR and MTBF, checks each number against that project's own thresholds, and mails the verdict out through SES.", 
+      "Five Lambdas, five different clocks, each doing exactly their job.",
+      "The API and auth layer came last. Cognito handles sign-in with Google OAuth wired in as an Identity Provider, API Gateway validates the JWT before anything reaches compute, and the read-only API's Lambda role is scoped narrow enough that even a fully compromised endpoint physically cannot write a record. Every resource behind all of it went in through Terraform modules.",
     ],
     features: [
       {
-        title: "Five Lambdas, five clean jobs",
-        body: "Monitor every minute, incident detection every hour, reports every Monday, a read-only API, and a project manager for writes — each function triggered on its own schedule, each with its own scoped IAM role.",
+        title: "Five Lambdas, each its job",
+        body: "Monitor every minute, incident detection every hour, reports every Monday, a read-only API, and a project manager for writes. each function triggered on its own schedule with EventBridge.",
       },
       {
-        title: "Metrics that mean something",
-        body: "Weekly reports compute uptime, p50/p95/p99 latency, error rate, downtime, MTTR and MTBF, evaluate them against per-project thresholds, and assign a severity before landing in your inbox.",
+        title: "Professional Metrics",
+        body: "Weekly reports compute uptime, p50/p95/p99 latency, error rate, downtime, MTTR and MTBF, evaluate them against per-project thresholds, and assign a severity before landing in user's inbox.",
       },
       {
-        title: "Terraform owns every resource",
-        body: "Modular IaC with remote state in Terraform Cloud. Lambda deployments are content-hashed and immutable — a code change produces a new artifact, and nothing gets clicked together in the console.",
+        title: "Terraform Provisioning",
+        body: "Clear Modular IaC with remote state in Terraform Cloud. Lambda deployments are content-hashed and immutable, a code change produces a new artifact, and nothing was made in the console.",
       },
       {
-        title: "Security shaped like a blast radius",
-        body: "API Gateway validates Cognito JWTs before anything reaches compute. No shared roles, no wildcard ARNs — if the read path is ever compromised, it still can't write a single record.",
+        title: "Least-privilege access control",
+        body: "API Gateway validates Cognito JWTs before any request reaches compute. Each Lambda function runs under its own scoped role, no shared roles, no wildcard ARNs. If the read path were ever compromised, not a single record would ever be written.",
       },
     ],
     stackRows: [

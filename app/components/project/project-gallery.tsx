@@ -247,6 +247,9 @@ function Frame({ slug, shot, index }: { slug: string; shot: ProjectScreenshot; i
           src={shot.src}
           alt={shot.alt}
           fill
+          // Every frame is mounted up front, so eager-load the captures at page
+          // load instead of waiting to scroll each one into view.
+          loading="eager"
           sizes="(max-width: 768px) 85vw, 90vw"
           className={shot.fit === "contain" ? "object-contain" : "object-cover"}
         />
