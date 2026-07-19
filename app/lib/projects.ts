@@ -14,7 +14,19 @@ export type ProjectScreenshot = {
   caption: string;
   /** "contain" letterboxes instead of cropping — for diagrams and tall shots. */
   fit?: "cover" | "contain";
+  /** true wraps the shot in the faux-window chrome; defaults to a raw screenshot with just a border. */
+  chrome?: boolean;
+  /** Intrinsic pixel dimensions; when set the frame matches the image's real
+   *  aspect ratio instead of forcing 16:9. Give both or neither. */
+  width?: number;
+  height?: number;
 };
+
+
+const defaultFauxWindowChrome = {
+  chrome: false,
+};
+
 
 export type ProjectFeature = {
   title: string;
@@ -45,7 +57,7 @@ export type Project = {
   background: string[];
   features: ProjectFeature[];
   stackRows: LogoItem[][];
-  screenshots: ProjectScreenshot[];
+  screenshots: ProjectScreenshot[] ;
 };
 
 export const projects: Project[] = [
@@ -61,14 +73,14 @@ export const projects: Project[] = [
     heroImage: "/project-url-shortener.png",
     heroImageAlt: "URL Shortener — AWS serverless project",
     seoDescription:
-      "A fully serverless URL shortener on AWS — API Gateway, Lambda and DynamoDB, provisioned entirely with Terraform.",
+      "A fully serverless URL shortener on AWS : API Gateway, Lambda and DynamoDB, provisioned entirely with Terraform.",
     links: {
       repo: "https://github.com/walid-idrissi-labs/url-shortener",
       demo: true,
     },
     background: [
-      "This one started as a challenge I set for myself: after months of AWS coursework and labs, I wanted to find out if I could actually ship something real. A URL shortener sounded almost too simple — until I added the rule that made it interesting: every single resource had to be provisioned with Terraform. No console clicking allowed. That one constraint turned a weekend build into a proper lesson in cloud engineering.",
-      "The architecture is fully serverless. API Gateway receives the request, a Lambda function does the work, and DynamoDB keeps the mappings. Nothing runs when nobody is using it, so it costs close to nothing to keep alive. Honestly, the hardest part wasn't the application logic — it was IAM. Giving every component exactly the permissions it needs and not one more took longer than writing the actual code, and looking back, that was the most valuable part.",
+      "This one started as a challenge I set for myself: after months of AWS coursework and labs, I wanted to find out if I could actually ship something real. A URL shortener is about as basic as it gets, I know. But I gave myself one rule: every resource had to be provisioned with Terraform, no clicking around in the console. That constraint is what turned a simple weekend project into an actual lesson in cloud engineering and infrastructure.",
+      "The architecture is fully serverless. API Gateway receives the request, a Lambda function generates the short code (or looks it up and handles the redirect), and DynamoDB keeps the mappings. There's no idle compute, so it scales to zero and costs close to nothing to keep alive. Honestly, The part I spent the most time on wasn't the application logic, it was IAM. I followed least privilege throughout, scoping every role down to exactly the actions and resources it needed, nothing broader. Looking back, that was the most valuable part of the build.",
       "What stayed with me isn't the shortener itself, it's the workflow. Define the infrastructure in code, version it, tear it down, rebuild it from scratch in minutes. Once you've worked that way, clicking around a cloud console feels like a step backwards.",
     ],
     features: [
@@ -77,16 +89,16 @@ export const projects: Project[] = [
         body: "API Gateway takes the request, Lambda resolves it, DynamoDB stores the mappings. There is no server to patch, and the whole thing scales to zero when idle.",
       },
       {
-        title: "Infrastructure as code, no exceptions",
-        body: "Every resource is declared in Terraform. The entire stack can be destroyed and rebuilt from scratch with one command — the AWS console stayed read-only.",
+        title: "IaC : Infrastructure as code",
+        body: "Every resource is provisionned in Terraform. The entire stack can be destroyed and rebuilt from scratch with Terraform commands.",
       },
       {
         title: "Least-privilege IAM",
-        body: "Each component gets exactly the permissions it needs and nothing more. Getting these policies right took longer than the application code — on purpose.",
+        body: "Each component gets exactly the permissions it needs, and nothing more. That's the point of least privilege. A compromised Lambda can't touch resources it was never scoped to reach in the first place. It takes more upfront work than attaching a broad managed policy, but it shrinks the blast radius if anything ever goes wrong.",
       },
       {
         title: "Built to cost nothing at rest",
-        body: "Pay-per-request pricing across the stack means the project idles for free and only spends when a link is actually resolved.",
+        body: "The whole stack is serverless and billed pay-per-request, so it idles for free. Lambda only spins up when a link is actually resolved, runs for a few milliseconds, and then shuts back down. No servers sitting around waiting for traffic.",
       },
     ],
     stackRows: [
@@ -99,27 +111,51 @@ export const projects: Project[] = [
     ],
     screenshots: [
       {
-        src: "/project-url-shortener.png",
-        alt: "URL Shortener brand art",
-        caption: "brand art holding the fort — real captures are on the way",
+        src: "/project-url-shortener-1.png",
+        alt: "URL Shortener home page",
+        caption: "Home page of the URL Shortener.",
+        width: 2872,
+        height: 2384,
       },
       {
-        src: "/project-url-shortener-portfolio-preview-card.png",
-        alt: "URL Shortener preview card",
-        caption: "the preview card, from back when this page didn't exist",
+        src: "/project-url-shortener-2.png",
+        alt: "Inserting link to shorten",
+        caption: "Inserting a link to shorten —> the Lambda generates a short code and stores it in DynamoDB.",
+        width: 2872,
+        height: 2384,
       },
       {
-        src: "/project-url-shortener.png",
-        alt: "URL Shortener architecture placeholder",
-        caption: "future home of the architecture diagram",
+        src: "/project-url-shortener-3.png",
+        alt: "Generated URL and redirect",
+        caption: "The generated short URL and the redirect behavior.",
+        width: 2872,
+        height: 2384,
+      },
+      {
+        src: "/project-url-shortener-4.png",
+        alt: "AWS architecture diagram of the URL Shortener",
+        caption: "AWS architecture diagram of the URL Shortener, showing CloudFront, API Gateway, Lambda, DynamoDB and S3 (for the static assets).",
+        chrome: false,
+        width: 2872,
+        height: 2384,
       },
     ],
   },
+
+
+
+
+
+
+
+
+
+  
   {
     slug: "tascii",
     name: "tascii",
-    tagline: "A fast, minimal task manager that lives where I do — in the terminal.",
-    type: "Terminal Application",
+    tagline: "A fast, minimal task manager that lives where I do... in the terminal.",
+    type: "Terminal App",
     year: "2026",
     status: "in-progress",
     role: "Solo Project",
@@ -133,22 +169,22 @@ export const projects: Project[] = [
       demo: true,
     },
     background: [
-      "I live in the terminal, and every task manager I tried kept pulling me out of it — some app, some browser tab, some account that wanted syncing. All I actually wanted was: open a terminal, see my tasks, get back to work. Nothing I found did just that, so I built tascii.",
-      "It's written in Go. I picked it partly for the instant startup — a tool you open fifty times a day cannot afford to feel slow — and partly because after years of scripting languages I wanted a compiled one in my toolbox. Everything is keyboard-driven, and the interface stays deliberately plain: no colors fighting for attention, no features I wouldn't use.",
-      "It's still in progress, and I use it every day — which turns out to be the best QA process I know. Every rough edge I hit becomes the next item on the list, and fittingly, the todo list for my todo app is managed in tascii itself.",
+      "Developers and Engineers spend most of their time in the terminal. Every task manager I tried wanted to pull me out of it: a separate app, a browser tab, an account to sync. I wanted the opposite: open a terminal, see my tasks, get back to work. So I built tascii.",
+      "It's written in Go, mainly for startup time. A tool you open fifty times a day has to be instant, not 'loading spinner' instant. Everything's keyboard-driven, no mouse, no menus. The UI stays plain and efficient on purpose: no colors competing for attention, no features bolted on because they looked good in a demo.",
+      "Still actively building it, and I use it daily, which is the real test. Every annoyance becomes the next task, and the todo list for tascii is managed in tascii.",
     ],
     features: [
       {
-        title: "Starts before you finish thinking",
-        body: "A single compiled Go binary with no runtime to warm up. Launch, capture the task, close — faster than any app switch.",
+        title: "Starts before you before you lose the idea",
+        body: "A single compiled Go binary with no runtime to warm up. Launch, capture the task, close.",
       },
       {
-        title: "Keyboard all the way down",
-        body: "Every action is a keystroke. No mouse, no menus to hunt through — the same muscle memory as the rest of the terminal.",
+        title: "Hands on Keyboard all the time",
+        body: "Every action is a keystroke. No mouse, no menus.",
       },
       {
         title: "Nothing to install around it",
-        body: "One binary on your PATH and you're done. No daemon, no account, no sync service holding your tasks hostage.",
+        body: "One binary on your PATH and you're done. No daemon, no account, no sync service, no bloat...",
       },
       {
         title: "Tested on myself, daily",
@@ -163,14 +199,19 @@ export const projects: Project[] = [
     ],
     screenshots: [
       {
-        src: "/project-tascii.png",
-        alt: "tascii brand art",
-        caption: "brand art standing in — terminal captures coming soon",
+        src: "/project-tascii-1.png",
+        alt: "basic tascii commands",
+        caption: "Basic tasks in tascii : adding new tasks, viewing all tasks, viewing tasks due today",
       },
       {
-        src: "/project-tascii.png",
-        alt: "tascii task board placeholder",
-        caption: "future home of the task board, in glorious monospace",
+        src: "/project-tascii-2.png",
+        alt: "elaborate tascii task creation",
+        caption: "Tasks in more detail : priority, starting tasks, editing tasks ,viewing single task details,",
+      },
+      {
+        src: "/project-tascii-3.png",
+        alt: "completing and clearing tasks in tascii",
+        caption: "Completing and clearing tasks in tascii : marking tasks as complete, clearing completed tasks, viewing completed tasks",
       },
     ],
   },
