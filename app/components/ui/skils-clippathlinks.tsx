@@ -1,13 +1,20 @@
 "use client"
-import React from "react";
-import { useAnimate } from "motion/react";
+import React, { useEffect, useRef } from "react";
+import gsap from "gsap";
+
+import { colors as brand } from "../../lib/colors";
 
 export type LogoItem = {
   src: string;
   alt: string;
-  href: string;
+  /** No longer used for navigation — tiles pin the reveal on click instead of linking out. Kept optional so existing stack data stays valid. */
+  href?: string;
   span: string;
   minWidth?: string;
+  /** Brand-colored variant shown inside the highlight; resolved from TECH_COLOR_MAP when omitted. */
+  colorSrc?: string;
+  /** Brand tint driving the highlight glow, ring, and label; resolved from TECH_COLOR_MAP when omitted. */
+  color?: string;
 };
 
 type ClipPathLinksColorClasses = {
@@ -15,10 +22,7 @@ type ClipPathLinksColorClasses = {
   boxBorder: string;
   boxBackground: string;
   boxText: string;
-  overlayBackground: string;
-  overlayText: string;
   logoBase: string;
-  logoOverlay: string;
 };
 
 type ClipPathLinksProps = {
@@ -38,10 +42,32 @@ const DEFAULT_COLOR_CLASSES: ClipPathLinksColorClasses = {
   boxBorder: "border-border/80",
   boxBackground: "bg-background",
   boxText: "text-foreground",
-  overlayBackground: "bg-beige_dark",
-  overlayText: "text-white",
   logoBase: "",
-  logoOverlay: "brightness-0 invert",
+};
+
+// Brand color variants for the highlight, shared with the logo loop's
+// /public/color assets. Keyed by the gray logo's src so project stackRows
+// resolve automatically; techs without an entry (e.g. Go) fall back to the
+// white-inverted gray logo with a beige tint.
+const TECH_COLOR_MAP: Record<string, { colorSrc: string; color: string }> = {
+  "/logo-html5.svg": { colorSrc: "/color/logo-html5.svg", color: "#E34F26" },
+  "/logo-react.svg": { colorSrc: "/color/logo-react.svg", color: "#61DAFB" },
+  "/logo-vue.svg": { colorSrc: "/color/logo-vue.svg", color: "#42B883" },
+  "/logo-javascript.svg": { colorSrc: "/color/logo-javascript.svg", color: "#F7DF1E" },
+  "/logo-typescript.svg": { colorSrc: "/color/logo-typescript.svg", color: "#3178C6" },
+  "/logo-nextjs.svg": { colorSrc: "/color/logo-nextjs.svg", color: "#FFFFFF" },
+  "/logo-tailwind.svg": { colorSrc: "/color/logo-tailwind.svg", color: "#38BDF8" },
+  "/logo-terraform.svg": { colorSrc: "/color/logo-terraform.svg", color: "#7B42BC" },
+  "/logo-aws.svg": { colorSrc: "/color/logo-aws.svg", color: "#FF9900" },
+  "/logo-python.svg": { colorSrc: "/color/logo-python.svg", color: "#FFD43B" },
+  "/logo-postgres.svg": { colorSrc: "/color/logo-postgres.svg", color: "#336791" },
+  "/logo-bash.svg": { colorSrc: "/color/logo-bash.svg", color: "#4EAA25" },
+  "/logo-three.svg": { colorSrc: "/color/logo-three.svg", color: "#FFFFFF" },
+  "/logo-docker.svg": { colorSrc: "/color/logo-docker.svg", color: "#2496ED" },
+  "/logo-laravel.svg": { colorSrc: "/color/logo-laravel.svg", color: "#FF2D20" },
+  "/logo-mysql.svg": { colorSrc: "/color/logo-mysql.svg", color: "#00758F" },
+  "/logo-php.svg": { colorSrc: "/color/logo-php.svg", color: "#777BB4" },
+  "/logo-css3.svg": { colorSrc: "/color/logo-css3.svg", color: "#1572B6" },
 };
 
 const DEFAULT_TYPOGRAPHY_CLASSES: ClipPathLinksTypographyClasses = {
@@ -51,7 +77,7 @@ const DEFAULT_TYPOGRAPHY_CLASSES: ClipPathLinksTypographyClasses = {
 
 const techLogoRows: LogoItem[][] = [
   [
-    
+
     { src: "/logo-react.svg", alt: "React", href: "https://react.dev/", span: "col-span-7 sm:col-span-3", minWidth: "5rem" },
     { src: "/logo-vue.svg", alt: "VueJS", href: "https://vuejs.org/", span: "col-span-5 sm:col-span-3", minWidth: "5rem" },
     { src: "/logo-javascript.svg", alt: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", span: "col-span-4 sm:col-span-2", minWidth: "5rem" },
@@ -76,25 +102,218 @@ const techLogoRows: LogoItem[][] = [
   ],
 ];
 
+type Rect = { x: number; y: number; w: number; h: number };
+type HoverSide = "left" | "right" | "top" | "bottom";
+
+/** Overlays are clipped to their intersection with this virtual rect; this hides them. */
+const HIDDEN_CLIP = "inset(50% 50% 50% 50%)";
+
+const getNearestSide = (box: DOMRect, clientX: number, clientY: number): HoverSide => {
+  const proximities: { proximity: number; side: HoverSide }[] = [
+    { proximity: Math.abs(box.left - clientX), side: "left" },
+    { proximity: Math.abs(box.right - clientX), side: "right" },
+    { proximity: Math.abs(box.top - clientY), side: "top" },
+    { proximity: Math.abs(box.bottom - clientY), side: "bottom" },
+  ];
+
+  return proximities.sort((a, b) => a.proximity - b.proximity)[0].side;
+};
+
+const collapseToSide = (cell: Rect, side: HoverSide): Rect => {
+  switch (side) {
+    case "left":
+      return { x: cell.x, y: cell.y, w: 0, h: cell.h };
+    case "right":
+      return { x: cell.x + cell.w, y: cell.y, w: 0, h: cell.h };
+    case "top":
+      return { x: cell.x, y: cell.y, w: cell.w, h: 0 };
+    case "bottom":
+      return { x: cell.x, y: cell.y + cell.h, w: cell.w, h: 0 };
+  }
+};
+
 export const ClipPathLinks = ({ colors, typography, rows = techLogoRows }: ClipPathLinksProps) => {
   const colorClasses = { ...DEFAULT_COLOR_CLASSES, ...colors };
   const typographyClasses = { ...DEFAULT_TYPOGRAPHY_CLASSES, ...typography };
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cellEls = useRef(new Map<string, HTMLButtonElement>());
+  const overlayEls = useRef(new Map<string, HTMLDivElement>());
+  const cellRects = useRef(new Map<string, Rect>());
+  const highlight = useRef<Rect>({ x: 0, y: 0, w: 0, h: 0 });
+  const isActive = useRef(false);
+  const lastHoveredId = useRef<string | null>(null);
+  // Cell whose reveal is pinned by a click/tap; the highlight returns here on
+  // mouse-leave instead of collapsing. null = nothing pinned.
+  const lockedId = useRef<string | null>(null);
+  const tween = useRef<gsap.core.Tween | null>(null);
+
+  useEffect(() => {
+    return () => {
+      tween.current?.kill();
+    };
+  }, []);
+
+  const cacheCellRects = () => {
+    const container = containerRef.current;
+    if (!container) return;
+    const containerBox = container.getBoundingClientRect();
+    cellEls.current.forEach((el, id) => {
+      const box = el.getBoundingClientRect();
+      cellRects.current.set(id, {
+        x: box.left - containerBox.left,
+        y: box.top - containerBox.top,
+        w: box.width,
+        h: box.height,
+      });
+    });
+  };
+
+  const paintOverlays = () => {
+    const r = highlight.current;
+    overlayEls.current.forEach((overlay, id) => {
+      const cell = cellRects.current.get(id);
+      if (!cell) return;
+      const top = Math.max(0, r.y - cell.y);
+      const left = Math.max(0, r.x - cell.x);
+      const right = Math.max(0, cell.x + cell.w - (r.x + r.w));
+      const bottom = Math.max(0, cell.y + cell.h - (r.y + r.h));
+      overlay.style.clipPath =
+        left + right >= cell.w || top + bottom >= cell.h
+          ? HIDDEN_CLIP
+          : `inset(${top}px ${right}px ${bottom}px ${left}px)`;
+    });
+  };
+
+  const tweenHighlightTo = (target: Rect, onComplete?: () => void) => {
+    tween.current?.kill();
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    tween.current = gsap.to(highlight.current, {
+      ...target,
+      duration: reducedMotion ? 0 : 0.45,
+      ease: "power3.out",
+      onUpdate: paintOverlays,
+      onComplete,
+    });
+  };
+
+  const popOverlay = (id: string) => {
+    const overlay = overlayEls.current.get(id);
+    if (!overlay) return;
+    const pops = overlay.querySelectorAll("[data-pop]");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+      gsap.set(pops, { scale: 1, opacity: 1 });
+    } else {
+      gsap.fromTo(
+        pops,
+        { scale: 0.75, opacity: 0.4 },
+        { scale: 1, opacity: 1, duration: 0.55, ease: "back.out(1.7)", overwrite: true },
+      );
+    }
+  };
+
+  const handleCellEnter = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!isActive.current) cacheCellRects();
+    const cell = cellRects.current.get(id);
+    if (!cell) return;
+
+    if (!isActive.current) {
+      const side = getNearestSide(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY);
+      Object.assign(highlight.current, collapseToSide(cell, side));
+      isActive.current = true;
+    }
+
+    lastHoveredId.current = id;
+    tweenHighlightTo(cell);
+    popOverlay(id);
+  };
+
+  // Click/tap pins the reveal: it survives mouse-leave and lets touch users
+  // (who never hover) trigger the highlight. Clicking the pinned tile releases it.
+  const handleCellClick = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!isActive.current) cacheCellRects();
+    const cell = cellRects.current.get(id);
+    if (!cell) return;
+
+    if (lockedId.current === id) {
+      lockedId.current = null;
+      const side = getNearestSide(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY);
+      tweenHighlightTo(collapseToSide(cell, side), () => {
+        isActive.current = false;
+      });
+      return;
+    }
+
+    lockedId.current = id;
+    // Seed the highlight from the tap edge when there was no prior hover (touch).
+    if (!isActive.current) {
+      const side = getNearestSide(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY);
+      Object.assign(highlight.current, collapseToSide(cell, side));
+      isActive.current = true;
+    }
+    lastHoveredId.current = id;
+    tweenHighlightTo(cell);
+    popOverlay(id);
+  };
+
+  const handleContainerLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isActive.current || !lastHoveredId.current) return;
+
+    // A pinned tile stays lit: return the highlight to it instead of collapsing.
+    if (lockedId.current) {
+      const lockedCell = cellRects.current.get(lockedId.current);
+      if (lockedCell) {
+        lastHoveredId.current = lockedId.current;
+        tweenHighlightTo(lockedCell);
+        popOverlay(lockedId.current);
+        return;
+      }
+    }
+
+    const cell = cellRects.current.get(lastHoveredId.current);
+    if (!cell) return;
+
+    const side = getNearestSide(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY);
+    tweenHighlightTo(collapseToSide(cell, side), () => {
+      isActive.current = false;
+    });
+  };
+
+  const registerCell = (id: string) => (el: HTMLButtonElement | null) => {
+    if (el) cellEls.current.set(id, el);
+    else cellEls.current.delete(id);
+  };
+
+  const registerOverlay = (id: string) => (el: HTMLDivElement | null) => {
+    if (el) overlayEls.current.set(id, el);
+    else overlayEls.current.delete(id);
+  };
+
   return (
-    <div className={`w-full overflow-hidden border ${colorClasses.containerBorder}`}>
+    <div
+      ref={containerRef}
+      onMouseLeave={handleContainerLeave}
+      className={`relative w-full overflow-hidden border ${colorClasses.containerBorder}`}
+    >
       {rows.map((row, rowIndex) => (
         <div key={rowIndex} className="grid grid-cols-12">
           {row.map((logo) => (
             <LinkBox
               key={logo.alt}
-              href={logo.href}
               imgSrc={logo.src}
               imgAlt={logo.alt}
+              colorSrc={logo.colorSrc}
+              color={logo.color}
               span={logo.span}
               minWidth={logo.minWidth}
               className="h-8 w-auto object-contain sm:h-10 md:h-12"
               colors={colorClasses}
               typography={typographyClasses}
+              cellRef={registerCell(logo.alt)}
+              overlayRef={registerOverlay(logo.alt)}
+              onEnter={(e) => handleCellEnter(logo.alt, e)}
+              onClick={(e) => handleCellClick(logo.alt, e)}
             />
           ))}
         </div>
@@ -103,37 +322,20 @@ export const ClipPathLinks = ({ colors, typography, rows = techLogoRows }: ClipP
   );
 };
 
-const NO_CLIP = "polygon(0 0, 100% 0, 100% 100%, 0% 100%)";
-const BOTTOM_RIGHT_CLIP = "polygon(0 0, 100% 0, 0 0, 0% 100%)";
-const TOP_RIGHT_CLIP = "polygon(0 0, 0 100%, 100% 100%, 0% 100%)";
-const BOTTOM_LEFT_CLIP = "polygon(100% 100%, 100% 0, 100% 100%, 0 100%)";
-const TOP_LEFT_CLIP = "polygon(0 0, 100% 0, 100% 100%, 100% 0)";
-
-const ENTRANCE_KEYFRAMES = {
-  left: [BOTTOM_RIGHT_CLIP, NO_CLIP],
-  bottom: [BOTTOM_RIGHT_CLIP, NO_CLIP],
-  top: [BOTTOM_RIGHT_CLIP, NO_CLIP],
-  right: [TOP_LEFT_CLIP, NO_CLIP],
-};
-
-const EXIT_KEYFRAMES = {
-  left: [NO_CLIP, TOP_RIGHT_CLIP],
-  bottom: [NO_CLIP, TOP_RIGHT_CLIP],
-  top: [NO_CLIP, TOP_RIGHT_CLIP],
-  right: [NO_CLIP, BOTTOM_LEFT_CLIP],
-};
-
-type HoverSide = keyof typeof ENTRANCE_KEYFRAMES;
-
 type LinkBoxProps = {
-  href: string;
   imgSrc: string;
   imgAlt: string;
+  colorSrc?: string;
+  color?: string;
   span?: string;
   minWidth?: string;
   className?: string;
   colors: ClipPathLinksColorClasses;
   typography: ClipPathLinksTypographyClasses;
+  cellRef: (el: HTMLButtonElement | null) => void;
+  overlayRef: (el: HTMLDivElement | null) => void;
+  onEnter: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 type LinkBoxContentProps = {
@@ -173,62 +375,38 @@ const LinkBoxContent = ({
   );
 };
 
-const LinkBox = ({ href, imgSrc, imgAlt, span, minWidth, className, colors, typography }: LinkBoxProps) => {
-  const [scope, animate] = useAnimate();
-
-  const getNearestSide = (e: React.MouseEvent<HTMLAnchorElement>): HoverSide => {
-    const box = e.currentTarget.getBoundingClientRect();
-
-    const proximityToLeft = {
-      proximity: Math.abs(box.left - e.clientX),
-      side: "left",
-    };
-    const proximityToRight = {
-      proximity: Math.abs(box.right - e.clientX),
-      side: "right",
-    };
-    const proximityToTop = {
-      proximity: Math.abs(box.top - e.clientY),
-      side: "top",
-    };
-    const proximityToBottom = {
-      proximity: Math.abs(box.bottom - e.clientY),
-      side: "bottom",
-    };
-
-    const sortedProximity = [
-      proximityToLeft,
-      proximityToRight,
-      proximityToTop,
-      proximityToBottom,
-    ].sort((a, b) => a.proximity - b.proximity);
-
-    return sortedProximity[0].side as HoverSide;
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const side = getNearestSide(e);
-    animate(scope.current, {
-      clipPath: ENTRANCE_KEYFRAMES[side],
-    });
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const side = getNearestSide(e);
-    animate(scope.current, {
-      clipPath: EXIT_KEYFRAMES[side],
-    });
-  };
+const LinkBox = ({
+  imgSrc,
+  imgAlt,
+  colorSrc,
+  color,
+  span,
+  minWidth,
+  className,
+  colors,
+  typography,
+  cellRef,
+  overlayRef,
+  onEnter,
+  onClick,
+}: LinkBoxProps) => {
+  const brandAsset =
+    colorSrc && color ? { colorSrc, color } : TECH_COLOR_MAP[imgSrc];
+  const tint = brandAsset?.color ?? brand.beige_bright;
+  const overlaySrc = brandAsset?.colorSrc ?? imgSrc;
+  const overlayFilter = brandAsset
+    ? `drop-shadow(0 0 16px ${tint}66)`
+    : `brightness(0) invert(1) drop-shadow(0 0 16px ${tint}66)`;
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <button
+      type="button"
+      ref={cellRef}
+      aria-label={imgAlt}
+      onMouseEnter={onEnter}
+      onClick={onClick}
       style={{ minWidth: minWidth ?? "8.5rem" }}
-      className={`relative -mr-px -mb-px grid h-20 min-w-0 overflow-hidden place-content-center border-r border-b pb-5 sm:h-28 sm:pb-6 md:h-36 md:pb-7 ${colors.boxBorder} ${colors.boxBackground} ${colors.boxText} ${span ?? "col-span-12 sm:col-span-1"}`}
+      className={`relative -mr-px -mb-px grid h-20 min-w-0 cursor-pointer overflow-hidden place-content-center border-r border-b pb-5 text-left sm:h-28 sm:pb-6 md:h-36 md:pb-7 ${colors.boxBorder} ${colors.boxBackground} ${colors.boxText} ${span ?? "col-span-12 sm:col-span-1"}`}
     >
       <LinkBoxContent
         title={imgAlt}
@@ -241,20 +419,38 @@ const LinkBox = ({ href, imgSrc, imgAlt, span, minWidth, className, colors, typo
       />
 
       <div
-        ref={scope}
-        style={{ clipPath: BOTTOM_RIGHT_CLIP }}
-        className={`absolute inset-0 grid place-content-center pb-5 transition-colors duration-300 sm:pb-6 md:pb-7 ${colors.overlayBackground}`}
+        ref={overlayRef}
+        style={{
+          clipPath: HIDDEN_CLIP,
+          backgroundColor: brand.not_quite_black,
+          boxShadow: `inset 0 0 0 1px ${tint}40`,
+        }}
+        className="absolute inset-0 grid place-content-center pb-5 sm:pb-6 md:pb-7"
       >
-        <LinkBoxContent
-          title={imgAlt}
-          imgSrc={imgSrc}
-          imgAlt={imgAlt}
-          className={className}
-          textClassName={colors.overlayText}
-          imageClassName={colors.logoOverlay}
-          labelWeightClass={typography.labelOverlayWeight}
+        <div
+          data-pop
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: `radial-gradient(ellipse 75% 65% at 50% 42%, ${tint}38 0%, ${tint}14 45%, transparent 72%)`,
+          }}
+        />
+        <span
+          className={`pointer-events-none absolute bottom-1.5 left-2 max-w-[calc(100%-1rem)] overflow-hidden text-ellipsis whitespace-nowrap font-ibm text-[8px] tracking-[0.14em] uppercase sm:text-[9px] md:text-[10px] lg:text-xs xl:text-sm ${typography.labelOverlayWeight}`}
+          style={{ color: `color-mix(in srgb, ${tint} 70%, white)` }}
+        >
+          {imgAlt}
+        </span>
+        <img
+          data-pop
+          src={overlaySrc}
+          alt={imgAlt}
+          loading="lazy"
+          decoding="async"
+          style={{ filter: overlayFilter }}
+          className={className ?? "max-h-10 max-w-[calc(100%-1.5rem)] object-contain sm:max-h-16 md:max-h-20"}
         />
       </div>
-    </a>
+    </button>
   );
 };
