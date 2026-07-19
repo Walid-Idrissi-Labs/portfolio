@@ -45,8 +45,10 @@ export function ProjectCloser({
 
         <AnimatedContainer initialY={20} duration={1.4} delay={0.3}>
           <p className="max-w-xl font-unbounded font-extralight text-sm leading-relaxed text-neutral-400 md:text-base">
-            I&apos;m open to opportunities, collaborations, and good conversations — if this project
-            sparked an idea, my inbox is the shortest path to it.
+            I&apos;m open to opportunities, collaborations, and conversations 
+          </p>
+          <p className="max-w-xl font-unbounded font-extralight text-sm leading-relaxed text-neutral-400 md:text-base">
+            if {showCatalogueLink ? "this project" : "any of these projects"} sparked an idea, my inbox is the shortest path to {showCatalogueLink ? "it" : "them"}.
           </p>
         </AnimatedContainer>
 
