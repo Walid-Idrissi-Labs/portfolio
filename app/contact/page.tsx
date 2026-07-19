@@ -27,9 +27,9 @@ export default function ContactPage() {
                         items={[
                             { label: "About", href: "/#about" },
                             { label: "Projects", href: "/#projects" },
-                            { label: "Contact", href: "/#contact" },
+                            { label: "Contact", href: "/contact" },
                         ]}
-                        activeHref="/#contact"
+                        activeHref="/contact"
                         className="custom-nav"
                         ease="power2.easeOut"
                         baseColor="#0d0d0d99"

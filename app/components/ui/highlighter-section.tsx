@@ -215,7 +215,7 @@ export function HighlighterSection() {
                           </span>
                         </Link>
 
-                        <Link href="/Contact" target="_blank" >
+                        <Link href="/contact" target="_blank" >
                           <Button className="cursor-pointer">
                             Contact Me
                             <span>

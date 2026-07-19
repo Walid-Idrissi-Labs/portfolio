@@ -62,7 +62,7 @@ export default async function ProjectPage({
             items={[
               { label: "About", href: "/#about" },
               { label: "Projects", href: "/projects" },
-              { label: "Contact", href: "/#contact" },
+              { label: "Contact", href: "/contact" },
             ]}
             activeHref="/projects"
             className="custom-nav"

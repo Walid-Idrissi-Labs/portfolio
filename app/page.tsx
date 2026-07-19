@@ -32,7 +32,7 @@ export default function Home() {
             items={[
               { label: 'About', href: '#about' },
               { label: 'Projects', href: '#projects' },
-              { label: 'Contact', href: '#contact' }
+              { label: 'Contact', href: '/contact' }
             ]}
             activeHref="/"
             className="custom-nav"

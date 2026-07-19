@@ -52,7 +52,7 @@ export function ProjectCloser({
 
         <AnimatedContainer initialY={20} duration={1.4} delay={0.45}>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/Contact">
+            <Link href="/contact">
               <HoverBorderGradient
                 as="div"
                 containerClassName="rounded-full"
