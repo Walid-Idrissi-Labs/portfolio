@@ -113,7 +113,7 @@ export function ProjectHero({ project }: { project: Project }) {
             {project.type}
           </span>
           <span className="rounded-full border border-white/15 bg-black/40 px-3.5 py-1.5 font-ibm text-[10px] uppercase tracking-[0.2em] text-neutral-300 backdrop-blur md:text-xs">
-            {project.year}
+            <span className="mr-[-0.2em]">{project.year}</span>
           </span>
           <span className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3.5 py-1.5 font-ibm text-[10px] uppercase tracking-[0.2em] text-neutral-300 backdrop-blur md:text-xs">
             <span className="relative flex h-2 w-2">
