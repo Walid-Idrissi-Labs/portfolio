@@ -34,6 +34,9 @@ export function ProjectHero({ project }: { project: Project }) {
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 0.65], [0, -40]);
+  // Fade the whole backdrop to black as the hero scrolls away so the image
+  // dissolves into the black content below with no visible seam at the edges.
+  const backdropDarken = useTransform(scrollYProgress, [0, 0.35, 1], [0, 0.15, 1]);
 
   const TypeIcon = typeIcons[project.icon];
   const inProgress = project.status === "in-progress";
@@ -68,6 +71,10 @@ export function ProjectHero({ project }: { project: Project }) {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/25 to-black" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/40 to-transparent" />
+        <motion.div
+          style={{ opacity: backdropDarken }}
+          className="absolute inset-0 bg-black"
+        />
       </motion.div>
 
       <motion.div
