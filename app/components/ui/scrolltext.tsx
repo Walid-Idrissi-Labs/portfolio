@@ -30,7 +30,7 @@ const Word: React.FC<WordProps> = ({ children, progress, range }) => {
   const filter = useTransform(blur, (b) => (b < 0.1 ? "none" : `blur(${b}px)`));
 
   return (
-    <span className="relative mt-3 mr-1 text-xl md:text-3xl xl:text-3xl font-unbounded font-light text-neutral-100 ">
+    <span className="relative mt-3 mr-2 text-xl md:text-3xl xl:text-3xl font-unbounded font-light text-neutral-100 ">
       <span className="absolute opacity-20">{children}</span>
       <motion.span className="inline-block will-change-transform" style={{ opacity, y, filter }}>
         {children}
@@ -67,7 +67,7 @@ export const ScrollText: React.FC<MagicTextProps> = ({ text, lineBreakSpacing = 
   let wordIndex = 0;
  
   return (
-    <p ref={container} className="flex flex-wrap leading-[0.5] p-4">
+    <p ref={container} className="flex flex-wrap leading-[0.65] p-4">
       {entries.map((entry, i) => {
         if (entry.type === "break") {
           return (

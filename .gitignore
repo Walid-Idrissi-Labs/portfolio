@@ -41,6 +41,7 @@ pnpm-debug.log*
 
 # vercel
 .vercel
+.claude
 
 # typescript
 *.tsbuildinfo
