@@ -124,18 +124,7 @@ export default function Home() {
 
         <div className="mx-auto my-15 py-10 flex w-[90vw] items-center justify-center px-2 md:px-4 outline-red-500">
           <AnimatedContainer duration={1.8} className="w-full">
-            <ClipPathLinks
-              colors={{
-                containerBorder: "border-border/80",
-                boxBorder: "border-border/80",
-                boxBackground: "bg-background",
-                boxText: "text-foreground",
-                overlayBackground: "bg-beige_dark",
-                overlayText: "text-black",
-                logoBase: "",
-                logoOverlay: "brightness-100 invert",
-              }}
-            />
+            <ClipPathLinks />
           </AnimatedContainer>
         </div>
       </section>

@@ -126,19 +126,7 @@ export default async function ProjectPage({
           </div>
           <div className="mx-auto mt-10 w-full max-w-6xl px-6 md:mt-14 md:px-10">
             <AnimatedContainer duration={1.8} className="w-full">
-              <ClipPathLinks
-                rows={project.stackRows}
-                colors={{
-                  containerBorder: "border-border/80",
-                  boxBorder: "border-border/80",
-                  boxBackground: "bg-background",
-                  boxText: "text-foreground",
-                  overlayBackground: "bg-beige_dark",
-                  overlayText: "text-black",
-                  logoBase: "",
-                  logoOverlay: "brightness-100 invert",
-                }}
-              />
+              <ClipPathLinks rows={project.stackRows} />
             </AnimatedContainer>
           </div>
         </section>
