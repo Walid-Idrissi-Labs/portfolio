@@ -27,12 +27,40 @@ export interface PillNavProps {
   /** Text color while the nav overlaps the hero; falls back to pillTextColor after scrolling past it. */
   heroPillTextColor?: string;
   heroSelector?: string;
+  /** Dark text color used while bright page content ([data-nav-bright]) sits behind the glass. */
+  contrastPillTextColor?: string;
   onMobileMenuClick?: () => void;
   initialLoadAnimation?: boolean;
 }
 
 
 
+
+// Average relative luminance of an image, 0 (black) to 1 (white), sampled
+// once through a tiny offscreen canvas. Returns null if the image can't be
+// read (cross-origin taint) — those simply don't participate in detection.
+const LUMINANCE_SAMPLE = 12;
+let luminanceCanvas: HTMLCanvasElement | null = null;
+const imageLuminance = (img: HTMLImageElement): number | null => {
+  try {
+    luminanceCanvas ??= document.createElement('canvas');
+    luminanceCanvas.width = LUMINANCE_SAMPLE;
+    luminanceCanvas.height = LUMINANCE_SAMPLE;
+    const ctx = luminanceCanvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return null;
+    ctx.clearRect(0, 0, LUMINANCE_SAMPLE, LUMINANCE_SAMPLE);
+    ctx.drawImage(img, 0, 0, LUMINANCE_SAMPLE, LUMINANCE_SAMPLE);
+    const { data } = ctx.getImageData(0, 0, LUMINANCE_SAMPLE, LUMINANCE_SAMPLE);
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      const alpha = data[i + 3] / 255;
+      sum += ((0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255) * alpha;
+    }
+    return sum / (data.length / 4);
+  } catch {
+    return null;
+  }
+};
 
 const PillNav: React.FC<PillNavProps> = ({
   logos,
@@ -47,12 +75,14 @@ const PillNav: React.FC<PillNavProps> = ({
   pillTextColor,
   heroPillTextColor,
   heroSelector = '#home',
+  contrastPillTextColor = colors.not_quite_black,
   onMobileMenuClick,
   initialLoadAnimation = true
 }) => {
   const resolvedPillTextColor = pillTextColor ?? baseColor;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [pastHero, setPastHero] = useState(false);
+  const [brightBehind, setBrightBehind] = useState(false);
   const circleRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const tlRefs = useRef<Array<gsap.core.Timeline | null>>([]);
   const activeTweenRefs = useRef<Array<gsap.core.Tween | null>>([]);
@@ -240,6 +270,109 @@ const PillNav: React.FC<PillNavProps> = ({
     return () => observer.disconnect();
   }, [heroPillTextColor, heroSelector]);
 
+  // Liquid-glass adaptive text: like iOS, the nav watches what's behind the
+  // glass and flips the whole pill row to dark text — but only for genuinely
+  // white images (sampled luminance), and only once one covers most of the
+  // pill row's height. Text passing behind never triggers it. Zero scroll
+  // listeners: an IntersectionObserver whose viewport root is shrunk (via
+  // negative rootMargin) down to the pill row's own screen box.
+  useEffect(() => {
+    const band = navItemsRef.current;
+    if (!band) return;
+
+    let observer: IntersectionObserver | null = null;
+    let lingerTimer: number | undefined;
+    let bandHeight = 0;
+    const covering = new Set<Element>();
+    const brightImages = new Set<Element>();
+    const measuredImages = new WeakSet<HTMLImageElement>();
+
+    const considerImage = (img: HTMLImageElement) => {
+      // The nav's own logo images always sit "behind" the band — skip them,
+      // along with anything not loaded yet (the load listener catches those).
+      if (measuredImages.has(img) || img.closest('nav')) return;
+      if (!img.complete || img.naturalWidth === 0) return;
+      measuredImages.add(img);
+      const lum = imageLuminance(img);
+      if (lum !== null && lum > 0.8) {
+        brightImages.add(img);
+        observer?.observe(img);
+      }
+    };
+
+    // 'load' doesn't bubble, but it does capture — one document listener
+    // covers every lazy image that finishes after the initial scan.
+    const onAnyLoad = (event: Event) => {
+      if (event.target instanceof HTMLImageElement) considerImage(event.target);
+    };
+
+    const build = () => {
+      observer?.disconnect();
+      covering.clear();
+      window.clearTimeout(lingerTimer);
+      setBrightBehind(false);
+
+      // The pill row is display:none below md; no pills, nothing to adapt.
+      const rect = band.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2) return;
+      bandHeight = rect.height;
+
+      observer = new IntersectionObserver(
+        entries => {
+          for (const entry of entries) {
+            // Flip only when the image blankets the band — at least 80% of
+            // the pill row's height — not on a shallow graze.
+            const covers =
+              entry.isIntersecting &&
+              entry.intersectionRect.height >= bandHeight * 0.8;
+            if (covers) covering.add(entry.target);
+            else covering.delete(entry.target);
+          }
+          window.clearTimeout(lingerTimer);
+          if (covering.size > 0) {
+            setBrightBehind(true);
+          } else {
+            // Brief linger so the text doesn't strobe at the boundary.
+            lingerTimer = window.setTimeout(() => setBrightBehind(false), 140);
+          }
+        },
+        {
+          rootMargin: [
+            -rect.top,
+            -(window.innerWidth - rect.right),
+            -(window.innerHeight - rect.bottom),
+            -rect.left
+          ]
+            .map(v => `${Math.round(v)}px`)
+            .join(' '),
+          // Fine-grained thresholds so we keep getting callbacks while an
+          // image slides through the band and its covered height changes.
+          threshold: Array.from({ length: 101 }, (_, i) => i / 100)
+        }
+      );
+
+      brightImages.forEach(el => observer!.observe(el));
+    };
+
+    const init = () => {
+      Array.from(document.images).forEach(considerImage);
+      build();
+    };
+
+    // The pill row width-animates in over ~1.4s on load — measure once it has
+    // settled. Resize rebuilds (which also covers crossing the md breakpoint).
+    const settle = window.setTimeout(init, initialLoadAnimation ? 1600 : 0);
+    window.addEventListener('resize', build);
+    document.addEventListener('load', onAnyLoad, true);
+    return () => {
+      window.clearTimeout(settle);
+      window.clearTimeout(lingerTimer);
+      window.removeEventListener('resize', build);
+      document.removeEventListener('load', onAnyLoad, true);
+      observer?.disconnect();
+    };
+  }, [initialLoadAnimation]);
+
   const toggleMobileMenu = () => {
     const newState = !isMobileMenuOpen;
     setIsMobileMenuOpen(newState);
@@ -305,8 +438,11 @@ const PillNav: React.FC<PillNavProps> = ({
     ['--base']: baseColor,
     ['--pill-bg']: pillColor,
     ['--hover-text']: hoveredPillTextColor,
-    ['--pill-text']:
-      heroPillTextColor && !pastHero ? heroPillTextColor : resolvedPillTextColor,
+    ['--pill-text']: brightBehind
+      ? contrastPillTextColor
+      : heroPillTextColor && !pastHero
+        ? heroPillTextColor
+        : resolvedPillTextColor,
     ['--nav-h']: '47px',
     ['--logo']: '47px',
     ['--pill-pad-x']: '17px',
