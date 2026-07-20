@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./accordion";
-import { CircleArrowDown } from "lucide-react";
+import { MoveDown } from "lucide-react";
 
 const items = [
   {
@@ -42,7 +42,7 @@ const items = [
     id: "6",
     title: "Let's connect",
     content: (
-      <div className="space-y-10">
+      <div className="space-y-8">
         <p>
           You can reach me at id.la.walid@gmail.com or find me on GitHub and
           LinkedIn. Open to internships, collaborations, and interesting
@@ -51,20 +51,13 @@ const items = [
 
         <a
           href="#contact"
-          className="group flex w-full items-center justify-between rounded-2xl border border-beige_bright/25 bg-beige_bright/8 px-5 py-4 text-beige_bright transition-all duration-300 hover:border-beige_bright/60 hover:bg-beige_bright/12 md:px-6 md:py-5 lg:mx-auto lg:w-[94%] xl:w-[90%]"
+          className="group ml-auto flex w-fit items-center gap-2 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-500 transition-colors duration-300 hover:text-beige_bright"
         >
-          <div className="space-y-1 text-left">
-            <p className="text-sm uppercase tracking-[0.24em] text-beige_bright/60 md:text-base">
-              Get In Touch?
-            </p>
-            <p className="text-base font-medium md:text-lg lg:text-xl">
-              Head down to the contact section and send me a message.
-            </p>
-          </div>
-
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-beige_bright/35 bg-beige_bright/10 transition-transform duration-300 ease-out group-hover:scale-110  md:h-14 md:w-14">
-            <CircleArrowDown className="h-5 w-5 md:h-6 md:w-6" />
-          </div>
+          get in touch — head down to the contact section
+          <MoveDown
+            className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-y-1.5"
+            strokeWidth={1.5}
+          />
         </a>
       </div>
     ),
