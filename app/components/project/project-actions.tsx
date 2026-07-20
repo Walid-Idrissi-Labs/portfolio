@@ -48,7 +48,9 @@ export function ProjectActions({ project }: { project: Project }) {
   return (
     <div className="flex w-full flex-col items-center gap-8">
       <p className="max-w-xl text-center font-unbounded font-extralight text-sm leading-relaxed text-neutral-300 md:text-base">
-        The code is public. If you&apos;d rather see it running, request a demo and it lands straight in my inbox.
+        {project.private
+          ? "This one runs on real client data, so the code stays private. Request a demo and I'll walk you through it directly."
+          : "The code is public. If you'd rather see it running, request a demo and it lands straight in my inbox."}
       </p>
 
       <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">

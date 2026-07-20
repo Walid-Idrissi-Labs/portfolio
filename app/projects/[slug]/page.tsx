@@ -114,7 +114,12 @@ export default async function ProjectPage({
             </SectionHeading>
           </div>
           <div className="mt-10 md:mt-14">
-            <ProjectGallery slug={project.slug} shots={project.screenshots} />
+            <ProjectGallery
+              slug={project.slug}
+              shots={project.screenshots}
+              isPrivate={project.private === true}
+              demoAvailable={project.links.demo === true}
+            />
           </div>
         </section>
 

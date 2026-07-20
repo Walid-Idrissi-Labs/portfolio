@@ -11,7 +11,7 @@ const url_shortener = "/project-url-shortener.png";
 const tascii = "/project-tascii.png";
 const applyr = "/project-applyr.png";
 const sla_monitor = "/project-sla-monitor.png";
-const shipping_crm = "/project-shipping-crm.png";
+const shipping_crm = "/project-shipping-crm-0.png";
 
 export default function GlowingEffectSection() {
   return (
@@ -64,7 +64,7 @@ export default function GlowingEffectSection() {
         area="md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]"
         icon={<Truck className="h-4 w-4 text-faint_white" />}
         title="Shipping CRM"
-        description="Logistics CRM for a shipping provider — shipments, public tracking, and invoicing."
+        description="A logistics CRM for a shipping company: shipments, public tracking, and invoicing."
         href="/projects/shipping-crm"
         backgroundImage={shipping_crm}
         duration={1.8}

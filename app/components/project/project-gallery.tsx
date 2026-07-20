@@ -12,7 +12,7 @@ import {
   type MotionValue,
 } from "motion/react";
 
-import { Maximize2 } from "lucide-react";
+import { ArrowDown, Maximize2 } from "lucide-react";
 
 import type { ProjectScreenshot } from "../../lib/projects";
 import { LightboxProvider, useLightbox } from "./image-lightbox";
@@ -32,7 +32,12 @@ const ratioOf = (shot: ProjectScreenshot) =>
 // while the off-center frames blur and dim. Small screens and reduced-motion
 // users get a native swipe-snap strip instead, so the pinned path is purely a
 // progressive enhancement (it is also what the server renders first).
-export function ProjectGallery({ slug, shots }: ProjectGalleryProps) {
+export function ProjectGallery({
+  slug,
+  shots,
+  isPrivate = false,
+  demoAvailable = false,
+}: ProjectGalleryProps & { isPrivate?: boolean; demoAvailable?: boolean }) {
   const [pinned, setPinned] = useState(false);
   // Tap-to-zoom is a mobile-only affordance; desktop keeps the pinned strip.
   const [isMobile, setIsMobile] = useState(false);
@@ -54,6 +59,8 @@ export function ProjectGallery({ slug, shots }: ProjectGalleryProps) {
     };
   }, [shouldReduceMotion]);
 
+  if (isPrivate) return <PrivateCaptures demoAvailable={demoAvailable} />;
+
   if (shots.length === 0) return null;
 
   let content: ReactNode;
@@ -69,6 +76,31 @@ export function ProjectGallery({ slug, shots }: ProjectGalleryProps) {
   }
 
   return <LightboxProvider enabled={isMobile}>{content}</LightboxProvider>;
+}
+
+// Stand-in for projects whose captures can't be shown publicly (client work
+// under NDA, private dashboards, etc). Reuses the single-shot layout — an
+// empty Frame-shaped box plus a caption-slot line below it — so the section
+// stays in the same visual language instead of dropping in a foreign card.
+function PrivateCaptures({ demoAvailable }: { demoAvailable: boolean }) {
+  return (
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-6 md:px-0">
+      <div className="flex aspect-video items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-not_quite_black">
+        <p className="max-w-sm px-6 text-center font-unbounded font-extralight text-sm text-neutral-400 md:text-base">
+          Unfortunately, this app runs on real client data, so I can&apos;t share captures of it publicly here.
+        </p>
+      </div>
+      {demoAvailable && (
+        <a
+          href="#see-it"
+          className="inline-flex w-fit items-center gap-1.5 font-ibm text-[10px] uppercase tracking-[0.3em] text-slate transition-colors duration-300 hover:text-beige_bright"
+        >
+          Request a demo instead
+          <ArrowDown className="h-3 w-3" strokeWidth={1.5} />
+        </a>
+      )}
+    </div>
+  );
 }
 
 function PinnedStrip({ slug, shots }: ProjectGalleryProps) {

@@ -57,7 +57,12 @@ export type Project = {
   background: string[];
   features: ProjectFeature[];
   stackRows: LogoItem[][];
-  screenshots: ProjectScreenshot[] ;
+  screenshots: ProjectScreenshot[];
+  /** Set true for projects (e.g. client work) whose code and captures can't
+   *  be shared publicly. Defaults to false (public). Swaps the captures
+   *  gallery for an apology pointing at "Request a Demo", and adjusts the
+   *  "See It Yourself" copy so it stops claiming the code is public. */
+  private?: boolean;
 };
 
 export const projects: Project[] = [
@@ -400,7 +405,7 @@ export const projects: Project[] = [
       ],
       [
         { src: "/logo-react.svg", alt: "React", href: "https://react.dev/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
-        { src: "/logo-tailwind.svg", alt: "Tailwind CSS", href: "https://tailwindcss.com/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
         { src: "/logo-javascript.svg", alt: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
       ],
     ],
@@ -431,41 +436,46 @@ export const projects: Project[] = [
   {
     slug: "shipping-crm",
     name: "Shipping CRM",
-    tagline: "A logistics CRM connecting a shipping provider with its clients — quotes, shipments, tracking, and invoicing under one roof.",
+    tagline: "A CRM for a Moroccan shipping company to run its quotes, shipments, tracking, and invoicing, with a client portal and public parcel tracking.",
     type: "Full-Stack CRM",
     year: "2026",
     status: "in-progress",
-    role: "Solo Project",
+    role: "Solo Internship Project",
     icon: "truck",
-    heroImage: "/project-shipping-crm.png",
-    heroImageAlt: "Shipping CRM — logistics and shipment management platform",
+    heroImage: "/project-shipping-crm-0.png",
+    heroImageAlt: "Shipping CRM, a logistics and shipment management platform",
+    private: true,
     seoDescription:
-      "Shipping CRM — a multi-tenant logistics platform built with Laravel and React: shipment lifecycle, public tracking, invoices and credit notes, PDF labels with barcodes.",
+      "Shipping CRM, a role-based logistics platform built for a single shipping company with Laravel and React. It handles the shipment lifecycle, public tracking, invoices and credit notes, and PDF labels with barcodes.",
     links: {
-      repo: "https://github.com/Walid-Idrissi-Labs/Shipping-CRM",
       demo: true,
     },
     background: [
-      "This one started with a cahier des charges — a real, versioned spec for a Moroccan logistics operator, with the kind of business rules you don't invent for fun: clients may create shipments but can never touch a status, every account gets a unique six-digit number, invoices carry ICE and fiscal fields, and mistakes aren't edited away — they're corrected with a proper credit note. Reading it, I knew this would teach me more than any tutorial project could.",
-      "The system serves four different audiences from one codebase: the provider running operations, account clients managing their shipments and invoices, guests requesting express quotes, and anyone at all tracking a parcel on the public page — no login, just a tracking number and a five-stage timeline. Under it sits a Laravel API and a React front end, with PostgreSQL holding a schema I modeled before writing a line of application code.",
-      "I also made myself work designer-first: before the build, I wireframed every screen as plain HTML — dashboards, invoice builder, shipment forms, tracking — and studied how UPS, FedEx and DHL structure their own pages. It's still in progress, and it's the project where I've felt closest to real-world software: less clever code, more getting the rules exactly right.",
+      "I built this project during a 2026 summer internship, for a Moroccan logistics company, and it was the first time I worked from someone else's rules instead of my own. The rules were specific in the way real business tends to be. A client can create a shipment but can never change its status. Every account gets its own six-digit number. Invoices have to carry ICE and other fiscal fields. And you don't delete a mistake on an invoice, you issue a credit note to correct it. None of that is the kind of thing you'd think to invent on a personal project, and working through it taught me more than a tutorial would.",
+      "The app has four kinds of users, all served from one codebase. The company handles day to day operations, account clients manage their own shipments and invoices, guests can request a quick quote without signing up, and anyone at all can follow a parcel on a public page with no login. Behind it is a Laravel API, a React frontend, and PostgreSQL. I designed the database schema first in the 'Cahier des Charges', before writing any application code.",
+      "I also made mockups before building. Making sure that the app felt natural for its intended users. I wireframed every screen in plain HTML first, the dashboards, the invoice builder, the shipment forms, the tracking page, and I spent real time studying how other companies lay out their own sites.",
+      "Shipping it was its own lesson. There was no serverless platform doing the work for me this time, it went on a real VPS and I deployed it by hand. SSHing into the server, setting up nginx, wiring up the database, handling environment variables and the build, and fixing whatever broke once it was actually live. That side of it taught me what a managed host quietly hides from you, all the small things that have to be true for an app to stay up on a machine you actually own. It's finished now, and it's the project that has felt closest to real software. Less clever code, more getting the details exactly right.",
     ],
     features: [
       {
-        title: "Four audiences, one system",
-        body: "Provider, account clients, guest quote requests, and a fully public tracking page — each with exactly the permissions their role implies, and not one more.",
+        title: "One app, four roles",
+        body: "The company and it's employees, its account clients, guests asking for a quote, and a public tracking page. Each role gets exactly the access it needs.",
       },
       {
-        title: "A paper trail by design",
-        body: "Quotes become shipments, shipments become invoices, and corrections become credit notes. Documents render server-side as PDFs, shipping labels included — barcode and all.",
+        title: "Real Professional Document and Shipment Workflow",
+        body: "Quotes turn into shipments, shipments turn into invoices, and when something is wrong you fix it with a credit note instead of an edit. The server builds the PDFs itself, including shipping labels with real barcodes.",
       },
       {
-        title: "Business rules enforced where it counts",
-        body: "Shipments are immutably bound to the client's account number, statuses only move by the provider's hand, and Moroccan fiscal identity — ICE, RC, IF — is a first-class citizen.",
+        title: "Enforced Real Rules",
+        body: "A shipment is tied to the client's account number for good, only the company can move a shipment's status, and the Moroccan fiscal fields (ICE, RC, IF...) are built into the data model from the start.",
       },
       {
-        title: "Spec-first, wireframe-second, code-third",
-        body: "A versioned cahier des charges, a full data model, and HTML wireframes for every screen came before the implementation — so the build has a blueprint to answer to.",
+        title: "Designed, then built",
+        body: "HTML wireframes for every screen came before any real code. By the time I started building, I already knew exactly what I was building toward, and knew the end users would find it natural to use.",
+      },
+      {
+        title: "Deployed by hand on a real VPS",
+        body: "No managed platform this time. It runs on a VPS I set up and deploy to myself, over SSH, with nginx in front, the database and environment configured on the box, and every release pushed out by hand.",
       },
     ],
     stackRows: [
@@ -475,32 +485,18 @@ export const projects: Project[] = [
         { src: "/logo-postgres.svg", alt: "PostgreSQL", href: "https://www.postgresql.org/", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
       ],
       [
-        { src: "/logo-php.svg", alt: "PHP", href: "https://www.php.net/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-php.svg", alt: "PHP", href: "https://www.php.net/", span: "col-span-3 sm:col-span-2", minWidth: "5rem" },
+        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-3 sm:col-span-2", minWidth: "5rem" },
         { src: "/logo-tailwind.svg", alt: "Tailwind CSS", href: "https://tailwindcss.com/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
         { src: "/logo-javascript.svg", alt: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
       ],
+      [
+      ],
     ],
     screenshots: [
-      {
-        src: "/project-shipping-crm-dashboard.png",
-        alt: "Shipping CRM client dashboard wireframe",
-        caption: "the client dashboard, wireframe edition — the build is chasing this blueprint",
-      },
-      {
-        src: "/project-shipping-crm-shipment-form.png",
-        alt: "Shipping CRM shipment creation wireframe",
-        caption: "creating a shipment: sender, recipient, parcel — the whole customs-ready form",
-      },
-      {
-        src: "/project-shipping-crm-tracking.png",
-        alt: "Shipping CRM public tracking wireframe",
-        caption: "public tracking — five stops from information reçue to delivered",
-      },
-      {
-        src: "/project-shipping-crm-invoice.png",
-        alt: "Shipping CRM invoice builder wireframe",
-        caption: "the invoice builder — TVA math included, en dirhams",
-      },
+      
+    
+      
     ],
   },
 ];
