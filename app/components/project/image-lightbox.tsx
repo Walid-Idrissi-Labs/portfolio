@@ -11,7 +11,13 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+} from "motion/react";
 import { X } from "lucide-react";
 
 import type { ProjectScreenshot } from "../../lib/projects";
@@ -112,6 +118,12 @@ function Overlay({
   const { shot, id } = item;
   const ratio = ratioOf(shot);
 
+  // Drag offset of the image wrapper. The caption gets an equal-and-opposite
+  // shift while `y` is negative (swiping up) so it stays pinned in place, but
+  // none while `y` is positive (swiping down) so it rides down with the image.
+  const dragY = useMotionValue(0);
+  const captionCounterY = useTransform(dragY, (v) => (v < 0 ? -v : 0));
+
   // Fit the biggest box that respects both the width and height budgets while
   // keeping the shot's ratio, so portrait and landscape captures both fit
   // without cropping the box (the image inside keeps its own object-fit).
@@ -149,43 +161,56 @@ function Overlay({
         <X className="h-5 w-5" strokeWidth={1.5} />
       </motion.button>
 
-      {/* The morphing capture — shares layoutId with its thumbnail. Drag it
-          down to flick the lightbox away. */}
+      {/* Image + caption ride in one draggable element. A downward flick carries
+          them together (otherwise the image slides down onto the caption and
+          they collide); an upward flick leaves the caption pinned via its
+          counter-transform. The layoutId morph stays on the inner image div, so
+          the thumbnail→fullscreen animation is untouched. */}
       <motion.div
-        layoutId={reduceMotion ? undefined : id}
-        initial={reduceMotion ? { opacity: 0, scale: 0.92 } : undefined}
-        animate={reduceMotion ? { opacity: 1, scale: 1 } : undefined}
-        exit={reduceMotion ? { opacity: 0, scale: 0.92 } : undefined}
         drag={reduceMotion ? false : "y"}
         dragSnapToOrigin
         dragElastic={0.25}
         onDragEnd={(_event, info) => {
           if (info.offset.y > 120 || info.velocity.y > 600) onClose();
         }}
-        className="relative z-[1] max-w-[92vw] cursor-grab overflow-hidden rounded-2xl border border-white/10 bg-not_quite_black shadow-2xl active:cursor-grabbing"
-        style={{ width, aspectRatio: ratio }}
+        style={{ y: dragY }}
+        className="relative z-[1] flex cursor-grab flex-col items-center active:cursor-grabbing"
         transition={{ type: "spring", stiffness: 260, damping: 32 }}
       >
-        <Image
-          src={shot.src}
-          alt={shot.alt}
-          fill
-          sizes="92vw"
-          className={shot.fit === "contain" ? "object-contain" : "object-cover"}
-          draggable={false}
-        />
-      </motion.div>
-
-      {shot.caption && (
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0, transition: { delay: 0.12 } }}
-          exit={{ opacity: 0, y: 8, transition: { duration: 0.15 } }}
-          className="relative z-[1] mt-5 max-w-[85vw] text-center font-unbounded font-extralight text-xs text-neutral-300"
+        <motion.div
+          layoutId={reduceMotion ? undefined : id}
+          initial={reduceMotion ? { opacity: 0, scale: 0.92 } : undefined}
+          animate={reduceMotion ? { opacity: 1, scale: 1 } : undefined}
+          exit={reduceMotion ? { opacity: 0, scale: 0.92 } : undefined}
+          className="relative max-w-[92vw] overflow-hidden rounded-2xl border border-white/10 bg-not_quite_black shadow-2xl"
+          style={{ width, aspectRatio: ratio }}
+          transition={{ type: "spring", stiffness: 260, damping: 32 }}
         >
-          {shot.caption}
-        </motion.p>
-      )}
+          <Image
+            src={shot.src}
+            alt={shot.alt}
+            fill
+            sizes="92vw"
+            className={shot.fit === "contain" ? "object-contain" : "object-cover"}
+            draggable={false}
+          />
+        </motion.div>
+
+        {shot.caption && (
+          // Outer div carries the drag counter-transform; inner p keeps its own
+          // enter/exit y so the two never fight over the same motion value.
+          <motion.div style={{ y: captionCounterY }} className="max-w-[85vw]">
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0, transition: { delay: 0.12 } }}
+              exit={{ opacity: 0, y: 8, transition: { duration: 0.15 } }}
+              className="mt-5 text-center font-unbounded text-xs font-extralight text-neutral-300"
+            >
+              {shot.caption}
+            </motion.p>
+          </motion.div>
+        )}
+      </motion.div>
     </motion.div>
   );
 }
