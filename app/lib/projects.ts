@@ -76,6 +76,7 @@ export const projects: Project[] = [
       "A fully serverless URL shortener on AWS : API Gateway, Lambda and DynamoDB, provisioned entirely with Terraform.",
     links: {
       repo: "https://github.com/walid-idrissi-labs/url-shortener",
+      live : "https://d31h3o5h3f8znf.cloudfront.net/",
       demo: true,
     },
     background: [

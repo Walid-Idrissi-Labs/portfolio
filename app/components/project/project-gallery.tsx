@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   AnimatePresence,
   motion,
@@ -12,7 +12,10 @@ import {
   type MotionValue,
 } from "motion/react";
 
+import { Maximize2 } from "lucide-react";
+
 import type { ProjectScreenshot } from "../../lib/projects";
+import { LightboxProvider, useLightbox } from "./image-lightbox";
 
 type ProjectGalleryProps = {
   slug: string;
@@ -31,28 +34,41 @@ const ratioOf = (shot: ProjectScreenshot) =>
 // progressive enhancement (it is also what the server renders first).
 export function ProjectGallery({ slug, shots }: ProjectGalleryProps) {
   const [pinned, setPinned] = useState(false);
+  // Tap-to-zoom is a mobile-only affordance; desktop keeps the pinned strip.
+  const [isMobile, setIsMobile] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    const query = window.matchMedia("(min-width: 768px)");
-    const update = () => setPinned(query.matches && !shouldReduceMotion);
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const update = () => {
+      setPinned(desktop.matches && !shouldReduceMotion);
+      setIsMobile(mobile.matches);
+    };
     update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
+    desktop.addEventListener("change", update);
+    mobile.addEventListener("change", update);
+    return () => {
+      desktop.removeEventListener("change", update);
+      mobile.removeEventListener("change", update);
+    };
   }, [shouldReduceMotion]);
 
   if (shots.length === 0) return null;
 
+  let content: ReactNode;
   if (shots.length === 1) {
-    return (
+    content = (
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-6 md:px-0">
         <Frame slug={slug} shot={shots[0]} index={0} />
         <p className="font-unbounded font-extralight text-xs text-neutral-400 md:text-sm">{shots[0].caption}</p>
       </div>
     );
+  } else {
+    content = pinned ? <PinnedStrip slug={slug} shots={shots} /> : <SwipeStrip slug={slug} shots={shots} />;
   }
 
-  return pinned ? <PinnedStrip slug={slug} shots={shots} /> : <SwipeStrip slug={slug} shots={shots} />;
+  return <LightboxProvider enabled={isMobile}>{content}</LightboxProvider>;
 }
 
 function PinnedStrip({ slug, shots }: ProjectGalleryProps) {
@@ -227,8 +243,13 @@ function Frame({ slug, shot, index }: { slug: string; shot: ProjectScreenshot; i
   // When intrinsic dimensions are given the box matches the image's real
   // aspect ratio; otherwise fall back to the shared 16:9 slot.
   const ratio = shot.width && shot.height ? shot.width / shot.height : undefined;
-  return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-not_quite_black">
+  const shouldReduceMotion = useReducedMotion();
+  const { open } = useLightbox();
+  // Unique per gallery; the enlarged overlay reuses this to morph in/out.
+  const id = `${slug}-${index}`;
+
+  const body = (
+    <>
       {showChrome && (
         <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
           <span className="h-2 w-2 rounded-full bg-red/80" />
@@ -254,6 +275,29 @@ function Frame({ slug, shot, index }: { slug: string; shot: ProjectScreenshot; i
           className={shot.fit === "contain" ? "object-contain" : "object-cover"}
         />
       </div>
-    </div>
+    </>
+  );
+
+  // Desktop (open === null) renders the plain frame — no layout tracking, so
+  // the pinned strip's own transforms stay untouched.
+  if (!open) {
+    return <div className="overflow-hidden rounded-2xl border border-white/10 bg-not_quite_black">{body}</div>;
+  }
+
+  return (
+    <motion.button
+      type="button"
+      layoutId={shouldReduceMotion ? undefined : id}
+      onClick={() => open({ id, shot })}
+      aria-label={`View “${shot.alt}” full screen`}
+      className="group relative block w-full cursor-zoom-in overflow-hidden rounded-2xl border border-white/10 bg-not_quite_black text-left"
+      transition={{ type: "spring", stiffness: 260, damping: 32 }}
+    >
+      {body}
+      {/* Subtle tap-to-expand hint, since this only appears on touch. */}
+      <span className="pointer-events-none absolute right-2.5 top-2.5 z-[1] flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/40 text-neutral-200 backdrop-blur">
+        <Maximize2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+      </span>
+    </motion.button>
   );
 }
