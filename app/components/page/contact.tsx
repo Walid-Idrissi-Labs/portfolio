@@ -42,6 +42,21 @@ const entrance: Variants = {
   },
 };
 
+// Same fade-up as `entrance`, minus the `filter`. Framer Motion leaves
+// "blur(0px)" as a permanent inline style once settled, and any non-"none"
+// filter forces the element's whole subtree onto an isolated compositing
+// layer — trapping the form's backdrop-filter so it can only see that
+// flattened layer instead of the real page background behind it. The panel
+// needs this wrapper filter-free so its glass reads the same as the nav's.
+const panelEntrance: Variants = {
+  hidden: { opacity: 0, y: 26 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.9, ease: "easeOut" },
+  },
+};
+
 export function ContactExperience() {
   const shouldReduceMotion = useReducedMotion();
 
@@ -74,7 +89,7 @@ export function ContactExperience() {
           textAlign="left"
         >
           <span className="block">Let’s Shape</span>
-          <span className="block font-dmserif italic text-slate">What’s Next.</span>
+          <span className="block font-ibm font-thin italic text-slate">What’s Next.</span>
         </SplitText>
 
         <motion.p
@@ -86,7 +101,7 @@ export function ContactExperience() {
         </motion.p>
       </div>
 
-      <motion.div variants={entrance} className="lg:col-start-2 lg:row-start-1 lg:row-span-2">
+      <motion.div variants={panelEntrance} className="lg:col-start-2 lg:row-start-1 lg:row-span-2">
         <ContactForm />
       </motion.div>
 
@@ -178,14 +193,7 @@ function ContactChannels() {
         </span>
         <span className="flex items-center gap-2 font-ibm text-sm font-light text-neutral-200 transition-colors duration-300 group-hover:text-beige_bright md:text-[15px]">
           <span className="break-all">{EMAIL}</span>
-          {copied ? (
-            <Check className="h-3.5 w-3.5 shrink-0 text-beige_bright" strokeWidth={1.5} />
-          ) : (
-            <Copy
-              className="h-3.5 w-3.5 shrink-0 opacity-50 transition-opacity duration-300 group-hover:opacity-100"
-              strokeWidth={1.5}
-            />
-          )}
+
         </span>
         <span aria-live="polite" className="sr-only">
           {copied ? "Email copied to clipboard" : ""}
@@ -196,14 +204,14 @@ function ContactChannels() {
 
       <Channel label="local time" value={`${time ?? "--:--:--"} ${offset}`} />
 
-      <div className="flex flex-col gap-2 border-l border-white/10 pl-4">
+      <div className="flex flex-col gap-2 border-l border-white/10 ">
         <span className="font-ibm text-[10px] uppercase tracking-[0.3em] text-neutral-500">
           status
         </span>
-        <span className="flex items-center gap-2.5 font-ibm text-sm font-light text-neutral-200 md:text-[15px]">
+        <span className="flex items-center gap-2 font-ibm text-sm font-light text-neutral-200 md:text-[15px]">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-beige_bright opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-beige_bright" />
+            {/* <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-beige_bright opacity-60" /> */}
+            {/* <span className="relative inline-flex h-2 w-2 rounded-full bg-beige_bright" /> */}
           </span>
           Open to opportunities
         </span>
@@ -261,14 +269,8 @@ function validate(values: FormValues): FormErrors {
 const inputClasses =
   "w-full bg-transparent pb-3.5 pt-2.5 font-ibm text-base font-light text-beige_bright caret-beige_bright outline-none placeholder:text-neutral-700 md:text-[17px]";
 
-// The nav's liquid glass with a denser smoked tint (same hues, higher alpha):
-// the panel holds form fields, so it trades some translucency for legibility
-// while keeping the identical frost, rim, and shadow treatment.
-const panelStyle: React.CSSProperties = {
-  ...liquidGlassStyle,
-  background:
-    "linear-gradient(120deg, rgba(32,32,36,0.78), rgba(13,13,15,0.75) 45%, rgba(9,9,11,0.73) 60%, rgba(26,26,30,0.74))",
-};
+// Same material as the nav (app/lib/glass.ts) — no local overrides.
+const panelStyle: React.CSSProperties = liquidGlassStyle;
 
 
 function ContactForm() {
@@ -401,7 +403,7 @@ function ContactForm() {
                     name="name"
                     type="text"
                     autoComplete="name"
-                    placeholder="Ada Lovelace"
+                    placeholder=""
                     value={values.name}
                     onChange={handleChange}
                     aria-invalid={Boolean(errors.name)}
@@ -417,7 +419,7 @@ function ContactForm() {
                     name="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="you@example.com"
+                    placeholder=""
                     value={values.email}
                     onChange={handleChange}
                     aria-invalid={Boolean(errors.email)}
@@ -439,7 +441,7 @@ function ContactForm() {
                     name="message"
                     rows={4}
                     maxLength={MESSAGE_LIMIT}
-                    placeholder="Tell me about the project, the role, or the problem you're chasing…"
+                    placeholder="..."
                     value={values.message}
                     onChange={handleChange}
                     aria-invalid={Boolean(errors.message)}
