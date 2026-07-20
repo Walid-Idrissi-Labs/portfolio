@@ -96,7 +96,13 @@ export function ContactExperience() {
           variants={entrance}
           className="mt-6 max-w-xl font-unbounded font-extralight text-sm leading-relaxed text-neutral-400 md:text-base"
         >
-          An internship, a collaboration, or an idea worth chasing — my inbox is open.
+          An internship, a collaboration, or an idea worth chasing
+        </motion.p>
+        <motion.p
+          variants={entrance}
+          className="mt-2 max-w-xl font-unbounded font-extralight text-sm leading-relaxed text-neutral-400 md:text-base"
+        >
+          My inbox is open.
           Tell me what you&apos;re building and I&apos;ll get back to you within 24 hours.
         </motion.p>
       </div>
