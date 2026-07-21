@@ -163,7 +163,7 @@ export const projects: Project[] = [
     tagline: "A fast, minimal task manager that lives where I do... in the terminal.",
     type: "Terminal App",
     year: "2026",
-    status: "in-progress",
+    status: "completed",
     role: "Solo Project",
     icon: "terminal",
     heroImage: "/project-tascii.png",
