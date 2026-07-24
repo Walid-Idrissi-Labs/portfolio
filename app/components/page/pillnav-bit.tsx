@@ -482,7 +482,10 @@ const PillNav: React.FC<PillNavProps> = ({
   );
 
   return (
-    <div className="absolute top-[1em] z-1000 w-full left-0 md:w-auto md:left-auto">
+    // The bar spans the full width on mobile but only its own controls should
+    // catch taps — it's pinned over scrolling content now, so a transparent
+    // full-width strip would otherwise swallow every tap along the top edge.
+    <div className="absolute top-[1em] z-1000 w-full left-0 md:w-auto md:left-auto pointer-events-none">
       <nav
         className={`w-full md:w-max flex items-center justify-between  md:justify-start box-border gap-3 px-4 md:px-0  ${className}`}
         aria-label="Primary"
@@ -498,7 +501,7 @@ const PillNav: React.FC<PillNavProps> = ({
             ref={el => {
               logoRef.current = el;
             }}
-            className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative"
+            className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative pointer-events-auto"
             style={{
               ...glassStyle,
               width: 'var(--nav-h)',
@@ -516,7 +519,7 @@ const PillNav: React.FC<PillNavProps> = ({
             ref={el => {
               logoRef.current = el;
             }}
-            className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative"
+            className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative pointer-events-auto"
             style={{
               ...glassStyle,
               width: 'var(--nav-h)',
@@ -529,7 +532,7 @@ const PillNav: React.FC<PillNavProps> = ({
 
         <div
           ref={navItemsRef}
-          className="relative items-center rounded-full hidden md:flex ml-1"
+          className="relative items-center rounded-full hidden md:flex ml-1 pointer-events-auto"
           style={{
             ...glassStyle,
             height: 'var(--nav-h)'
@@ -636,7 +639,7 @@ const PillNav: React.FC<PillNavProps> = ({
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer relative"
+          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer relative pointer-events-auto"
           style={{
             ...glassStyle,
             width: 'var(--nav-h)',
@@ -657,7 +660,7 @@ const PillNav: React.FC<PillNavProps> = ({
       <div
     //   MOBILE MENU
         ref={mobileMenuRef}
-        className="md:hidden absolute  top-[3em] left-[3em] right-[3em] rounded-[1.75rem] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-998 origin-top text-center"
+        className="md:hidden absolute  top-[3em] left-[3em] right-[3em] rounded-[1.75rem] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-998 origin-top text-center pointer-events-auto"
         style={{
           ...cssVars,
           ...glassStyle,

@@ -30,7 +30,7 @@ export default function CataloguePage() {
 
   return (
     <>
-      <section className="w-full flex items-center justify-center px-6 xl:px-16 md:fixed z-90">
+      <section className="fixed inset-x-0 top-0 flex items-center justify-center px-6 xl:px-16 z-90">
         <div className="flex justify-around px-1 lg:px-1 font-ibm font-weight-500">
           <PillNav
             logos={[walid_1, walid_2]}
@@ -56,7 +56,9 @@ export default function CataloguePage() {
 
       <section
         id="catalogue-hero"
-        className="relative flex min-h-[55svh] w-full flex-col justify-end overflow-hidden bg-black pb-12 md:pb-16"
+        // pt is a floor, not spacing: the copy is bottom-aligned, so on short
+        // viewports it would otherwise ride up under the pinned nav + back pill.
+        className="relative flex min-h-[55svh] w-full flex-col justify-end overflow-hidden bg-black pt-40 pb-12 md:pt-44 md:pb-16"
       >
         <div aria-hidden="true" className="absolute inset-0 z-0">
           {/* Same waves as the home hero, turned way down: calmer motion,
@@ -68,10 +70,11 @@ export default function CataloguePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black" />
         </div>
 
-        <div className="absolute inset-x-0 top-6 z-20 flex items-center px-6 md:top-28 md:px-10">
+        {/* Clears the pinned nav (memoji occupies y16–63) — see project-hero. */}
+        <div className="absolute inset-x-0 top-24 z-20 flex items-center px-6 md:top-28 md:px-10">
           <Link
             href="/"
-            className="group flex items-center gap-2 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-400 transition-colors duration-300 hover:text-beige_bright"
+            className="group flex h-10 items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-300 backdrop-blur transition-colors duration-300 hover:border-beige_bright/60 hover:text-beige_bright"
           >
             <span aria-hidden="true" className="transition-transform duration-300 group-hover:-translate-x-1">
               ←

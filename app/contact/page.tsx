@@ -19,7 +19,7 @@ export default function ContactPage() {
                 <InfiniteGrid className="h-full w-full pointer-events-none" />
             </div>
 
-            <section className="w-full flex items-center justify-center px-6 xl:px-16 md:fixed z-90">
+            <section className="fixed inset-x-0 top-0 flex items-center justify-center px-6 xl:px-16 z-90">
                 <div className="flex justify-around px-1 lg:px-1 font-ibm font-weight-500">
                     <PillNav
                         logos={[walid_1, walid_2]}
@@ -41,7 +41,8 @@ export default function ContactPage() {
                 </div>
             </section>
 
-            <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-16 pt-10 md:px-10 md:pt-36">
+            {/* pt clears the pinned nav — the memoji occupies y16–63 on mobile. */}
+            <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-16 pt-28 md:px-10 md:pt-36">
                 <ContactExperience />
             </main>
 

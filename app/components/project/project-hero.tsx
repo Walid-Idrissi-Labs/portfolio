@@ -54,7 +54,9 @@ export function ProjectHero({ project }: { project: Project }) {
     <section
       id="project-hero"
       ref={sectionRef}
-      className="relative flex min-h-[100svh] w-full flex-col justify-end overflow-hidden bg-black"
+      // pt is a floor, not spacing: the copy is bottom-aligned, so on short
+      // viewports it would otherwise ride up under the pinned nav + back pill.
+      className="relative flex min-h-[100svh] w-full flex-col justify-end overflow-hidden bg-black pt-40 md:pt-44"
     >
       <motion.div
         aria-hidden="true"
@@ -77,13 +79,16 @@ export function ProjectHero({ project }: { project: Project }) {
         />
       </motion.div>
 
+      {/* Sits clear of the pinned nav: the memoji occupies y16–63, so this row
+          starts at 96px on mobile. Both controls are h-10 glass so they read as
+          one row with the nav's material. */}
       <motion.div
         {...entrance(0.1)}
-        className="absolute inset-x-0 top-6 z-20 flex items-center justify-between px-6 md:top-28 md:px-10"
+        className="absolute inset-x-0 top-24 z-20 flex items-center justify-between gap-3 px-6 md:top-28 md:px-10"
       >
         <Link
           href="/projects"
-          className="group flex items-center gap-2 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-400 transition-colors duration-300 hover:text-beige_bright"
+          className="group flex h-10 items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-300 backdrop-blur transition-colors duration-300 hover:border-beige_bright/60 hover:text-beige_bright"
         >
           <span aria-hidden="true" className="transition-transform duration-300 group-hover:-translate-x-1">
             ←

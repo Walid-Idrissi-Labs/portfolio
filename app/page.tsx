@@ -24,7 +24,7 @@ const walid_2 = "/walid_memoji_facewmac.png";
 export default function Home() {
   return (
     <>
-      <section className="w-full flex items-center justify-center px-6 xl:px-16 md:fixed z-90">
+      <section className="fixed inset-x-0 top-0 flex items-center justify-center px-6 xl:px-16 z-90">
         <div className="flex justify-around px-1 lg:px-1 font-ibm font-weight-500">
           <PillNav
             logos={[walid_1, walid_2]}
