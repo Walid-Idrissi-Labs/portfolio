@@ -244,6 +244,7 @@ export const projects: Project[] = [
       "Applyr — a job application tracking SaaS with a Laravel API, a React SPA, AI-tailored resumes, and browser extensions that capture listings straight from job boards.",
     links: {
       repo: "https://github.com/Walid-Idrissi-Labs/Applyr",
+      live: "https://applyr.walid-idrissi-labs.workers.dev/",
       demo: true,
     },
     background: [
