@@ -344,7 +344,7 @@ export const projects: Project[] = [
         caption: "The browser extension, capturing a job listing straight from the job board.",
       },
       {
-        src: "/project-applyr-13.png",
+        src: "/project-applyr-13-v2.png",
         alt: "Applyr email verification message",
         caption: "A branded transactional email, verifying an address before reminders go out.",
       },
