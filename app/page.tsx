@@ -135,10 +135,10 @@ export default function Home() {
 
           <div className="mt-10 mb-50 md:my-6 lg:mb-30 xl:my-10 lg:w[80vw] xl:w-[75vw] lg:my-4 mx-auto outline-red-500">
             <AnimatedContainer duration={3} delay={0.0}>
-              <ScrollText text={`I'm Walid, a software engineering student at Cadi Ayyad University in Marrakech, currently in the engineering cycle specializing in computer networks and information systems.
-                        I work across the stack. On the frontend I focus on clean, functional interfaces. On the backend and infrastructure side, I've spent a lot of time learning Cloud Computing Essentials with AWS, building and deploying real projects using serverless architecture, cloud storage, and infrastructure as code. I enjoy both sides and I've found that working across them makes me a better engineer overall.
-                        Outside of university I invest a lot of time in self-directed learning. I've completed coursework through Cisco Networking Academy and AWS Skill Builder and AWS Educate, covering networking fundamentals, cloud architecture, and core AWS services. I'm currently preparing for the AWS Certified Cloud Practitioner certification, expected in 2027. I've also done coursework  in machine learning, Python, SQL, and project management through Udemy.
-                        I'm at an early stage in my career, but I take it seriously. The projects here are things I built out of genuine interest, and I'm always working on something new.`}
+              <ScrollText text={`I'm Walid, a **software engineering** student at Cadi Ayyad University in Marrakech, currently in the engineering cycle specializing in **computer networks and information systems.**
+                        I work **across the stack.** On the frontend I focus on clean, functional interfaces. On the backend and infrastructure side, I've spent a lot of time learning Cloud Computing Essentials with **AWS,** building and deploying real projects using **serverless architecture,** cloud storage, and **infrastructure as code.** I enjoy both sides and I've found that working across them makes me a better engineer overall.
+                        Outside of university I invest a lot of time in self-directed learning. I've completed coursework through **Cisco Networking Academy** and AWS Skill Builder and AWS Educate, covering networking fundamentals, cloud architecture, and core AWS services. I'm currently preparing for the **AWS Certified Cloud Practitioner** certification, expected in 2027. I've also done coursework  in **machine learning,** Python, SQL, and project management through Udemy.
+                        I'm at an early stage in my career, but I take it seriously. The projects here are things I built out of genuine interest, and I'm **always working on something new.**`}
                 lineBreakSpacing={15}
               />
             </AnimatedContainer>

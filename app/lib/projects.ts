@@ -85,9 +85,9 @@ export const projects: Project[] = [
       demo: true,
     },
     background: [
-      "This one started as a challenge I set for myself: after months of AWS coursework and labs, I wanted to find out if I could actually ship something real. A URL shortener is about as basic as it gets, I know. But I gave myself one rule: every resource had to be provisioned with Terraform, no clicking around in the console. That constraint is what turned a simple weekend project into an actual lesson in cloud engineering and infrastructure.",
-      "The architecture is fully serverless. API Gateway receives the request, a Lambda function generates the short code (or looks it up and handles the redirect), and DynamoDB keeps the mappings. There's no idle compute, so it scales to zero and costs close to nothing to keep alive. Honestly, The part I spent the most time on wasn't the application logic, it was IAM. I followed least privilege throughout, scoping every role down to exactly the actions and resources it needed, nothing broader. Looking back, that was the most valuable part of the build.",
-      "What stayed with me isn't the shortener itself, it's the workflow. Define the infrastructure in code, version it, tear it down, rebuild it from scratch in minutes. Once you've worked that way, clicking around a cloud console feels like a step backwards.",
+      "This one started as a challenge I set for myself: after months of AWS coursework and labs, I wanted to find out if I could actually ship something real. A URL shortener is about as basic as it gets, I know. But I gave myself one rule: every resource had to be provisioned with **Terraform,** no clicking around in the console. That constraint is what turned a simple weekend project into an actual lesson in **cloud engineering** and infrastructure.",
+      "The architecture is **fully serverless.** **API Gateway** receives the request, a **Lambda** function generates the short code (or looks it up and handles the redirect), and **DynamoDB** keeps the mappings. There's no idle compute, so it scales to zero and costs close to nothing to keep alive. Honestly, The part I spent the most time on wasn't the application logic, it was IAM. I followed **least privilege** throughout, scoping every role down to exactly the actions and resources it needed, nothing broader. Looking back, that was the most valuable part of the build.",
+      "What stayed with me isn't the shortener itself, it's the workflow. Define the **infrastructure in code,** version it, tear it down, rebuild it from scratch in minutes. Once you've worked that way, clicking around a cloud console feels like a step backwards.",
     ],
     features: [
       {
@@ -175,9 +175,9 @@ export const projects: Project[] = [
       demo: true,
     },
     background: [
-      "Developers and Engineers spend most of their time in the terminal. Every task manager I tried wanted to pull me out of it: a separate app, a browser tab, an account to sync. I wanted the opposite: open a terminal, see my tasks, get back to work. So I built tascii.",
-      "It's written in Go, mainly for startup time. A tool you open fifty times a day has to be instant, not 'loading spinner' instant. Everything's keyboard-driven, no mouse, no menus. The UI stays plain and efficient on purpose: no colors competing for attention, no features bolted on because they looked good in a demo.",
-      "Still actively building it, and I use it daily, which is the real test. Every annoyance becomes the next task, and the todo list for tascii is managed in tascii.",
+      "Developers and Engineers spend most of their time in the **terminal.** Every task manager I tried wanted to pull me out of it: a separate app, a browser tab, an account to sync. I wanted the opposite: open a terminal, see my tasks, get back to work. So I built **tascii.**",
+      "It's written in **Go,** mainly for **startup time.** A tool you open fifty times a day has to be instant, not 'loading spinner' instant. Everything's **keyboard-driven,** no mouse, no menus. The UI stays plain and efficient on purpose: no colors competing for attention, no features bolted on because they looked good in a demo.",
+      "Still actively building it, and **I use it daily,** which is the real test. Every annoyance becomes the next task, and the todo list for tascii is managed in tascii.",
     ],
     features: [
       {
@@ -248,10 +248,10 @@ export const projects: Project[] = [
       demo: true,
     },
     background: [
-      "Applyr came out of a problem my classmate and I knew personally, the job hunt thsese days turns quickly into chaos. Spreadsheets, bookmarked listings, five versions of the same resume. The goal was to make a single app that holds all of it. So we built it as a real SaaS: a Laravel REST API for the backend, a React SPA for the frontend, communication between them is done with a token and a contract shared between them, keeping the two apps isolated and secure.",
-      "This app is more than basic CRUD. Every application added moves through a proper pipeline : wishlist to applied to interview to offer, and every status change is logged to its history automatically. Resumes have a master profile that AI tailors per application, with OCR to pull text out of an uploaded PDF and a clean A4 export at the end.",
-      "We also shipped browser extensions for Chrome and Firefox: allowing for quick capture of job listings on the fly and without leaving the tab.",
-      "Building it as a duo taught me things solo projects never had : agreeing on the API before writing either side of it, reviewing each other's assumptions, and keeping fourteen pages of frontend consistent while both of us moved fast, working in git simulatneously and resolving merge conflicts. By the end we had auth flows, an admin panel, scheduled reminder emails.",
+      "Applyr came out of a problem my classmate and I knew personally, the job hunt thsese days turns quickly into chaos. Spreadsheets, bookmarked listings, five versions of the same resume. The goal was to make a single app that holds all of it. So we built it as a real **SaaS:** a **Laravel REST API** for the backend, a **React SPA** for the frontend, communication between them is done with a token and a contract shared between them, keeping the two apps **isolated and secure.**",
+      "This app is more than basic CRUD. Every application added moves through a proper **pipeline** : wishlist to applied to interview to offer, and every status change is logged to its history automatically. Resumes have a master profile that **AI** tailors per application, with **OCR** to pull text out of an uploaded PDF and a clean A4 export at the end.",
+      "We also shipped **browser extensions** for Chrome and Firefox: allowing for quick capture of job listings on the fly and without leaving the tab.",
+      "Building it as a duo taught me things solo projects never had : **agreeing on the API** before writing either side of it, reviewing each other's assumptions, and keeping **fourteen pages** of frontend consistent while both of us moved fast, working in git simulatneously and resolving **merge conflicts.** By the end we had auth flows, an admin panel, scheduled reminder emails.",
     ],
     features: [
       {
@@ -378,12 +378,12 @@ export const projects: Project[] = [
       demo: true,
     },
     background: [
-      "After the URL shortener I set my goal on a more ambitious project, and a project that would deepen my understanding of Cloud Architectures, and my engineering approach and problem solving.",
-      "I built it in the order the problem itself demanded. First the Monitor Lambda: EventBridge wakes it every minute, it probes each target, and logs status and latency to DynamoDB.", 
-      "Only once that history existed could I reason about the next question. One failed ping isn't an incident, three in a row is, so the SLA Processor came next, running hourly, opening incidents on consecutive failures and closing them the moment a target recovers.", 
-      "The Report Generator came last, because it needed the other two to already be trustworthy: every Monday it rolls the week into uptime, p50/p95/p99 latency, error rate, MTTR and MTBF, checks each number against that project's own thresholds, and mails the verdict out through SES.", 
-      "Five Lambdas, five different clocks, each doing exactly their job.",
-      "The API and auth layer came last. Cognito handles sign-in with Google OAuth wired in as an Identity Provider, API Gateway validates the JWT before anything reaches compute, and the read-only API's Lambda role is scoped narrow enough that even a fully compromised endpoint physically cannot write a record. Every resource behind all of it went in through Terraform modules.",
+      "After the URL shortener I set my goal on a more ambitious project, and a project that would deepen my understanding of **Cloud Architectures,** and my engineering approach and problem solving.",
+      "I built it in the order the problem itself demanded. First the **Monitor Lambda:** **EventBridge** wakes it **every minute,** it probes each target, and logs status and latency to DynamoDB.",
+      "Only once that history existed could I reason about the next question. One failed ping isn't an incident, three in a row is, so the **SLA Processor** came next, running hourly, opening **incidents** on consecutive failures and closing them the moment a target recovers.",
+      "The **Report Generator** came last, because it needed the other two to already be trustworthy: every Monday it rolls the week into uptime, **p50/p95/p99 latency,** error rate, **MTTR and MTBF,** checks each number against that project's own thresholds, and mails the verdict out through **SES.**",
+      "**Five Lambdas, five different clocks,** each doing exactly their job.",
+      "The API and auth layer came last. **Cognito** handles sign-in with **Google OAuth** wired in as an Identity Provider, API Gateway validates the **JWT** before anything reaches compute, and the read-only API's Lambda role is scoped narrow enough that even a fully compromised endpoint physically cannot write a record. Every resource behind all of it went in through **Terraform modules.**",
     ],
     features: [
       {
@@ -486,10 +486,10 @@ export const projects: Project[] = [
       demo: true,
     },
     background: [
-      "I built this project during a 2026 summer internship, for a Moroccan logistics company, and it was the first time I worked from someone else's rules instead of my own. The rules were specific in the way real business tends to be. A client can create a shipment but can never change its status. Every account gets its own six-digit number. Invoices have to carry ICE and other fiscal fields. And you don't delete a mistake on an invoice, you issue a credit note to correct it. None of that is the kind of thing you'd think to invent on a personal project, and working through it taught me more than a tutorial would.",
-      "The app has four kinds of users, all served from one codebase. The company handles day to day operations, account clients manage their own shipments and invoices, guests can request a quick quote without signing up, and anyone at all can follow a parcel on a public page with no login. Behind it is a Laravel API, a React frontend, and PostgreSQL. I designed the database schema first in the 'Cahier des Charges', before writing any application code.",
-      "I also made mockups before building. Making sure that the app felt natural for its intended users. I wireframed every screen in plain HTML first, the dashboards, the invoice builder, the shipment forms, the tracking page, and I spent real time studying how other companies lay out their own sites.",
-      "Shipping it was its own lesson. There was no serverless platform doing the work for me this time, it went on a real VPS and I deployed it by hand. SSHing into the server, setting up nginx, wiring up the database, handling environment variables and the build, and fixing whatever broke once it was actually live. That side of it taught me what a managed host quietly hides from you, all the small things that have to be true for an app to stay up on a machine you actually own. It's finished now, and it's the project that has felt closest to real software. Less clever code, more getting the details exactly right.",
+      "I built this project during a **2026 summer internship,** for a Moroccan logistics company, and it was the first time I worked from **someone else's rules** instead of my own. The rules were specific in the way real business tends to be. A client can create a shipment but can never change its status. Every account gets its own six-digit number. Invoices have to carry ICE and other fiscal fields. And you don't delete a mistake on an invoice, you issue a **credit note** to correct it. None of that is the kind of thing you'd think to invent on a personal project, and working through it taught me more than a tutorial would.",
+      "The app has **four kinds of users,** all served from **one codebase.** The company handles day to day operations, account clients manage their own shipments and invoices, guests can request a quick quote without signing up, and anyone at all can follow a parcel on a public page with no login. Behind it is a **Laravel API,** a **React** frontend, and **PostgreSQL.** I designed the **database schema first** in the 'Cahier des Charges', before writing any application code.",
+      "I also made **mockups** before building. Making sure that the app felt natural for its intended users. I **wireframed every screen** in plain HTML first, the dashboards, the invoice builder, the shipment forms, the tracking page, and I spent real time studying how other companies lay out their own sites.",
+      "Shipping it was its own lesson. There was no serverless platform doing the work for me this time, it went on a real **VPS** and I **deployed it by hand.** SSHing into the server, setting up **nginx,** wiring up the database, handling environment variables and the build, and fixing whatever broke once it was actually live. That side of it taught me what a managed host quietly hides from you, all the small things that have to be true for an app to stay up on a machine you actually own. It's finished now, and it's the project that has felt closest to real software. Less clever code, more getting the details exactly right.",
     ],
     features: [
       {

@@ -4,6 +4,7 @@ import * as React from "react"
  
 import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { useRef } from "react";
+import { colors } from "../../lib/colors";
 
 export interface MagicTextProps {
   text: string;
@@ -14,14 +15,31 @@ interface WordProps {
   children: string;
   progress: MotionValue<number>;
   range: number[];
+  highlight?: boolean;
 }
 
 interface WordEntry {
   type: "word" | "break";
   value?: string;
+  highlight?: boolean;
 }
- 
-const Word: React.FC<WordProps> = ({ children, progress, range }) => {
+
+// Words wrapped in **double asterisks** get the section-heading gradient,
+// clipped to the glyphs. Timing stays in sync with SectionHeading's
+// GradientText (animationSpeed=2 → 6s gradient-pan-x period), minus the
+// border; slate is swapped for faint_white so keywords stay bright on black.
+const keywordColors = [colors.beige_dark, colors.faint_white, colors.beige_bright];
+const keywordGradient: React.CSSProperties = {
+  backgroundImage: `linear-gradient(to right, ${[...keywordColors, keywordColors[0]].join(", ")})`,
+  backgroundSize: "300% 100%",
+  backgroundRepeat: "repeat",
+  animation: "gradient-pan-x 6s linear infinite",
+  WebkitBackgroundClip: "text",
+  backgroundClip: "text",
+  color: "transparent",
+};
+
+const Word: React.FC<WordProps> = ({ children, progress, range, highlight }) => {
   const opacity = useTransform(progress, range, [0, 1]);
   const y = useTransform(progress, range, [10, 0]);
   const blur = useTransform(progress, range, [6, 0]);
@@ -31,8 +49,13 @@ const Word: React.FC<WordProps> = ({ children, progress, range }) => {
 
   return (
     <span className="relative mt-3 mr-2 text-xl md:text-3xl xl:text-3xl font-unbounded font-light text-neutral-100 ">
-      <span className="absolute opacity-20">{children}</span>
-      <motion.span className="inline-block will-change-transform" style={{ opacity, y, filter }}>
+      <span className="absolute opacity-20" style={highlight ? keywordGradient : undefined}>
+        {children}
+      </span>
+      <motion.span
+        className="inline-block will-change-transform"
+        style={{ opacity, y, filter, ...(highlight ? keywordGradient : undefined) }}
+      >
         {children}
       </motion.span>
     </span>
@@ -52,10 +75,22 @@ export const ScrollText: React.FC<MagicTextProps> = ({ text, lineBreakSpacing = 
   const entries: WordEntry[] = [];
 
   lines.forEach((line, lineIndex) => {
-    const lineWords = line.trim().split(/\s+/).filter(Boolean);
+    line.split("**").forEach((segment, segmentIndex) => {
+      const highlight = segmentIndex % 2 === 1;
+      const tokens = segment.split(/\s+/).filter(Boolean);
+      let first = 0;
+      const prev = entries[entries.length - 1];
 
-    lineWords.forEach((word) => {
-      entries.push({ type: "word", value: word });
+      // Punctuation hugging a ** boundary ("**Terraform**,") glues onto the
+      // preceding word instead of rendering as a standalone "word".
+      if (segmentIndex > 0 && tokens.length > 0 && !/^\s/.test(segment) && prev?.type === "word" && prev.value) {
+        prev.value += tokens[0];
+        first = 1;
+      }
+
+      for (let t = first; t < tokens.length; t++) {
+        entries.push({ type: "word", value: tokens[t], highlight });
+      }
     });
 
     if (lineIndex < lines.length - 1) {
@@ -88,7 +123,7 @@ export const ScrollText: React.FC<MagicTextProps> = ({ text, lineBreakSpacing = 
         wordIndex += 1;
 
         return (
-          <Word key={`word-${i}`} progress={scrollYProgress} range={[start, end]}>
+          <Word key={`word-${i}`} progress={scrollYProgress} range={[start, end]} highlight={entry.highlight}>
             {currentWord}
           </Word>
         );
