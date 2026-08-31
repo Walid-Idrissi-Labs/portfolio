@@ -131,7 +131,9 @@ export default function Aurora(props: AuroraProps) {
     const renderer = new Renderer({
       alpha: true,
       premultipliedAlpha: true,
-      antialias: true
+      // Antialiasing only smooths triangle edges; this shader covers the whole
+      // canvas with one fullscreen triangle, so there are no on-screen edges.
+      antialias: false
     });
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
@@ -164,12 +166,20 @@ export default function Aurora(props: AuroraProps) {
     const mesh = new Mesh(gl, { geometry, program });
     ctn.appendChild(gl.canvas);
 
+    // Render the noise at a fraction of the element size and let CSS upscale:
+    // the shader is soft/blurry, so ~0.8x is visually close to native while
+    // processing ~36% fewer fragments per frame.
+    const RENDER_SCALE = 0.8;
     function resize() {
       if (!ctn) return;
       const width = ctn.offsetWidth;
       const height = ctn.offsetHeight;
-      renderer.setSize(width, height);
-      program.uniforms.uResolution.value = [width, height];
+      const renderWidth = Math.max(1, Math.round(width * RENDER_SCALE));
+      const renderHeight = Math.max(1, Math.round(height * RENDER_SCALE));
+      renderer.setSize(renderWidth, renderHeight);
+      gl.canvas.style.width = `${width}px`;
+      gl.canvas.style.height = `${height}px`;
+      program.uniforms.uResolution.value = [renderWidth, renderHeight];
     }
     window.addEventListener('resize', resize);
 
@@ -190,8 +200,14 @@ export default function Aurora(props: AuroraProps) {
     };
 
     let animateId = 0;
+    // Cap the render loop at 60fps: on high-refresh (120Hz+) displays the rAF
+    // callback would otherwise run twice as often for a slow drift effect.
+    const FRAME_MS = 1000 / 60;
+    let lastFrameTime = -Infinity;
     const update = (t: number) => {
       animateId = requestAnimationFrame(update);
+      if (t - lastFrameTime < FRAME_MS) return;
+      lastFrameTime = t;
       const { time = t * 0.01, speed = 1.0 } = propsRef.current;
       program.uniforms.uTime.value = time * speed * 0.1;
       program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? 1.0;
