@@ -75,15 +75,26 @@ export const ScrollText: React.FC<MagicTextProps> = ({ text, lineBreakSpacing = 
   const entries: WordEntry[] = [];
 
   lines.forEach((line, lineIndex) => {
-    line.split("**").forEach((segment, segmentIndex) => {
+    const segments = line.split("**");
+    segments.forEach((segment, segmentIndex) => {
       const highlight = segmentIndex % 2 === 1;
       const tokens = segment.split(/\s+/).filter(Boolean);
       let first = 0;
       const prev = entries[entries.length - 1];
 
       // Punctuation hugging a ** boundary ("**Terraform**,") glues onto the
-      // preceding word instead of rendering as a standalone "word".
-      if (segmentIndex > 0 && tokens.length > 0 && !/^\s/.test(segment) && prev?.type === "word" && prev.value) {
+      // preceding word instead of rendering as a standalone "word". Both sides
+      // of the boundary have to be whitespace-free: testing only this segment
+      // fuses the first word of every bold run onto the word before it
+      // ("with **Terraform,**" -> "withTerraform,"), gradient and all.
+      if (
+        segmentIndex > 0 &&
+        tokens.length > 0 &&
+        !/\s$/.test(segments[segmentIndex - 1]) &&
+        !/^\s/.test(segment) &&
+        prev?.type === "word" &&
+        prev.value
+      ) {
         prev.value += tokens[0];
         first = 1;
       }

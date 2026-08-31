@@ -7,11 +7,11 @@ import { Activity, BriefcaseBusiness, Cloud, Terminal, Truck } from "lucide-reac
 import { GlowingEffect } from "../ui/glowingeffectgrid-bit";
 import { AnimatedContainer } from "../utilities/animated-container";
 
-const url_shortener = "/project-url-shortener.png";
-const tascii = "/project-tascii.png";
-const applyr = "/project-applyr.png";
-const sla_monitor = "/project-sla-monitor.png";
-const shipping_crm = "/project-shipping-crm-0.png";
+const url_shortener = "/project-url-shortener.webp";
+const tascii = "/project-tascii.webp";
+const applyr = "/project-applyr.webp";
+const sla_monitor = "/project-sla-monitor.webp";
+const shipping_crm = "/project-shipping-crm-0.webp";
 
 export default function GlowingEffectSection() {
   return (

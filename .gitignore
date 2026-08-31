@@ -46,3 +46,6 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local image backups (originals before webp conversion)
+backup-images/

@@ -68,6 +68,8 @@ const TECH_COLOR_MAP: Record<string, { colorSrc: string; color: string }> = {
   "/logo-mysql.svg": { colorSrc: "/color/logo-mysql.svg", color: "#00758F" },
   "/logo-php.svg": { colorSrc: "/color/logo-php.svg", color: "#777BB4" },
   "/logo-css3.svg": { colorSrc: "/color/logo-css3.svg", color: "#1572B6" },
+  "/logo-cpp.svg": { colorSrc: "/color/logo-cpp.svg", color: "#00599C" },
+  "/logo-windows.svg": { colorSrc: "/color/logo-windows.svg", color: "#0078D4" },
 };
 
 const DEFAULT_TYPOGRAPHY_CLASSES: ClipPathLinksTypographyClasses = {

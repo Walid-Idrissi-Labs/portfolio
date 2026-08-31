@@ -48,7 +48,7 @@ export type Project = {
   year: string;
   status: ProjectStatus;
   role: string;
-  icon: "cloud" | "terminal" | "briefcase" | "activity" | "truck";
+  icon: "cloud" | "terminal" | "briefcase" | "activity" | "truck" | "app-window";
   heroImage: string;
   heroImageAlt: string;
   seoDescription: string;
@@ -75,7 +75,7 @@ export const projects: Project[] = [
     status: "completed",
     role: "Solo Project",
     icon: "cloud",
-    heroImage: "/project-url-shortener.png",
+    heroImage: "/project-url-shortener.webp",
     heroImageAlt: "URL Shortener — AWS serverless project",
     seoDescription:
       "A fully serverless URL shortener on AWS : API Gateway, Lambda and DynamoDB, provisioned entirely with Terraform.",
@@ -117,28 +117,28 @@ export const projects: Project[] = [
     ],
     screenshots: [
       {
-        src: "/project-url-shortener-1.png",
+        src: "/project-url-shortener-1.webp",
         alt: "URL Shortener home page",
         caption: "Home page of the URL Shortener.",
         width: 2872,
         height: 2384,
       },
       {
-        src: "/project-url-shortener-2.png",
+        src: "/project-url-shortener-2.webp",
         alt: "Inserting link to shorten",
         caption: "Inserting a link to shorten —> the Lambda generates a short code and stores it in DynamoDB.",
         width: 2872,
         height: 2384,
       },
       {
-        src: "/project-url-shortener-3.png",
+        src: "/project-url-shortener-3.webp",
         alt: "Generated URL and redirect",
         caption: "The generated short URL and the redirect behavior.",
         width: 2872,
         height: 2384,
       },
       {
-        src: "/project-url-shortener-4.png",
+        src: "/project-url-shortener-4.webp",
         alt: "AWS architecture diagram of the URL Shortener",
         caption: "AWS architecture diagram of the URL Shortener, showing CloudFront, API Gateway, Lambda, DynamoDB and S3 (for the static assets).",
         chrome: false,
@@ -166,7 +166,7 @@ export const projects: Project[] = [
     status: "completed",
     role: "Solo Project",
     icon: "terminal",
-    heroImage: "/project-tascii.png",
+    heroImage: "/project-tascii.webp",
     heroImageAlt: "tascii — terminal task manager written in Go",
     seoDescription:
       "tascii — a fast, minimal, keyboard-driven task manager for the terminal, written in Go.",
@@ -205,17 +205,17 @@ export const projects: Project[] = [
     ],
     screenshots: [
       {
-        src: "/project-tascii-1.png",
+        src: "/project-tascii-1.webp",
         alt: "basic tascii commands",
         caption: "Basic tasks in tascii : adding new tasks, viewing all tasks, viewing tasks due today",
       },
       {
-        src: "/project-tascii-2.png",
+        src: "/project-tascii-2.webp",
         alt: "elaborate tascii task creation",
         caption: "Tasks in more detail : priority, starting tasks, editing tasks ,viewing single task details,",
       },
       {
-        src: "/project-tascii-3.png",
+        src: "/project-tascii-3.webp",
         alt: "completing and clearing tasks in tascii",
         caption: "Completing and clearing tasks in tascii : marking tasks as complete, clearing completed tasks, viewing completed tasks",
       },
@@ -238,7 +238,7 @@ export const projects: Project[] = [
     status: "in-progress",
     role: "Team of Two",
     icon: "briefcase",
-    heroImage: "/project-applyr-0.png",
+    heroImage: "/project-applyr-0.webp",
     heroImageAlt: "Applyr — job application tracking SaaS",
     seoDescription:
       "Applyr — a job application tracking SaaS with a Laravel API, a React SPA, AI-tailored resumes, and browser extensions that capture listings straight from job boards.",
@@ -285,67 +285,67 @@ export const projects: Project[] = [
     ],
     screenshots: [
       {
-        src: "/project-applyr-1.png",
+        src: "/project-applyr-1.webp",
         alt: "Applyr landing page",
         caption: "The landing page, pitching the workspace with a live pipeline preview.",
       },
       {
-        src: "/project-applyr-2.png",
+        src: "/project-applyr-2.webp",
         alt: "Applyr sign-in page",
         caption: "Signing in to Applyr.",
       },
       {
-        src: "/project-applyr-3.png",
+        src: "/project-applyr-3.webp",
         alt: "Applyr dashboard overview",
         caption: "The dashboard: recent activity, in-progress applications, and top-level KPIs.",
       },
       {
-        src: "/project-applyr-4.png",
+        src: "/project-applyr-4.webp",
         alt: "Applyr dashboard status breakdown and key indicators",
         caption: "Further down the dashboard: a status breakdown chart and key indicators.",
       },
       {
-        src: "/project-applyr-5.png",
+        src: "/project-applyr-5.webp",
         alt: "Applyr applications list",
         caption: "The full applications list, filterable by status.",
       },
       {
-        src: "/project-applyr-6.png",
+        src: "/project-applyr-6.webp",
         alt: "Applyr application detail page",
         caption: "A single application's detail page, with status history and AI actions.",
       },
       {
-        src: "/project-applyr-7.png",
+        src: "/project-applyr-7.webp",
         alt: "Applyr resume workspace",
         caption: "The resume workspace: a master profile plus tailored drafts per application.",
       },
       {
-        src: "/project-applyr-8.png",
+        src: "/project-applyr-8.webp",
         alt: "Applyr notifications page",
         caption: "Notifications, logging every status change automatically.",
       },
       {
-        src: "/project-applyr-9.png",
+        src: "/project-applyr-9.webp",
         alt: "Applyr profile page",
         caption: "The profile page, for account details and password changes.",
       },
       {
-        src: "/project-applyr-10.png",
+        src: "/project-applyr-10.webp",
         alt: "Applyr resume PDF preview with AI refine",
         caption: "A resume PDF preview, with version history and a Refine with AI action.",
       },
       {
-        src: "/project-applyr-11.png",
+        src: "/project-applyr-11.webp",
         alt: "Applyr dashboard in dark mode",
         caption: "The dashboard again, this time in dark mode.",
       },
       {
-        src: "/project-applyr-12.png",
+        src: "/project-applyr-12.webp",
         alt: "Applyr browser extension capturing a job listing",
         caption: "The browser extension, capturing a job listing straight from the job board.",
       },
       {
-        src: "/project-applyr-13-v2.png",
+        src: "/project-applyr-13-v2.webp",
         alt: "Applyr email verification message",
         caption: "A branded transactional email, verifying an address before reminders go out.",
       },
@@ -368,7 +368,7 @@ export const projects: Project[] = [
     status: "completed",
     role: "Solo Project",
     icon: "activity",
-    heroImage: "/project-sla-monitor.png",
+    heroImage: "/project-sla-monitor.webp",
     heroImageAlt: "SLA-Aware Website Monitoring System on AWS",
     seoDescription:
       "SLA-Aware Website Monitoring System — a fully serverless AWS platform with five Lambdas, DynamoDB, EventBridge, Cognito and SES, provisioned end to end with Terraform.",
@@ -417,49 +417,49 @@ export const projects: Project[] = [
     ],
     screenshots: [
       {
-        src: "/project-sla-monitor-1-v2.png",
+        src: "/project-sla-monitor-1-v2.webp",
         alt: "SLA Monitor sign-in secured by Amazon Cognito",
         caption: "Signing in runs through Cognito, and if you'd rather not make a password you can just use Google.",
         width: 2872,
         height: 2310,
       },
       {
-        src: "/project-sla-monitor-2-v2.png",
+        src: "/project-sla-monitor-2-v2.webp",
         alt: "SLA Monitor dashboard with monitored endpoints",
         caption: "The home view. Every endpoint I'm watching in one place, each with its health, latency, and anything going wrong right now.",
         width: 2872,
         height: 2310,
       },
       {
-        src: "/project-sla-monitor-3-v2.png",
+        src: "/project-sla-monitor-3-v2.webp",
         alt: "SLA Monitor endpoint detail with latency analytics and vitals",
         caption: "Opening a single endpoint gives you the last 24 hours of latency, plus its uptime, when the certificate expires, and the most recent checks.",
         width: 2872,
         height: 2310,
       },
       {
-        src: "/project-sla-monitor-4-v2.png",
+        src: "/project-sla-monitor-4-v2.webp",
         alt: "SLA Monitor reliability metrics and SLA report history",
         caption: "The reliability panel works the numbers out for you: MTTR, MTBF, error budget, the incident log, and every SLA report generated so far.",
         width: 2872,
         height: 2310,
       },
       {
-        src: "/project-sla-monitor-5-v2.png",
+        src: "/project-sla-monitor-5-v2.webp",
         alt: "SLA Monitor generating a fresh on-demand SLA report",
         caption: "Press generate and a new report is ready in a second or two, already scored and graded.",
         width: 2872,
         height: 2310,
       },
       {
-        src: "/project-sla-monitor-6.png",
+        src: "/project-sla-monitor-6.webp",
         alt: "Exported HTML SLA report for a monitored endpoint",
         caption: "The report that actually gets emailed out. A clean page on its own, graded against the targets set for that endpoint.",
         width: 2872,
         height: 2316,
       },
       {
-        src: "/project-sla-monitor-7.png",
+        src: "/project-sla-monitor-7.webp",
         alt: "AWS architecture diagram of the monitoring system",
         caption: "The whole system in one diagram: five Lambdas running on five different schedules, and exactly what each one is allowed to touch.",
         fit: "contain",
@@ -477,7 +477,7 @@ export const projects: Project[] = [
     status: "in-progress",
     role: "Solo Internship Project",
     icon: "truck",
-    heroImage: "/project-shipping-crm-0.png",
+    heroImage: "/project-shipping-crm-0.webp",
     heroImageAlt: "Shipping CRM, a logistics and shipment management platform",
     private: true,
     seoDescription:
@@ -529,9 +529,93 @@ export const projects: Project[] = [
       ],
     ],
     screenshots: [
-      
-    
-      
+
+
+
+    ],
+  },
+
+
+
+
+  {
+    slug: "mactab",
+    name: "MacTab",
+    tagline: "A macOS-style Alt+Tab for Windows 10 and 11, one icon per application, written in C++ on top of Win32.",
+    type: "Desktop App",
+    year: "2026",
+    status: "completed",
+    role: "Solo Project",
+    icon: "app-window",
+    heroImage: "/project-mactab.webp",
+    heroImageAlt: "MacTab — a macOS-style application switcher for Windows",
+    seoDescription:
+      "MacTab, a native application switcher for Windows 10 and 11, written in C++20 against Win32 and Windows.UI.Composition. Alt+Tab lists applications instead of windows. The binary is about 800 KB and there is no runtime to install.",
+    links: {
+      repo: "https://github.com/Walid-Idrissi-Labs/MacTab-WindowsAppSwitcher",
+      demo: true,
+    },
+    background: [
+      "I work on a Mac and a Windows machine side by side, and the thing that kept catching me out was **Alt+Tab.** Windows displays every open window as a grid of thumbnails. On the Mac, Cmd+Tab shows **one icon per application,** ordered by last used. Nothing I found did that on Windows, so I made it.",
+       "Hold Alt and a **glass panel** comes up with one tile per app, most recent first, and letting go switches you to the one you landed on.",
+      "It's **C++20 against Win32 and Windows.UI.Composition,** no framework, nothing to install alongside it. The binary is about **800 KB,** statically linked, and **nothing runs while it's idle:** no timers, no polling loops, just one event hook that keeps the application order current. The panel is built once at startup and never torn down, so opening it is a window move rather than a build.",
+      "**Mission Control** came after that, on Win+Tab : every window across every display, laid out so none of them overlap. It stays off until you turn it on in the tray menu, because Alt+Tab is what the program is for. It's at **1.0** now and I use it daily.",
+    ],
+    features: [
+      {
+        title: "Applications, not windows",
+        body: "One tile per application, most recently used first, so a browser with several windows open takes a single slot instead of crowding out everything else. Grouping is by AUMID for packaged apps and by executable path for the rest. Press down and a tile expands into its own windows.",
+      },
+      {
+        title: "The key Windows won't let you bind",
+        body: "RegisterHotKey can't bind Alt+Tab, because Windows reserves it, so the gesture runs on a low-level keyboard hook instead, on its own thread, allocating nothing and taking no locks. A hook that runs too long gets removed by Windows without a word.",
+      },
+      {
+        title: "Nothing running when idle",
+        body: "Between gestures the only live component is a single event hook, and it fires only when the foreground window changes. Holding Alt+Tab costs this process no CPU either: the fade and the selection highlight are Composition animations, and DWM runs those on its own thread.",
+      },
+      {
+        title: "Icons read out of the executable",
+        body: "The shell won't enlarge an icon past the largest frame an app ships, and hands back a smaller one centred in the canvas you asked for without saying so. MacTab reads RT_GROUP_ICON from the executable instead, and caches the finished tiles in memory and on disk.",
+      },
+      {
+        title: "Mission Control on Win+Tab",
+        body: "It arranges every window across every display so none of them overlap, with the virtual desktops in a bar along the top. It's off by default and you turn it on from the tray menu.",
+      },
+    ],
+    stackRows: [
+      [
+        { src: "/logo-cpp.svg", alt: "C++", href: "https://isocpp.org/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
+        { src: "/logo-windows.svg", alt: "Win32", href: "https://learn.microsoft.com/en-us/windows/win32/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
+      ],
+      [
+        { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
+        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
+      ],
+    ],
+    screenshots: [
+      {
+        src: "/project-mactab-1.webp",
+        alt: "The MacTab switcher panel over a Windows desktop, showing six applications",
+        caption: "Hold Alt and press Tab : one tile per application, most recently used first. The glass is on in this shot, it ships off.",
+        width: 1261,
+        height: 795,
+      },
+      {
+        src: "/project-mactab-2.webp",
+        alt: "MacTab Mission Control, with windows spread out and virtual desktops along the top",
+        caption: "Mission Control on Win+Tab, with every open window pulled apart so nothing sits on top of anything else. Each one stays close to where it already was, so you find it by position instead of by reading labels.",
+        width: 1440,
+        height: 900,
+      },
+      {
+        src: "/project-mactab-3.webp",
+        alt: "The MacTab application icon",
+        caption: "The icon I drew for it. Its corners are a fitted superellipse as well, 2.46 against the panel's 2.24, so they sit very slightly squarer.",
+        fit: "contain",
+        width: 1024,
+        height: 1024,
+      },
     ],
   },
 ];

@@ -288,7 +288,7 @@ function Frame({ slug, shot, index }: { slug: string; shot: ProjectScreenshot; i
           <span className="h-2 w-2 rounded-full bg-beige_dark/80" />
           <span className="h-2 w-2 rounded-full bg-slate/80" />
           <span className="ml-auto truncate font-ibm text-[9px] uppercase tracking-[0.2em] text-slate md:text-[10px]">
-            ~/{slug}/{String(index + 1).padStart(2, "0")}.png
+            ~/{slug}/{String(index + 1).padStart(2, "0")}.webp
           </span>
         </div>
       )}

@@ -12,8 +12,8 @@ import { ProjectCloser } from "../components/project/project-closer";
 import { colors } from "../lib/colors";
 import { projects } from "../lib/projects";
 
-const walid_1 = "/walid_memoji_face1.png";
-const walid_2 = "/walid_memoji_facewmac.png";
+const walid_1 = "/walid_memoji_face1.webp";
+const walid_2 = "/walid_memoji_facewmac.webp";
 
 const titleColors = [colors.beige_dark, colors.slate, colors.beige_bright];
 const auroraColors = [colors.beige_bright, "#ffffff", colors.slate];

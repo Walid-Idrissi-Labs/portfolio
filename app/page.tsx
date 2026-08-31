@@ -18,8 +18,8 @@ import { ClipPathLinks } from "./components/ui/skils-clippathlinks";
 import { Footer } from "./components/page/footer-section";
 import { AnimatedContainer } from "./components/utilities/animated-container";
 
-const walid_1 = "/walid_memoji_face1.png";
-const walid_2 = "/walid_memoji_facewmac.png";
+const walid_1 = "/walid_memoji_face1.webp";
+const walid_2 = "/walid_memoji_facewmac.webp";
 
 export default function Home() {
   return (

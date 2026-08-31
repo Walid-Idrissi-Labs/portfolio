@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { Activity, BriefcaseBusiness, Cloud, Github, Terminal, Truck } from "lucide-react";
+import { Activity, AppWindowMac, BriefcaseBusiness, Cloud, Github, Terminal, Truck } from "lucide-react";
 
 import GradientText from "../page/gradienttext-bit";
 import { colors } from "../../lib/colors";
@@ -18,6 +18,7 @@ const typeIcons = {
   briefcase: BriefcaseBusiness,
   activity: Activity,
   truck: Truck,
+  "app-window": AppWindowMac,
 } as const;
 
 export function ProjectHero({ project }: { project: Project }) {
