@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "../../lib/utils";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, useAnimate } from "motion/react";
 
 type Direction = "TOP" | "LEFT" | "BOTTOM" | "RIGHT";
@@ -28,6 +28,8 @@ export const SendButton = ({
   const [scope, animate] = useAnimate();
   const [hovered, setHovered] = useState(false);
   const [direction, setDirection] = useState<Direction>("TOP");
+  const containerRef = useRef<HTMLButtonElement | null>(null);
+  const [inView, setInView] = useState(true);
 
   const rotateDirection = (current: Direction): Direction => {
     const dirs: Direction[] = ["TOP", "LEFT", "BOTTOM", "RIGHT"];
@@ -48,14 +50,23 @@ export const SendButton = ({
   const highlight =
     "radial-gradient(75% 181.15942028985506% at 50% 50%, #3275F8 0%, rgba(255, 255, 255, 0) 100%)";
 
+  // Pause the rotation timer while the button is offscreen.
   useEffect(() => {
-    if (!hovered) {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!hovered && inView) {
       const interval = setInterval(() => {
         setDirection((prev) => rotateDirection(prev));
       }, duration * 1000);
       return () => clearInterval(interval);
     }
-  }, [hovered, duration, clockwise]);
+  }, [hovered, inView, duration, clockwise]);
 
   const animateLoading = async () => {
     await animate(".loader", { width: "20px", scale: 1, display: "block" }, { duration: 0.2 });
@@ -89,6 +100,7 @@ export const SendButton = ({
 
   return (
     <button
+      ref={containerRef}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import { cn } from '../../lib/utils'
 
@@ -36,6 +36,8 @@ export function HoverBorderGradient({
 >) {
   const [hovered, setHovered] = useState<boolean>(false)
   const [direction, setDirection] = useState<Direction>('BOTTOM')
+  const containerRef = useRef<HTMLElement | null>(null)
+  const [inView, setInView] = useState(true)
 
   const rotateDirection = (currentDirection: Direction): Direction => {
     const directions: Direction[] = ['TOP', 'LEFT', 'BOTTOM', 'RIGHT']
@@ -46,16 +48,26 @@ export function HoverBorderGradient({
     return directions[nextIndex]
   }
 
+  // Pause the rotation timer while the element is offscreen.
   useEffect(() => {
-    if (!hovered) {
+    const el = containerRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting))
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!hovered && inView) {
       const interval = setInterval(() => {
         setDirection((prevState) => rotateDirection(prevState))
       }, duration * 1000)
       return () => clearInterval(interval)
     }
-  }, [hovered])
+  }, [hovered, inView])
   return (
     <Element
+      ref={containerRef as React.Ref<HTMLElement>}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(
