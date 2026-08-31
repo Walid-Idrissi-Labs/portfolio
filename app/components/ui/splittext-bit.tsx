@@ -131,7 +131,10 @@ const SplitText: React.FC<SplitTextProps> = ({
                 onCompleteRef.current?.();
               },
               willChange: 'transform, opacity',
-              force3D: true
+              force3D: true,
+              // Release the promoted layers once done — the final transform is
+              // identity and the chars should stay at their natural state.
+              clearProps: 'willChange,transform'
             }
           );
         }
