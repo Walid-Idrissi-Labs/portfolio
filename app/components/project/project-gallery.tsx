@@ -300,9 +300,10 @@ function Frame({ slug, shot, index }: { slug: string; shot: ProjectScreenshot; i
           src={shot.src}
           alt={shot.alt}
           fill
-          // Every frame is mounted up front, so eager-load the captures at page
-          // load instead of waiting to scroll each one into view.
-          loading="eager"
+          // Frames sit below the fold (and the strip scrolls horizontally), so
+          // defer fetching until each one nears the viewport. The WebP captures
+          // are small enough that this doesn't cause blank frames mid-scroll.
+          loading="lazy"
           sizes="(max-width: 768px) 85vw, 90vw"
           className={shot.fit === "contain" ? "object-contain" : "object-cover"}
         />
