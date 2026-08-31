@@ -292,6 +292,10 @@ const PillNav: React.FC<PillNavProps> = ({
       // along with anything not loaded yet (the load listener catches those).
       if (measuredImages.has(img) || img.closest('nav')) return;
       if (!img.complete || img.naturalWidth === 0) return;
+      // Large project screenshots are never the bright-white decorative images
+      // this adaptive-text feature targets, and drawImage + getImageData on a
+      // 3000-4000px source is the expensive part. Only sample small images.
+      if (img.naturalWidth > 1500) return;
       measuredImages.add(img);
       const lum = imageLuminance(img);
       if (lum !== null && lum > 0.8) {
