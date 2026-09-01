@@ -1,0 +1,67 @@
+---
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint codebase
+    runs-on: ubuntu-latest
+
+    permissions:
+
+      contents: read
+      packages: read
+      statuses: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      #commit for v8.7.0
+      - name: Run super-linter
+        uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: main
+          VALIDATE_ALL_CODEBASE: false
+          LINTER_RULES_PATH: .
+          TYPESCRIPT_ES_CONFIG_FILE: eslint.config.mjs
+          JAVASCRIPT_ES_CONFIG_FILE: eslint.config.mjs
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_TYPESCRIPT_ES: true
+          VALIDATE_TSX: true
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_CSS: true
+          VALIDATE_MARKDOWN: true
+          VALIDATE_YAML: true
+          VALIDATE_JSON: true
+          VALIDATE_ENV: true
+          VALIDATE_GITLEAKS: true
+          VALIDATE_GIT_MERGE_CONFLICT_MARKERS: true
+          FILTER_REGEX_EXCLUDE: (\.next/|node_modules/|backup-images/|\.tsbuildinfo)
+          STRIP_DEFAULT_WORKSPACE_FOR_REGEX: true
+          LOG_LEVEL: NOTICE
+          ENABLE_GITHUB_ACTIONS_GROUP_TITLE: true
+          ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: true
