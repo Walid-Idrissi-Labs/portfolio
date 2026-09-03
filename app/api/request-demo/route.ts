@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resend } from "../../lib/resend";
+import { getResend } from "../../lib/resend";
 
 const escapeHtml = (value: string) =>
     value
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
                 : "<p><i>No extra details provided.</i></p>";
 
         // Demo request to me; replyTo lets me answer the visitor directly.
-        await resend.emails.send({
+        await getResend().emails.send({
             from: "Portfolio Demo Request <onboarding@resend.dev>",
             to: process.env.PERSONNAL_MAIL_ADDRESS!,
             replyTo: email,

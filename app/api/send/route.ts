@@ -1,5 +1,5 @@
 import {NextResponse} from "next/server";
-import {resend} from "../../lib/resend";
+import {getResend} from "../../lib/resend";
 
 const escapeHtml = (value: string) =>
     value
@@ -25,7 +25,7 @@ export async function POST(req : Request){
 
 
         //confirmation email to me; escape user input so it can't inject HTML
-        await resend.emails.send({
+        await getResend().emails.send({
             from : 'Portfolio Contact Form <onboarding@resend.dev>',
             to : process.env.PERSONNAL_MAIL_ADDRESS!,
             subject : `Portfolio Contact from ${name}`,
