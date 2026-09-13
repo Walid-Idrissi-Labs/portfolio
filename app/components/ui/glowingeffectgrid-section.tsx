@@ -24,7 +24,7 @@ export default function GlowingEffectSection() {
         href="/projects/url-shortener"
         backgroundImage={url_shortener}
         duration={1.8}
-        delay={0.25}
+        delay={0.1}
       />
 
       <GridItem
@@ -35,7 +35,7 @@ export default function GlowingEffectSection() {
         href="/projects/tascii"
         backgroundImage={tascii}
         duration={1.8}
-        delay={1}
+        delay={0.22}
       />
 
       <GridItem
@@ -46,7 +46,7 @@ export default function GlowingEffectSection() {
         href="/projects/applyr"
         backgroundImage={applyr}
         duration={1.8}
-        delay={1.5}
+        delay={0.34}
       />
 
       <GridItem
@@ -57,7 +57,7 @@ export default function GlowingEffectSection() {
         href="/projects/sla-monitor"
         backgroundImage={sla_monitor}
         duration={1.8}
-        delay={2}
+        delay={0.46}
       />
 
       <GridItem
@@ -68,7 +68,7 @@ export default function GlowingEffectSection() {
         href="/projects/shipping-crm"
         backgroundImage={shipping_crm}
         duration={1.8}
-        delay={2.5}
+        delay={0.58}
       />
     </ul>
   );
