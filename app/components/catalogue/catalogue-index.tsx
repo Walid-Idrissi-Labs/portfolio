@@ -67,7 +67,9 @@ export function CatalogueIndex({ projects }: { projects: Project[] }) {
           <span className="w-8 shrink-0 font-ibm text-xs text-slate md:text-sm">
             {String(projects.length + 1).padStart(2, "0")}
           </span>
-          <span className="font-ibm text-sm tracking-[0.2em] text-neutral-500">
+          {/* Never wraps: the font scales with the viewport so the full line
+              fits beside the row number down to 320px, capping at text-sm. */}
+          <span className="whitespace-nowrap font-ibm text-[length:clamp(0.625rem,4.4vw_-_0.25rem,0.875rem)] tracking-[0.2em] text-neutral-500">
             [ more in the making...<span className="animate-pulse">…</span> ]
           </span>
         </div>
