@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "./globals.css";
 import { dmSerifFont, ibmFont, unboundedFont } from "./fonts";
@@ -25,6 +27,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="bg-black text-white no-scrollbar">
         <SmoothScroll />
         {children}
+        {/* Vercel Web Analytics (cookieless page views) and Speed Insights
+            (real-user Core Web Vitals); both no-ops outside Vercel. */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
