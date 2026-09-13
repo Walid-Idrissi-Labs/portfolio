@@ -17,13 +17,53 @@ import { HighlighterSection } from "./components/ui/highlighter-section";
 import { ClipPathLinks } from "./components/ui/skils-clippathlinks";
 import { Footer } from "./components/page/footer-section";
 import { AnimatedContainer } from "./components/utilities/animated-container";
+import { GITHUB_URL, LINKEDIN_URL, SITE_URL } from "./lib/site";
 
 const walid_1 = "/walid_memoji_face1.webp";
 const walid_2 = "/walid_memoji_facewmac.webp";
 
+// Structured data (schema.org) so search engines can tie the site to its
+// owner and his profiles.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Walid Idrissi",
+      publisher: { "@id": `${SITE_URL}/#person` },
+    },
+    {
+      "@type": "Person",
+      "@id": `${SITE_URL}/#person`,
+      name: "Walid Idrissi",
+      alternateName: "Walid Idrissi Labkhati",
+      url: SITE_URL,
+      jobTitle: "Software Engineering Student",
+      affiliation: { "@type": "CollegeOrUniversity", name: "Cadi Ayyad University" },
+      knowsAbout: [
+        "Software Engineering",
+        "Cloud Computing",
+        "Amazon Web Services",
+        "Serverless Architecture",
+        "Infrastructure as Code",
+        "Computer Networks",
+        "Full-Stack Web Development",
+      ],
+      sameAs: [GITHUB_URL, LINKEDIN_URL],
+    },
+  ],
+};
+
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        // Escaping "<" keeps the JSON from ever closing the script tag early.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
       <section className="fixed inset-x-0 top-0 flex items-center justify-center px-6 xl:px-16 z-90">
         <div className="flex justify-around px-1 lg:px-1 font-ibm font-weight-500">
           <PillNav
