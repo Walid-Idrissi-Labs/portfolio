@@ -135,7 +135,7 @@ const GridItem = ({
             {icon}
           </div>
           <div className="space-y-3">
-            <h3 className="-tracking-4 pt-0.5 font-sans text-xl/[1.375rem] font-semibold text-balance md:text-2xl/[1.875rem] text-faint_white">
+            <h3 className="-tracking-4 pt-0.5 font-unbounded text-xl/[1.375rem] font-medium text-balance md:text-2xl/[1.875rem] text-faint_white">
               {title}
             </h3>
             <h2 className="font-sans text-sm/[1.125rem] md:text-base/[1.375rem] text-faint_white [&_b]:md:font-semibold [&_strong]:md:font-semibold">
