@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { dmSerifFont, ibmFont, unboundedFont } from "./fonts";
 import SmoothScroll from "./components/utilities/SmoothScroll";
+import { ConsoleSignature } from "./components/utilities/console-signature";
 
 export const metadata: Metadata = {
   title: "Walid Idrissi",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={`${unboundedFont.variable} ${ibmFont.variable} ${dmSerifFont.variable}`}>
       <body className="bg-black text-white no-scrollbar">
         <SmoothScroll />
+        <ConsoleSignature />
         {children}
         {/* Vercel Web Analytics (cookieless page views) and Speed Insights
             (real-user Core Web Vitals); both no-ops outside Vercel. */}
