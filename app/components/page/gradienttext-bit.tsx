@@ -40,16 +40,12 @@ export default function GradientText({
     >
       {showBorder && (
         <div className="absolute inset-0 z-0 pointer-events-none rounded-[1.25rem]" style={gradientStyle}>
-          <div
-            className="absolute bg-black rounded-[1.25rem] z-[-1]"
-            style={{
-              width: 'calc(100% - 2px)',
-              height: 'calc(100% - 2px)',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)'
-            }}
-          />
+          {/* Inset by 1px on each side rather than centred with
+              translate(-50%, -50%): a translate lands on half pixels when the
+              box height is fractional, which is crisp at 2x DPR (Mac) but on
+              1x/1.25x/1.5x screens (Windows) covers part of the 1px border on
+              one edge. Plain insets get pixel-snapped evenly on all sides. */}
+          <div className="absolute inset-px bg-black rounded-[1.25rem] z-[-1]" />
         </div>
       )}
       <div
