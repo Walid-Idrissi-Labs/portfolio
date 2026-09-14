@@ -203,7 +203,14 @@ export function ScrollText({
             className={`flex flex-wrap leading-[0.65] ${isHidden ? "hidden" : ""} ${
               isNewlyVisible ? "animate-backstory-paragraph-in" : ""
             }`}
-            style={paragraphIndex === 0 ? undefined : { marginTop: `${lineBreakSpacing}px` }}
+            style={
+              paragraphIndex === 0
+                ? undefined
+                : {
+                    marginTop: `${lineBreakSpacing}px`,
+                    animationDelay: isNewlyVisible ? `${Math.min((paragraphIndex - 1) * 110, 330)}ms` : undefined,
+                  }
+            }
           >
             {paragraphs[paragraphIndex]?.map(({ entry, wordIndex }) => {
                 return (
