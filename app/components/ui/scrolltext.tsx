@@ -9,6 +9,8 @@ import { colors } from "../../lib/colors";
 export interface MagicTextProps {
   text: string;
   lineBreakSpacing?: number;
+  /** Finishes the current text as read instead of waiting for more scrolling. */
+  forceReveal?: boolean;
 }
 
 interface WordEntry {
@@ -32,7 +34,7 @@ const keywordGradient: CSSProperties = {
   color: "transparent",
 };
 
-export function ScrollText({ text, lineBreakSpacing = 14 }: MagicTextProps) {
+export function ScrollText({ text, lineBreakSpacing = 14, forceReveal = false }: MagicTextProps) {
   const container = useRef<HTMLParagraphElement | null>(null);
 
   const { scrollYProgress } = useScroll({
@@ -116,15 +118,33 @@ export function ScrollText({ text, lineBreakSpacing = 14 }: MagicTextProps) {
         word.style.transform = `translateY(${(10 * (1 - t)).toFixed(3)}px)`;
         const blur = 6 * (1 - t);
         word.style.filter = blur < 0.1 ? "none" : `blur(${blur.toFixed(2)}px)`;
+        word.style.transition = "none";
+        word.style.transitionDelay = "0ms";
       });
     };
+
+    if (forceReveal) {
+      const words = el.querySelectorAll<HTMLElement>("[data-scroll-word]");
+      words.forEach((word, i) => {
+        // The remaining unread words finish in reading order. Capping the
+        // stagger keeps a longer paragraph from making the reveal feel slow.
+        const delay = Math.min(i * 10, 480);
+        word.style.transition =
+          "opacity 280ms cubic-bezier(0.22, 1, 0.36, 1), transform 280ms cubic-bezier(0.22, 1, 0.36, 1), filter 280ms cubic-bezier(0.22, 1, 0.36, 1)";
+        word.style.transitionDelay = `${delay}ms`;
+        word.style.opacity = "1";
+        word.style.transform = "translateY(0)";
+        word.style.filter = "none";
+      });
+      return;
+    }
 
     // useScroll measures in a layout effect (before this effect), so read the
     // current value now, then follow every subsequent scroll change.
     apply(scrollYProgress.get());
     const unsubscribe = scrollYProgress.on("change", apply);
     return () => unsubscribe();
-  }, [scrollYProgress, wordRanges]);
+  }, [forceReveal, scrollYProgress, wordRanges]);
 
   return (
     <p ref={container} className="flex flex-wrap leading-[0.65] p-4">

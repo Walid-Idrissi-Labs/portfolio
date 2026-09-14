@@ -1,23 +1,53 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { MoveRight } from "lucide-react";
 
 import { ScrollText } from "../ui/scrolltext";
 
+const introReadDuration = 800;
+
 export function ProjectBackstory({ paragraphs, year }: { paragraphs: string[]; year: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isIntroRead, setIsIntroRead] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const contentId = useId();
   const hasMoreParagraphs = paragraphs.length > 1;
   const firstParagraph = paragraphs[0] ?? "";
   const remainingParagraphs = paragraphs.slice(1);
 
+  useEffect(() => {
+    if (!isOpening) return;
+
+    const timer = window.setTimeout(() => {
+      setIsExpanded(true);
+      setIsOpening(false);
+    }, shouldReduceMotion ? 0 : introReadDuration);
+
+    return () => window.clearTimeout(timer);
+  }, [isOpening, shouldReduceMotion]);
+
+  const toggleBackstory = () => {
+    if (isExpanded) {
+      setIsExpanded(false);
+      return;
+    }
+
+    if (isIntroRead) {
+      setIsExpanded(true);
+      return;
+    }
+
+    setIsIntroRead(true);
+    setIsOpening(true);
+  };
+
   return (
     <div>
       <div id={contentId}>
-        <ScrollText text={firstParagraph} lineBreakSpacing={18} />
+        <ScrollText text={firstParagraph} lineBreakSpacing={18} forceReveal={isIntroRead} />
 
         <AnimatePresence initial={false}>
           {isExpanded && (
@@ -48,10 +78,12 @@ export function ProjectBackstory({ paragraphs, year }: { paragraphs: string[]; y
             type="button"
             aria-controls={contentId}
             aria-expanded={isExpanded}
-            onClick={() => setIsExpanded((expanded) => !expanded)}
-            className="group flex cursor-pointer items-center gap-2 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-500 transition-colors duration-300 hover:text-beige_bright focus-visible:text-beige_bright focus-visible:outline-none"
+            aria-busy={isOpening}
+            disabled={isOpening}
+            onClick={toggleBackstory}
+            className="group flex cursor-pointer items-center gap-2 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-500 transition-colors duration-300 hover:text-beige_bright focus-visible:text-beige_bright focus-visible:outline-none disabled:cursor-wait disabled:opacity-70"
           >
-            {isExpanded ? "Show Less" : "Show More…"}
+            {isExpanded ? "Show Less" : isOpening ? "Marking as read…" : "Show More…"}
             <motion.span
               animate={{ rotate: isExpanded ? -90 : 90 }}
               transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
