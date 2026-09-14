@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { MoveRight } from "lucide-react";
 
 import { ScrollText } from "../ui/scrolltext";
 
@@ -49,11 +49,19 @@ export function ProjectBackstory({ paragraphs, year }: { paragraphs: string[]; y
             aria-controls={contentId}
             aria-expanded={isExpanded}
             onClick={() => setIsExpanded((expanded) => !expanded)}
-            className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-300 transition-colors duration-300 hover:border-beige_bright/60 hover:text-beige_bright focus-visible:border-beige_bright focus-visible:text-beige_bright focus-visible:outline-none"
+            className="group flex cursor-pointer items-center gap-2 font-ibm text-[11px] uppercase tracking-[0.25em] text-neutral-500 transition-colors duration-300 hover:text-beige_bright focus-visible:text-beige_bright focus-visible:outline-none"
           >
             {isExpanded ? "Show Less" : "Show More…"}
-            <motion.span animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.3 }}>
-              <ChevronDown aria-hidden="true" className="size-3.5" />
+            <motion.span
+              animate={{ rotate: isExpanded ? -90 : 90 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+              className="inline-flex"
+            >
+              <MoveRight
+                aria-hidden="true"
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1.5"
+                strokeWidth={1.5}
+              />
             </motion.span>
           </button>
         </div>
