@@ -1,13 +1,14 @@
 "use client";
 
 import { useId, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronDown } from "lucide-react";
 
 import { ScrollText } from "../ui/scrolltext";
 
 export function ProjectBackstory({ paragraphs, year }: { paragraphs: string[]; year: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
   const contentId = useId();
   const hasMoreParagraphs = paragraphs.length > 1;
   const firstParagraph = paragraphs[0] ?? "";
@@ -21,11 +22,19 @@ export function ProjectBackstory({ paragraphs, year }: { paragraphs: string[]; y
         <AnimatePresence initial={false}>
           {isExpanded && (
             <motion.div
-              initial={{ height: 0, opacity: 0, y: -12 }}
+              initial={{ height: 0, opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
               animate={{ height: "auto", opacity: 1, y: 0 }}
-              exit={{ height: 0, opacity: 0, y: -12 }}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden"
+              exit={{ height: 0, opacity: 0, y: shouldReduceMotion ? 0 : -8 }}
+              transition={
+                shouldReduceMotion
+                  ? { duration: 0 }
+                  : {
+                      height: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+                      opacity: { duration: 0.35, delay: 0.08, ease: "easeOut" },
+                      y: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                    }
+              }
+              className="overflow-hidden will-change-[height,opacity,transform]"
             >
               <ScrollText text={remainingParagraphs.join("\n")} lineBreakSpacing={18} />
             </motion.div>
