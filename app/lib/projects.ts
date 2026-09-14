@@ -481,30 +481,30 @@ export const projects: Project[] = [
     heroImageAlt: "Abstract illustration of aluminium profiles, glazing, and connected pricing data",
     private: true,
     seoDescription:
-      "A private AI-assisted quotation prediction system built during a 2026 internship. It retrieves comparable supplier data, produces explainable estimates, and powers a full quotation workflow.",
+      "A private AI-assisted quotation prediction system built during my 2026 internship. It retrieves comparable supplier data, produces explainable estimates, and powers a full quotation workflow.",
     links: {
       demo: true,
     },
     background: [
-      "I built this **AI-assisted quotation prediction software** during my 2026 summer internship for a company working with aluminium joinery and glazing. Their quotation process moved between technical design software, Excel calculation sheets, and an ERP, with no real bridge between them. The mission was to make the first, most repetitive part faster: turn a technical product specification into a supplier-cost estimate that a salesperson can actually understand and use.",
-      "I started with the company's historical data and learned quickly that getting a number is not the same as getting a trustworthy one. I wrote extraction pipelines for inconsistent supplier exports, rebuilt a structured base from thousands of product lines, then used **embeddings** and semantic search to find comparable historical products. The estimate accounts for dimensions, order quantity, and project scale, then returns its interval and the closest comparable lines instead of pretending the answer came from nowhere.",
-      "The prediction is deliberately only one part of the software. A separate **deterministic calculation engine** applies the company's fabrication, installation, delivery, overhead, margin, and tax rules. Employees work through a guided product wizard and quotation workflow; administrators manage financial settings; finalized quotations keep a snapshot of the values that produced them. I deployed the Django and React application on the company's Windows Server, where it now supports a real operational workflow rather than a demo dataset.",
+      "I built this **AI-assisted quotation prediction software** during my 2026 summer internship for a company working with aluminium joinery and glazing. Their quotation process moved between technical design software, Excel calculation sheets, and an ERP, with no real bridge between them. The mission was to make the first, most repetitive part faster: turn a technical product specification into a supplier-cost estimate that a salesperson can understand and use.",
+      "I started with the company's historical data and learned quickly that getting a number is not the same as getting a **trustworthy** one. I wrote extraction pipelines for inconsistent supplier exports, rebuilt a structured base from thousands of product lines, then used **embeddings** and semantic search to find comparable historical products. The estimate accounts for dimensions, order quantity, and project scale, then returns its interval and the closest comparable lines instead of pretending the answer came from nowhere.",
+      "The prediction is deliberately only one part of the software. A separate **deterministic calculation engine** applies the company's fabrication, installation, delivery, overhead, margin, and tax rules. Employees work through a guided product wizard and quotation workflow, administrators manage financial settings, finalized quotations keep a snapshot of the values that produced them. I deployed the Django and React application on the company's Windows Server, where it now supports a real operational workflow.",
     ],
     features: [
       {
-        title: "A price you can trace back",
-        body: "Technical specifications are embedded and matched against historical supplier lines. The result shows comparable products and an interval, so a user can see the evidence behind the estimate instead of trusting a black box.",
+        title: "Traceable & Explainable",
+        body: "Technical specifications are embedded and matched against historical supplier lines. The result shows comparable products and an interval, so a user can see the evidence behind the estimate instead of being blocked behind a black box.",
       },
       {
         title: "Context-aware prediction",
         body: "Comparable prices are normalized before they are used: aluminium by perimeter, glazing by square metre, then refined for quantity and the pricing tier of the project. That keeps a bulk order from quietly pricing a bespoke job.",
       },
       {
-        title: "AI estimates, deterministic math",
+        title: "AI estimations, deterministic math",
         body: "The system estimates supplier costs from history, but every business rule after that stays explicit: direct costs, overhead, fabrication, installation, transport, margin, safety buffer, and VAT are all itemized and reproducible.",
       },
       {
-        title: "Built for the whole quotation lifecycle",
+        title: "Follows the whole quotation lifecycle",
         body: "A role-based web app gives employees a guided product and quotation workflow while administrators control business settings. Finalized quotations freeze their parameters, and the system was deployed on the company's own Windows Server.",
       },
     ],
