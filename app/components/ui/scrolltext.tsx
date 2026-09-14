@@ -1,20 +1,24 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import { useScroll } from "motion/react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import type { CSSProperties } from "react";
 
 import { colors } from "../../lib/colors";
 
-export interface MagicTextProps {
+export interface ScrollTextProps {
   text: string;
   lineBreakSpacing?: number;
+  /** Paragraph index from which the copy folds away until `expanded` is true. */
+  collapseAfter?: number;
+  expanded?: boolean;
+  /** id of the folded region, so a toggle button can point aria-controls at it. */
+  collapsibleId?: string;
 }
 
 interface WordEntry {
-  type: "word" | "break";
-  value?: string;
-  highlight?: boolean;
+  value: string;
+  highlight: boolean;
+  paragraphIndex: number;
 }
 
 // Words wrapped in **double asterisks** get the section-heading gradient,
@@ -32,21 +36,42 @@ const keywordGradient: CSSProperties = {
   color: "transparent",
 };
 
-export function ScrollText({ text, lineBreakSpacing = 14 }: MagicTextProps) {
-  const container = useRef<HTMLParagraphElement | null>(null);
+// A word is revealed once it rises past this fraction of the viewport height,
+// so copy reads in as it reaches the lower-middle of the screen and the
+// ghosted preview below stays visible. Position-based rather than
+// progress-based so folding paragraphs in or out never re-maps the words
+// that are already on screen.
+const READING_LINE = 0.74;
+// Width of the blur/rise band, in row pitches. About half a row of words is
+// mid-transition at any time, which reads as a soft typing edge.
+const BAND_ROWS = 0.5;
+// Sweep that reveals the unfolded paragraphs. Duration and easing must stay
+// in sync with .scrolltext-fold in globals.css (600ms easeOutQuint).
+const FOLD_DURATION = 600;
+const easeOutQuint = (t: number) => 1 - (1 - t) ** 5;
+const clamp01 = (value: number) => (value < 0 ? 0 : value > 1 ? 1 : value);
 
-  const { scrollYProgress } = useScroll({
-    target: container,
-    // Start when the top of the text enters the lower viewport, finish when
-    // its bottom reaches mid-screen, so the reveal keeps pace with reading.
-    offset: ["start 0.8", "end 0.45"],
-  });
+const hiddenWordStyle: CSSProperties = { opacity: 0, transform: "translateY(10px)" };
+const hiddenKeywordStyle: CSSProperties = { ...hiddenWordStyle, ...keywordGradient };
 
-  // Parse the **bold** markup and precompute each word's scroll-progress
-  // window. `text` is static, so this runs once. Words render as plain spans so
-  // the reveal is driven by a single scroll subscription rather than one Motion
-  // value + blur filter per word (~200-600 of them on the longest pages).
-  const { entries, wordRanges } = useMemo(() => {
+interface Runtime {
+  sweep: (region: HTMLElement) => void;
+}
+
+export function ScrollText({
+  text,
+  lineBreakSpacing = 14,
+  collapseAfter,
+  expanded = false,
+  collapsibleId,
+}: ScrollTextProps) {
+  const container = useRef<HTMLDivElement | null>(null);
+  const region = useRef<HTMLDivElement | null>(null);
+  const runtime = useRef<Runtime | null>(null);
+  const wasExpanded = useRef(expanded);
+
+  // Parse the **bold** markup once; `text` is static in practice.
+  const { paragraphs, regionStartWord } = useMemo(() => {
     const entries: WordEntry[] = [];
     const lines = text.split("\n");
 
@@ -68,102 +93,211 @@ export function ScrollText({ text, lineBreakSpacing = 14 }: MagicTextProps) {
           tokens.length > 0 &&
           !/\s$/.test(segments[segmentIndex - 1]) &&
           !/^\s/.test(segment) &&
-          prev?.type === "word" &&
-          prev.value
+          prev?.value
         ) {
           prev.value += tokens[0];
           first = 1;
         }
 
         for (let t = first; t < tokens.length; t++) {
-          entries.push({ type: "word", value: tokens[t], highlight });
+          entries.push({ value: tokens[t], highlight, paragraphIndex: lineIndex });
         }
       });
-
-      if (lineIndex < lines.length - 1) {
-        entries.push({ type: "break" });
-      }
     });
 
-    // Each word transitions over ~3 words' worth of progress, so a few
-    // neighbours are always mid-blur — reads as a motion-blurred edge.
-    const totalWords = entries.filter((entry) => entry.type === "word").length;
-    const wordRanges: Array<[number, number]> = [];
-    let wordIndex = 0;
-    entries.forEach((entry) => {
-      if (entry.type === "word") {
-        const start = totalWords > 0 ? wordIndex / totalWords : 0;
-        const end = totalWords > 0 ? Math.min(1, start + 3 / totalWords) : 1;
-        wordRanges.push([start, end]);
-        wordIndex += 1;
-      }
-    });
+    const paragraphs = lines.map(() => [] as Array<{ entry: WordEntry; wordIndex: number }>);
+    entries.forEach((entry, wordIndex) => paragraphs[entry.paragraphIndex].push({ entry, wordIndex }));
 
-    return { entries, wordRanges };
-  }, [text]);
+    const foldAt = collapseAfter ?? lines.length;
+    const regionStartWord = entries.findIndex((entry) => entry.paragraphIndex >= foldAt);
 
-  useEffect(() => {
+    return { paragraphs, regionStartWord: regionStartWord === -1 ? entries.length : regionStartWord };
+  }, [collapseAfter, text]);
+
+  const foldAt = collapseAfter !== undefined && collapseAfter < paragraphs.length ? collapseAfter : paragraphs.length;
+  const hasFold = foldAt < paragraphs.length;
+
+  // Everything scroll-related lives in one closure keyed on the parsed text:
+  // word positions are measured once per layout, and each scroll frame is a
+  // single rect read plus a float per word, writing only the words whose
+  // reveal actually changed (a handful at the moving edge).
+  useLayoutEffect(() => {
     const el = container.current;
     if (!el) return;
 
-    const apply = (progress: number) => {
-      const words = el.querySelectorAll<HTMLElement>("[data-scroll-word]");
-      words.forEach((word, i) => {
-        const [start, end] = wordRanges[i] ?? [0, 1];
-        const span = end - start || 1;
-        const t = Math.min(1, Math.max(0, (progress - start) / span));
-        word.style.opacity = t.toFixed(3);
-        word.style.transform = `translateY(${(10 * (1 - t)).toFixed(3)}px)`;
-        const blur = 6 * (1 - t);
-        word.style.filter = blur < 0.1 ? "none" : `blur(${blur.toFixed(2)}px)`;
+    const outers = Array.from(el.querySelectorAll<HTMLElement>("[data-scroll-word]"));
+    const inners = outers.map((outer) => outer.lastElementChild as HTMLElement);
+    const count = outers.length;
+    // Reading-order key per word: its row top plus a diagonal term so words in
+    // one row reveal left-to-right and flow straight into the next row.
+    const keys = new Float32Array(count);
+    const fractions = new Float32Array(count);
+    const painted = new Float32Array(count).fill(-1);
+    let band = 16;
+    let viewportHeight = window.innerHeight;
+    let frame: number | null = null;
+    let sweep: { start: number; region: HTMLElement } | null = null;
+    let disposed = false;
+
+    const measure = () => {
+      const rect = el.getBoundingClientRect();
+      const width = rect.width || 1;
+      let pitch = Number.POSITIVE_INFINITY;
+      let previousTop = Number.NEGATIVE_INFINITY;
+
+      for (let i = 0; i < count; i++) {
+        const wordRect = outers[i].getBoundingClientRect();
+        const top = wordRect.top - rect.top;
+        if (previousTop > Number.NEGATIVE_INFINITY && top - previousTop > 1) {
+          pitch = Math.min(pitch, top - previousTop);
+        }
+        previousTop = top;
+        keys[i] = top;
+        fractions[i] = (wordRect.left + wordRect.width / 2 - rect.left) / width;
+        painted[i] = -1;
+      }
+
+      if (!Number.isFinite(pitch)) pitch = 32;
+      for (let i = 0; i < count; i++) keys[i] += fractions[i] * pitch;
+      band = Math.max(8, pitch * BAND_ROWS);
+    };
+
+    const paint = (index: number, progress: number) => {
+      if (Math.abs(progress - painted[index]) < 0.002) return;
+      painted[index] = progress;
+      const style = inners[index].style;
+      style.opacity = progress.toFixed(3);
+      style.transform = progress >= 1 ? "none" : `translateY(${(10 * (1 - progress)).toFixed(2)}px)`;
+      // Only the words inside the band carry a filter; fully hidden words are
+      // invisible anyway, so skipping the blur keeps hundreds of them cheap.
+      style.filter = progress <= 0 || progress >= 1 ? "none" : `blur(${(6 * (1 - progress)).toFixed(2)}px)`;
+    };
+
+    const apply = (now: number) => {
+      const top = el.getBoundingClientRect().top;
+      const line = viewportHeight * READING_LINE;
+      let regionLine = line;
+      let regionFrom = count;
+
+      if (sweep) {
+        const t = Math.min(1, (now - sweep.start) / FOLD_DURATION);
+        // Starts above the first unfolded word so every word resets to hidden
+        // on the first frame, then eases down to the reading line in step
+        // with the fold opening.
+        const from = sweep.region.getBoundingClientRect().top - band;
+        regionLine = Math.min(line, from + (line - from) * easeOutQuint(t));
+        regionFrom = regionStartWord;
+        if (t >= 1) sweep = null;
+      }
+
+      for (let i = 0; i < count; i++) {
+        const target = i >= regionFrom ? regionLine : line;
+        paint(i, clamp01((target - (top + keys[i])) / band + 0.5));
+      }
+
+      if (sweep) schedule();
+    };
+
+    const schedule = () => {
+      if (frame !== null) return;
+      frame = window.requestAnimationFrame((now) => {
+        frame = null;
+        apply(now);
       });
     };
 
-    // useScroll measures in a layout effect (before this effect), so read the
-    // current value now, then follow every subsequent scroll change.
-    apply(scrollYProgress.get());
-    const unsubscribe = scrollYProgress.on("change", apply);
-    return () => unsubscribe();
-  }, [scrollYProgress, wordRanges]);
+    const remeasure = () => {
+      if (disposed) return;
+      measure();
+      schedule();
+    };
+
+    const onResize = () => {
+      viewportHeight = window.innerHeight;
+      schedule();
+    };
+
+    measure();
+    apply(performance.now());
+
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+
+    // Only a width change reflows the words. Height changes (the fold
+    // opening, content above loading) leave every word where it was. The
+    // first callback fires right after observe() and just sets the baseline.
+    let observedWidth: number | null = null;
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry) return;
+      const width = entry.contentRect.width;
+      if (observedWidth !== null && Math.abs(width - observedWidth) > 0.5) remeasure();
+      observedWidth = width;
+    });
+    observer.observe(el);
+    document.fonts.ready.then(remeasure);
+
+    runtime.current = {
+      sweep: (regionEl) => {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          sweep = null;
+        } else {
+          sweep = { start: performance.now(), region: regionEl };
+        }
+        schedule();
+      },
+    };
+
+    return () => {
+      disposed = true;
+      runtime.current = null;
+      observer.disconnect();
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", onResize);
+      if (frame !== null) window.cancelAnimationFrame(frame);
+    };
+  }, [regionStartWord, text]);
+
+  // Layout effect so the reset-to-hidden frame lands before the fold's first
+  // painted frame; otherwise previously revealed words could flash.
+  useLayoutEffect(() => {
+    const opened = expanded && !wasExpanded.current;
+    wasExpanded.current = expanded;
+    if (opened && region.current) runtime.current?.sweep(region.current);
+  }, [expanded]);
+
+  const renderParagraph = (paragraphIndex: number) => (
+    <div
+      key={paragraphIndex}
+      className="flex flex-wrap leading-[0.65]"
+      style={paragraphIndex === 0 ? undefined : { marginTop: `${lineBreakSpacing}px` }}
+    >
+      {paragraphs[paragraphIndex].map(({ entry, wordIndex }) => (
+        <span
+          key={wordIndex}
+          data-scroll-word
+          className="relative mt-3 mr-2 text-xl font-unbounded font-light text-neutral-100 md:text-3xl xl:text-3xl"
+        >
+          <span aria-hidden="true" className="absolute opacity-20" style={entry.highlight ? keywordGradient : undefined}>
+            {entry.value}
+          </span>
+          <span className="inline-block" style={entry.highlight ? hiddenKeywordStyle : hiddenWordStyle}>
+            {entry.value}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
 
   return (
-    <p ref={container} className="flex flex-wrap leading-[0.65] p-4">
-      {entries.map((entry, i) => {
-        if (entry.type === "break") {
-          return (
-            <span
-              key={`break-${i}`}
-              className="basis-full block"
-              style={{ height: `${lineBreakSpacing}px` }}
-              aria-hidden="true"
-            />
-          );
-        }
-
-        const currentWord = entry.value ?? "";
-        return (
-          <span
-            key={`word-${i}`}
-            className="relative mt-3 mr-2 text-xl md:text-3xl xl:text-3xl font-unbounded font-light text-neutral-100 "
-          >
-            <span className="absolute opacity-20" style={entry.highlight ? keywordGradient : undefined}>
-              {currentWord}
-            </span>
-            <span
-              data-scroll-word
-              className="inline-block will-change-transform"
-              style={{
-                opacity: 0,
-                transform: "translateY(10px)",
-                filter: "blur(6px)",
-                ...(entry.highlight ? keywordGradient : undefined),
-              }}
-            >
-              {currentWord}
-            </span>
-          </span>
-        );
-      })}
-    </p>
+    <div ref={container} className="p-4">
+      {paragraphs.slice(0, foldAt).map((_, paragraphIndex) => renderParagraph(paragraphIndex))}
+      {hasFold && (
+        <div ref={region} id={collapsibleId} className="scrolltext-fold" data-open={expanded ? "" : undefined}>
+          <div className="scrolltext-fold-inner">
+            {paragraphs.slice(foldAt).map((_, offset) => renderParagraph(foldAt + offset))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
