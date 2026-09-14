@@ -9,16 +9,17 @@ import { colors } from "../../lib/colors";
 export interface MagicTextProps {
   text: string;
   lineBreakSpacing?: number;
-  /** Finishes the current text as read instead of waiting for more scrolling. */
-  forceReveal?: boolean;
-  /** Skips the read-through motion for people who prefer reduced motion. */
-  revealImmediately?: boolean;
+  /** Number of paragraphs currently visible, starting from the first. */
+  visibleParagraphCount?: number;
+  /** Paragraphs already considered read, so their words stay fully revealed. */
+  completedParagraphCount?: number;
 }
 
 interface WordEntry {
   type: "word" | "break";
   value?: string;
   highlight?: boolean;
+  paragraphIndex: number;
 }
 
 // Words wrapped in **double asterisks** get the section-heading gradient,
@@ -39,8 +40,8 @@ const keywordGradient: CSSProperties = {
 export function ScrollText({
   text,
   lineBreakSpacing = 14,
-  forceReveal = false,
-  revealImmediately = false,
+  visibleParagraphCount = Number.POSITIVE_INFINITY,
+  completedParagraphCount = 0,
 }: MagicTextProps) {
   const container = useRef<HTMLParagraphElement | null>(null);
 
@@ -55,7 +56,7 @@ export function ScrollText({
   // window. `text` is static, so this runs once. Words render as plain spans so
   // the reveal is driven by a single scroll subscription rather than one Motion
   // value + blur filter per word (~200-600 of them on the longest pages).
-  const { entries, wordRanges } = useMemo(() => {
+  const { entries, wordRanges, completedWordCount, activeWordCount } = useMemo(() => {
     const entries: WordEntry[] = [];
     const lines = text.split("\n");
 
@@ -85,31 +86,42 @@ export function ScrollText({
         }
 
         for (let t = first; t < tokens.length; t++) {
-          entries.push({ type: "word", value: tokens[t], highlight });
+          entries.push({ type: "word", value: tokens[t], highlight, paragraphIndex: lineIndex });
         }
       });
 
       if (lineIndex < lines.length - 1) {
-        entries.push({ type: "break" });
+        entries.push({ type: "break", paragraphIndex: lineIndex + 1 });
       }
     });
 
-    // Each word transitions over ~3 words' worth of progress, so a few
+    const completedWordCount = entries.filter(
+      (entry) => entry.type === "word" && entry.paragraphIndex < completedParagraphCount,
+    ).length;
+    const activeWordCount = entries.filter(
+      (entry) =>
+        entry.type === "word" &&
+        entry.paragraphIndex >= completedParagraphCount &&
+        entry.paragraphIndex < visibleParagraphCount,
+    ).length;
+
+    // Each active word transitions over ~3 words' worth of progress, so a few
     // neighbours are always mid-blur — reads as a motion-blurred edge.
-    const totalWords = entries.filter((entry) => entry.type === "word").length;
     const wordRanges: Array<[number, number]> = [];
-    let wordIndex = 0;
+    let activeWordIndex = 0;
     entries.forEach((entry) => {
       if (entry.type === "word") {
-        const start = totalWords > 0 ? wordIndex / totalWords : 0;
-        const end = totalWords > 0 ? Math.min(1, start + 3 / totalWords) : 1;
+        const isActive =
+          entry.paragraphIndex >= completedParagraphCount && entry.paragraphIndex < visibleParagraphCount;
+        const start = isActive && activeWordCount > 0 ? activeWordIndex / activeWordCount : 0;
+        const end = isActive && activeWordCount > 0 ? Math.min(1, start + 3 / activeWordCount) : 1;
         wordRanges.push([start, end]);
-        wordIndex += 1;
+        if (isActive) activeWordIndex += 1;
       }
     });
 
-    return { entries, wordRanges };
-  }, [text]);
+    return { entries, wordRanges, completedWordCount, activeWordCount };
+  }, [completedParagraphCount, text, visibleParagraphCount]);
 
   useEffect(() => {
     const el = container.current;
@@ -123,6 +135,7 @@ export function ScrollText({
     let previousProgress: number | null = null;
 
     const getWordProgress = (index: number, progress: number) => {
+      if (index < completedWordCount) return 1;
       const [start, end] = wordRanges[index] ?? [0, 1];
       return Math.min(1, Math.max(0, (progress - start) / (end - start || 1)));
     };
@@ -137,16 +150,20 @@ export function ScrollText({
     };
 
     const apply = (progress: number) => {
-      if (words.length === 0) return;
+      if (activeWordCount === 0) return;
 
       // At any point only three neighbouring words are mid-transition. On a
       // jump, update the words crossed by that jump; otherwise leave the rest
       // of the paragraph alone.
-      const current = progress * words.length;
-      const previous = (previousProgress ?? progress) * words.length;
+      const activeStart = completedWordCount;
+      const activeEnd = activeStart + activeWordCount - 1;
+      const current = activeStart + progress * activeWordCount;
+      const previous = activeStart + (previousProgress ?? progress) * activeWordCount;
       const isInitialPaint = previousProgress === null;
-      const start = isInitialPaint ? 0 : Math.max(0, Math.floor(Math.min(current, previous)) - 4);
-      const end = Math.min(words.length - 1, Math.ceil(Math.max(current, previous)) + 1);
+      const start = isInitialPaint
+        ? 0
+        : Math.max(activeStart, Math.floor(Math.min(current, previous)) - 4);
+      const end = Math.min(activeEnd, Math.ceil(Math.max(current, previous)) + 1);
 
       for (let i = start; i <= end; i += 1) {
         setWordProgress(words[i], getWordProgress(i, progress));
@@ -154,27 +171,6 @@ export function ScrollText({
 
       previousProgress = progress;
     };
-
-    if (forceReveal) {
-      const currentProgress = scrollYProgress.get();
-      const unreadWords = words.filter((_, i) => getWordProgress(i, currentProgress) < 0.999);
-      const waveDuration = Math.min(720, Math.max(240, unreadWords.length * 8));
-
-      unreadWords.forEach((word, i) => {
-        // Keep a short, evenly distributed wave instead of starting a large
-        // batch of filter animations at once near the end of a paragraph.
-        const delay = revealImmediately || unreadWords.length < 2 ? 0 : (i / (unreadWords.length - 1)) * waveDuration;
-        word.style.transition =
-          revealImmediately
-            ? "none"
-            : "opacity 180ms cubic-bezier(0.22, 1, 0.36, 1), transform 180ms cubic-bezier(0.22, 1, 0.36, 1), filter 180ms cubic-bezier(0.22, 1, 0.36, 1)";
-        word.style.transitionDelay = `${delay}ms`;
-        word.style.opacity = "1";
-        word.style.transform = "translate3d(0, 0, 0)";
-        word.style.filter = "none";
-      });
-      return;
-    }
 
     // useScroll measures in a layout effect (before this effect), so read the
     // current value now, then follow every subsequent scroll change.
@@ -193,16 +189,18 @@ export function ScrollText({
       unsubscribe();
       if (frame !== null) window.cancelAnimationFrame(frame);
     };
-  }, [forceReveal, revealImmediately, scrollYProgress, wordRanges]);
+  }, [activeWordCount, completedWordCount, scrollYProgress, wordRanges]);
 
   return (
     <p ref={container} className="flex flex-wrap leading-[0.65] p-4">
       {entries.map((entry, i) => {
+        const isHidden = entry.paragraphIndex >= visibleParagraphCount;
+
         if (entry.type === "break") {
           return (
             <span
               key={`break-${i}`}
-              className="basis-full block"
+              className={`basis-full block${isHidden ? " hidden" : ""}`}
               style={{ height: `${lineBreakSpacing}px` }}
               aria-hidden="true"
             />
@@ -213,7 +211,9 @@ export function ScrollText({
         return (
           <span
             key={`word-${i}`}
-            className="relative mt-3 mr-2 text-xl md:text-3xl xl:text-3xl font-unbounded font-light text-neutral-100 "
+            className={`relative mt-3 mr-2 text-xl md:text-3xl xl:text-3xl font-unbounded font-light text-neutral-100 ${
+              isHidden ? "hidden" : ""
+            }`}
           >
             <span className="absolute opacity-20" style={entry.highlight ? keywordGradient : undefined}>
               {currentWord}
