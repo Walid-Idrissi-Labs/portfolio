@@ -18,6 +18,7 @@ export function ProjectBackstory({ paragraphs, year }: { paragraphs: string[]; y
           lineBreakSpacing={18}
           visibleParagraphCount={isExpanded ? paragraphs.length : 1}
           completedParagraphCount={isExpanded ? 1 : 0}
+          animateVisibleParagraphs={isExpanded}
         />
       </div>
 

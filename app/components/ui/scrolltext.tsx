@@ -13,11 +13,12 @@ export interface MagicTextProps {
   visibleParagraphCount?: number;
   /** Paragraphs already considered read, so their words stay fully revealed. */
   completedParagraphCount?: number;
+  /** Slides newly visible paragraphs into place without animating each word. */
+  animateVisibleParagraphs?: boolean;
 }
 
 interface WordEntry {
-  type: "word" | "break";
-  value?: string;
+  value: string;
   highlight?: boolean;
   paragraphIndex: number;
 }
@@ -42,8 +43,9 @@ export function ScrollText({
   lineBreakSpacing = 14,
   visibleParagraphCount = Number.POSITIVE_INFINITY,
   completedParagraphCount = 0,
+  animateVisibleParagraphs = false,
 }: MagicTextProps) {
-  const container = useRef<HTMLParagraphElement | null>(null);
+  const container = useRef<HTMLDivElement | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: container,
@@ -56,7 +58,7 @@ export function ScrollText({
   // window. `text` is static, so this runs once. Words render as plain spans so
   // the reveal is driven by a single scroll subscription rather than one Motion
   // value + blur filter per word (~200-600 of them on the longest pages).
-  const { entries, wordRanges, completedWordCount, activeWordCount } = useMemo(() => {
+  const { wordRanges, completedWordCount, activeWordCount, paragraphCount, paragraphs } = useMemo(() => {
     const entries: WordEntry[] = [];
     const lines = text.split("\n");
 
@@ -78,7 +80,7 @@ export function ScrollText({
           tokens.length > 0 &&
           !/\s$/.test(segments[segmentIndex - 1]) &&
           !/^\s/.test(segment) &&
-          prev?.type === "word" &&
+          prev &&
           prev.value
         ) {
           prev.value += tokens[0];
@@ -86,21 +88,16 @@ export function ScrollText({
         }
 
         for (let t = first; t < tokens.length; t++) {
-          entries.push({ type: "word", value: tokens[t], highlight, paragraphIndex: lineIndex });
+          entries.push({ value: tokens[t], highlight, paragraphIndex: lineIndex });
         }
       });
-
-      if (lineIndex < lines.length - 1) {
-        entries.push({ type: "break", paragraphIndex: lineIndex + 1 });
-      }
     });
 
     const completedWordCount = entries.filter(
-      (entry) => entry.type === "word" && entry.paragraphIndex < completedParagraphCount,
+      (entry) => entry.paragraphIndex < completedParagraphCount,
     ).length;
     const activeWordCount = entries.filter(
       (entry) =>
-        entry.type === "word" &&
         entry.paragraphIndex >= completedParagraphCount &&
         entry.paragraphIndex < visibleParagraphCount,
     ).length;
@@ -110,17 +107,20 @@ export function ScrollText({
     const wordRanges: Array<[number, number]> = [];
     let activeWordIndex = 0;
     entries.forEach((entry) => {
-      if (entry.type === "word") {
-        const isActive =
-          entry.paragraphIndex >= completedParagraphCount && entry.paragraphIndex < visibleParagraphCount;
-        const start = isActive && activeWordCount > 0 ? activeWordIndex / activeWordCount : 0;
-        const end = isActive && activeWordCount > 0 ? Math.min(1, start + 3 / activeWordCount) : 1;
-        wordRanges.push([start, end]);
-        if (isActive) activeWordIndex += 1;
-      }
+      const isActive =
+        entry.paragraphIndex >= completedParagraphCount && entry.paragraphIndex < visibleParagraphCount;
+      const start = isActive && activeWordCount > 0 ? activeWordIndex / activeWordCount : 0;
+      const end = isActive && activeWordCount > 0 ? Math.min(1, start + 3 / activeWordCount) : 1;
+      wordRanges.push([start, end]);
+      if (isActive) activeWordIndex += 1;
     });
 
-    return { entries, wordRanges, completedWordCount, activeWordCount };
+    const paragraphs = Array.from({ length: lines.length }, () => [] as Array<{ entry: WordEntry; wordIndex: number }>);
+    entries.forEach((entry, wordIndex) => {
+      paragraphs[entry.paragraphIndex]?.push({ entry, wordIndex });
+    });
+
+    return { wordRanges, completedWordCount, activeWordCount, paragraphCount: lines.length, paragraphs };
   }, [completedParagraphCount, text, visibleParagraphCount]);
 
   useEffect(() => {
@@ -192,47 +192,46 @@ export function ScrollText({
   }, [activeWordCount, completedWordCount, scrollYProgress, wordRanges]);
 
   return (
-    <p ref={container} className="flex flex-wrap leading-[0.65] p-4">
-      {entries.map((entry, i) => {
-        const isHidden = entry.paragraphIndex >= visibleParagraphCount;
+    <div ref={container} className="p-4">
+      {Array.from({ length: paragraphCount }, (_, paragraphIndex) => {
+        const isHidden = paragraphIndex >= visibleParagraphCount;
+        const isNewlyVisible = animateVisibleParagraphs && paragraphIndex > 0 && !isHidden;
 
-        if (entry.type === "break") {
-          return (
-            <span
-              key={`break-${i}`}
-              className={`basis-full block${isHidden ? " hidden" : ""}`}
-              style={{ height: `${lineBreakSpacing}px` }}
-              aria-hidden="true"
-            />
-          );
-        }
-
-        const currentWord = entry.value ?? "";
         return (
-          <span
-            key={`word-${i}`}
-            className={`relative mt-3 mr-2 text-xl md:text-3xl xl:text-3xl font-unbounded font-light text-neutral-100 ${
-              isHidden ? "hidden" : ""
+          <div
+            key={`paragraph-${paragraphIndex}`}
+            className={`flex flex-wrap leading-[0.65] ${isHidden ? "hidden" : ""} ${
+              isNewlyVisible ? "animate-backstory-paragraph-in" : ""
             }`}
+            style={paragraphIndex === 0 ? undefined : { marginTop: `${lineBreakSpacing}px` }}
           >
-            <span className="absolute opacity-20" style={entry.highlight ? keywordGradient : undefined}>
-              {currentWord}
-            </span>
-            <span
-              data-scroll-word
-              className="inline-block"
-              style={{
-                opacity: 0,
-                transform: "translate3d(0, 10px, 0)",
-                filter: "blur(6px)",
-                ...(entry.highlight ? keywordGradient : undefined),
-              }}
-            >
-              {currentWord}
-            </span>
-          </span>
+            {paragraphs[paragraphIndex]?.map(({ entry, wordIndex }) => {
+                return (
+                  <span
+                    key={`word-${wordIndex}`}
+                    className="relative mt-3 mr-2 text-xl font-unbounded font-light text-neutral-100 md:text-3xl xl:text-3xl"
+                  >
+                    <span className="absolute opacity-20" style={entry.highlight ? keywordGradient : undefined}>
+                      {entry.value}
+                    </span>
+                    <span
+                      data-scroll-word
+                      className="inline-block"
+                      style={{
+                        opacity: 0,
+                        transform: "translate3d(0, 10px, 0)",
+                        filter: "blur(6px)",
+                        ...(entry.highlight ? keywordGradient : undefined),
+                      }}
+                    >
+                      {entry.value}
+                    </span>
+                  </span>
+                );
+              })}
+          </div>
         );
       })}
-    </p>
+    </div>
   );
 }
