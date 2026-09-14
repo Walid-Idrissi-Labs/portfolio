@@ -293,7 +293,7 @@ export function ScrollText({
       {paragraphs.slice(0, foldAt).map((_, paragraphIndex) => renderParagraph(paragraphIndex))}
       {hasFold && (
         <div ref={region} id={collapsibleId} className="scrolltext-fold" data-open={expanded ? "" : undefined}>
-          <div className="scrolltext-fold__inner">
+          <div className="scrolltext-fold-inner">
             {paragraphs.slice(foldAt).map((_, offset) => renderParagraph(foldAt + offset))}
           </div>
         </div>
