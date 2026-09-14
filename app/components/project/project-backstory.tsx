@@ -6,13 +6,13 @@ import { MoveRight } from "lucide-react";
 
 import { ScrollText } from "../ui/scrolltext";
 
-const introReadDuration = 800;
+const introReadDuration = 900;
 
 export function ProjectBackstory({ paragraphs, year }: { paragraphs: string[]; year: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isIntroRead, setIsIntroRead] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotion() ?? false;
   const contentId = useId();
   const hasMoreParagraphs = paragraphs.length > 1;
   const firstParagraph = paragraphs[0] ?? "";
@@ -47,7 +47,12 @@ export function ProjectBackstory({ paragraphs, year }: { paragraphs: string[]; y
   return (
     <div>
       <div id={contentId}>
-        <ScrollText text={firstParagraph} lineBreakSpacing={18} forceReveal={isIntroRead} />
+        <ScrollText
+          text={firstParagraph}
+          lineBreakSpacing={18}
+          forceReveal={isIntroRead}
+          revealImmediately={shouldReduceMotion}
+        />
 
         <AnimatePresence initial={false}>
           {isExpanded && (
