@@ -68,7 +68,9 @@ export function ProjectBackstory({ paragraphs, year }: { paragraphs: string[]; y
   };
 
   return (
-    <div ref={root}>
+    // overflow-anchor off so the browser's scroll anchoring doesn't fight the
+    // scroll-back tween while the fold is shrinking above the button.
+    <div ref={root} className="[overflow-anchor:none]">
       <ScrollText
         text={paragraphs.join("\n")}
         lineBreakSpacing={18}

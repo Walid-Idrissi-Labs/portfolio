@@ -134,7 +134,6 @@ export function ScrollText({
     const fractions = new Float32Array(count);
     const painted = new Float32Array(count).fill(-1);
     let band = 16;
-    let measuredWidth = -1;
     let viewportHeight = window.innerHeight;
     let frame: number | null = null;
     let sweep: { start: number; region: HTMLElement } | null = null;
@@ -161,7 +160,6 @@ export function ScrollText({
       if (!Number.isFinite(pitch)) pitch = 32;
       for (let i = 0; i < count; i++) keys[i] += fractions[i] * pitch;
       band = Math.max(8, pitch * BAND_ROWS);
-      measuredWidth = rect.width;
     };
 
     const paint = (index: number, progress: number) => {
@@ -226,9 +224,14 @@ export function ScrollText({
     window.addEventListener("resize", onResize, { passive: true });
 
     // Only a width change reflows the words. Height changes (the fold
-    // opening, content above loading) leave every word where it was.
+    // opening, content above loading) leave every word where it was. The
+    // first callback fires right after observe() and just sets the baseline.
+    let observedWidth: number | null = null;
     const observer = new ResizeObserver(([entry]) => {
-      if (entry && Math.abs(entry.contentRect.width - measuredWidth) > 0.5) remeasure();
+      if (!entry) return;
+      const width = entry.contentRect.width;
+      if (observedWidth !== null && Math.abs(width - observedWidth) > 0.5) remeasure();
+      observedWidth = width;
     });
     observer.observe(el);
     document.fonts.ready.then(remeasure);
