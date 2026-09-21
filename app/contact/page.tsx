@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import PillNav from "@/app/components/page/pillnav-bit"
 import { ContactExperience, ContactMarquee } from "@/app/components/page/contact"
 import { InfiniteGrid } from "@/app/components/ui/bg-infinitegrid"
@@ -6,9 +7,15 @@ import { colors } from "@/app/lib/colors"
 const walid_1 = "/walid_memoji_face1.webp";
 const walid_2 = "/walid_memoji_facewmac.webp";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Contact",
     description: "Get in touch with Walid Idrissi — open to internships, collaborations, and ideas worth chasing.",
+    alternates: { canonical: "/contact" },
+    openGraph: {
+        title: "Contact Walid Idrissi",
+        description: "Get in touch with Walid Idrissi about internships, software projects, and collaborations.",
+        url: "/contact",
+    },
 }
 
 export default function ContactPage() {

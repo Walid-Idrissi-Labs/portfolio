@@ -19,9 +19,16 @@ const titleColors = [colors.beige_dark, colors.slate, colors.beige_bright];
 const auroraColors = [colors.beige_bright, "#ffffff", colors.slate];
 
 export const metadata: Metadata = {
-  title: "Project Catalogue — Walid Idrissi",
+  title: "Software Engineering Projects",
   description:
     "The full index of projects by Walid Idrissi — cloud architecture, terminal tools, and full-stack work, each with its own case study.",
+  alternates: { canonical: "/projects" },
+  openGraph: {
+    title: "Software Engineering Projects | Walid Idrissi",
+    description:
+      "Cloud architecture, terminal tools, and full-stack projects by Walid Idrissi, each with a detailed engineering case study.",
+    url: "/projects",
+  },
 };
 
 export default function CataloguePage() {

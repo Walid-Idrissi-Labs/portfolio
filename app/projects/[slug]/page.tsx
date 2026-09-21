@@ -15,6 +15,7 @@ import { ProjectActions } from "../../components/project/project-actions";
 import { ProjectCloser } from "../../components/project/project-closer";
 import { colors } from "../../lib/colors";
 import { getProject, projects } from "../../lib/projects";
+import { SITE_URL } from "../../lib/site";
 
 const walid_1 = "/walid_memoji_face1.webp";
 const walid_2 = "/walid_memoji_facewmac.webp";
@@ -31,12 +32,22 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) return {};
-  const title = `${project.name} — Walid Idrissi`;
+  const title = project.name;
+  const canonicalPath = `/projects/${project.slug}`;
   return {
     title,
     description: project.seoDescription,
+    alternates: { canonical: canonicalPath },
     openGraph: {
-      title,
+      type: "article",
+      title: `${project.name} | Walid Idrissi`,
+      description: project.seoDescription,
+      url: canonicalPath,
+      images: [project.heroImage],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${project.name} | Walid Idrissi`,
       description: project.seoDescription,
       images: [project.heroImage],
     },
@@ -52,8 +63,25 @@ export default async function ProjectPage({
   const project = getProject(slug);
   if (!project) notFound();
 
+  const projectUrl = `${SITE_URL}/projects/${project.slug}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    name: project.name,
+    description: project.seoDescription,
+    url: projectUrl,
+    image: `${SITE_URL}${project.heroImage}`,
+    author: { "@type": "Person", name: "Walid Idrissi", url: SITE_URL },
+    keywords: project.stackRows.flat().map((item) => item.alt),
+    codeRepository: project.links.repo,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
       <section className="fixed inset-x-0 top-0 flex items-center justify-center px-6 xl:px-16 z-90">
         <div className="flex justify-around px-1 lg:px-1 font-ibm font-weight-500">
           <PillNav

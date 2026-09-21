@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { MoveRight } from "lucide-react";
 
@@ -17,7 +18,18 @@ import { HighlighterSection } from "./components/ui/highlighter-section";
 import { ClipPathLinks } from "./components/ui/skils-clippathlinks";
 import { Footer } from "./components/page/footer-section";
 import { AnimatedContainer } from "./components/utilities/animated-container";
-import { GITHUB_URL, LINKEDIN_URL, SITE_URL } from "./lib/site";
+import { GITHUB_URL, LINKEDIN_URL, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./lib/site";
+
+export const metadata: Metadata = {
+  title: { absolute: `${SITE_NAME} | Software Engineering Student` },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: `${SITE_NAME} | Software Engineering Student`,
+    description: SITE_DESCRIPTION,
+    url: "/",
+  },
+};
 
 const walid_1 = "/walid_memoji_face1.webp";
 const walid_2 = "/walid_memoji_facewmac.webp";
@@ -40,7 +52,13 @@ const jsonLd = {
       name: "Walid Idrissi",
       alternateName: "Walid Idrissi Labkhati",
       url: SITE_URL,
+      image: `${SITE_URL}/walid_memoji_facewmac.webp`,
       jobTitle: "Software Engineering Student",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Marrakech",
+        addressCountry: "MA",
+      },
       affiliation: { "@type": "CollegeOrUniversity", name: "Cadi Ayyad University" },
       knowsAbout: [
         "Software Engineering",
