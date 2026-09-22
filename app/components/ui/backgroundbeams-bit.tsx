@@ -2,6 +2,7 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "motion/react";
 import { cn } from "../../lib/utils";
+import { isCoarsePointer, isLowEndDevice, prefersReducedMotion } from "../../lib/device";
 
 const BEAM_PATHS = [
   "M-380 -189C-380 -189 -312 216 152 343C616 470 684 875 684 875",
@@ -91,6 +92,13 @@ export const BackgroundBeams = React.memo(
 
     //only render on desktop, not on mobile (too expensive and doesn't look good on small screens)
     const [isMobile, setIsMobile] = React.useState(false);
+    // Touch, low-end, and reduced-motion devices keep the beams but as static
+    // gradients: 50 per-frame SVG attribute tweens are the expensive part.
+    const [lite, setLite] = React.useState(false);
+
+    React.useEffect(() => {
+      setLite(isCoarsePointer() || isLowEndDevice() || prefersReducedMotion());
+    }, []);
 
     React.useEffect(() => {
       const media = window.matchMedia("(max-width: 767px)");
@@ -107,7 +115,7 @@ export const BackgroundBeams = React.memo(
       Math.min(BEAM_PATHS.length, Math.round(BEAM_PATHS.length * (isFinite(intensity) ? intensity : 1))),
     );
     const usedPaths = BEAM_PATHS.slice(0, spawnCount);
-    const animated = !isStatic && inView;
+    const animated = !isStatic && inView && !lite;
     const primary = beamColors?.primary ?? "#0d0d0d";
     const mid = beamColors?.mid ?? "#0d0d0d";
     const end = beamColors?.end ?? "#0d0d0d";

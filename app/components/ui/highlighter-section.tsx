@@ -59,32 +59,32 @@ export function HighlighterSection() {
   React.useEffect(() => {
     controlsRef.current = animate(
       [
-        ["#pointer", { left: 200, top: 60 }, { duration: 0 }],
+        ["#pointer", { x: 200, y: 60 }, { duration: 0 }],
         ["#javascript", { opacity: 1 }, { duration: 0.3 }],
         [
           "#pointer",
-          { left: 50, top: 102 },
+          { x: 50, y: 102 },
           { at: "+0.5", duration: 0.5, ease: "easeInOut" },
         ],
         ["#javascript", { opacity: 0.4 }, { at: "-0.3", duration: 0.1 }],
         ["#react-js", { opacity: 1 }, { duration: 0.3 }],
         [
           "#pointer",
-          { left: 224, top: 170 },
+          { x: 224, y: 170 },
           { at: "+0.5", duration: 0.5, ease: "easeInOut" },
         ],
         ["#react-js", { opacity: 0.4 }, { at: "-0.3", duration: 0.1 }],
         ["#typescript", { opacity: 1 }, { duration: 0.3 }],
         [
           "#pointer",
-          { left: 88, top: 198 },
+          { x: 88, y: 198 },
           { at: "+0.5", duration: 0.5, ease: "easeInOut" },
         ],
         ["#typescript", { opacity: 0.4 }, { at: "-0.3", duration: 0.1 }],
         ["#next-js", { opacity: 1 }, { duration: 0.3 }],
         [
           "#pointer",
-          { left: 200, top: 60 },
+          { x: 200, y: 60 },
           { at: "+0.5", duration: 0.5, ease: "easeInOut" },
         ],
         ["#next-js", { opacity: 0.5 }, { at: "-0.3", duration: 0.1 }],
@@ -159,7 +159,9 @@ export function HighlighterSection() {
                         AWS & Cloud
                       </div>
 
-                      <div id="pointer" className="absolute">
+                      {/* Anchored at 0,0 and moved with transforms (the same
+                          coordinates as before) so the loop never triggers layout. */}
+                      <div id="pointer" className="absolute left-0 top-0">
                         <svg
                           width="16.8"
                           height="18.2"

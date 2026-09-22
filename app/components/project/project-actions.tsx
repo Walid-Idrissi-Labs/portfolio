@@ -13,7 +13,10 @@ import type { Project } from "../../lib/projects";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function ProjectActions({ project }: { project: Project }) {
+// Trimmed to what the actions need (see ProjectHeroData for the reasoning).
+export type ProjectActionsData = Pick<Project, "name" | "private" | "links">;
+
+export function ProjectActions({ project }: { project: ProjectActionsData }) {
   const [formOpen, setFormOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");

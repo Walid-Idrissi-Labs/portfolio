@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 
+import { isLowEndDevice } from "../../lib/device";
+
 interface HighlightGroupProps {
   children: React.ReactNode;
   className?: string;
@@ -103,8 +105,13 @@ export const Particles: React.FC<ParticlesProps> = ({
     const context = canvas.getContext("2d");
     if (!context) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    // The dots are 1-2px at low opacity, so rendering above 1.5x is
+    // indistinguishable and would triple the fill work on 3x phones.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const rgb = hexToRgb(color);
+    const rgbPrefix = `rgba(${rgb.join(", ")}, `;
+    // Half the particles on weak hardware; at 10% opacity nobody counts them.
+    const count = isLowEndDevice() ? Math.ceil(quantity / 2) : quantity;
     const circles: Circle[] = [];
     const mouse = { x: 0, y: 0 };
     const canvasSize = { w: 0, h: 0 };
@@ -128,7 +135,7 @@ export const Particles: React.FC<ParticlesProps> = ({
       context.translate(translateX, translateY);
       context.beginPath();
       context.arc(x, y, size, 0, 2 * Math.PI);
-      context.fillStyle = `rgba(${rgb.join(", ")}, ${alpha})`;
+      context.fillStyle = rgbPrefix + alpha + ")";
       context.fill();
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (!update) circles.push(circle);
@@ -151,7 +158,7 @@ export const Particles: React.FC<ParticlesProps> = ({
 
     const drawParticles = () => {
       clearContext();
-      for (let i = 0; i < quantity; i++) {
+      for (let i = 0; i < count; i++) {
         drawCircle(circleParams());
       }
     };
