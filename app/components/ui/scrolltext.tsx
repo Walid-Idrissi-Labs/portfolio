@@ -127,6 +127,7 @@ export function ScrollText({
 
     const outers = Array.from(el.querySelectorAll<HTMLElement>("[data-scroll-word]"));
     const inners = outers.map((outer) => outer.lastElementChild as HTMLElement);
+    const ghosts = outers.map((outer) => outer.firstElementChild as HTMLElement);
     const count = outers.length;
     // Reading-order key per word: its row top plus a diagonal term so words in
     // one row reveal left-to-right and flow straight into the next row.
@@ -138,6 +139,9 @@ export function ScrollText({
     let frame: number | null = null;
     let sweep: { start: number; region: HTMLElement } | null = null;
     let disposed = false;
+    // Scroll frames only do work while the block is within a viewport of the
+    // screen; further away no word can be crossing the reading line.
+    let near = true;
 
     const measure = () => {
       const rect = el.getBoundingClientRect();
@@ -171,6 +175,9 @@ export function ScrollText({
       // Only the words inside the band carry a filter; fully hidden words are
       // invisible anyway, so skipping the blur keeps hundreds of them cheap.
       style.filter = progress <= 0 || progress >= 1 ? "none" : `blur(${(6 * (1 - progress)).toFixed(2)}px)`;
+      // A fully revealed word covers its ghost completely, so the ghost (and
+      // its keyword gradient animation) can stop painting until it's needed.
+      ghosts[index].style.visibility = progress >= 1 ? "hidden" : "";
     };
 
     const apply = (now: number) => {
@@ -199,7 +206,7 @@ export function ScrollText({
     };
 
     const schedule = () => {
-      if (frame !== null) return;
+      if (frame !== null || !near) return;
       frame = window.requestAnimationFrame((now) => {
         frame = null;
         apply(now);
@@ -236,6 +243,16 @@ export function ScrollText({
     observer.observe(el);
     document.fonts.ready.then(remeasure);
 
+    const proximity = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        near = entry.isIntersecting;
+        if (near) schedule();
+      },
+      { rootMargin: "100% 0px" }
+    );
+    proximity.observe(el);
+
     runtime.current = {
       sweep: (regionEl) => {
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -251,6 +268,7 @@ export function ScrollText({
       disposed = true;
       runtime.current = null;
       observer.disconnect();
+      proximity.disconnect();
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", onResize);
       if (frame !== null) window.cancelAnimationFrame(frame);

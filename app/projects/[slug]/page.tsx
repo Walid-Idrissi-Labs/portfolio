@@ -6,6 +6,7 @@ import { SectionHeading } from "../../components/page/section-heading";
 import { Footer } from "../../components/page/footer-section";
 import { ClipPathLinks } from "../../components/ui/skils-clippathlinks";
 import { AnimatedContainer } from "../../components/utilities/animated-container";
+import { PauseOffscreen } from "../../components/utilities/pause-offscreen";
 import { ProjectHero } from "../../components/project/project-hero";
 import { ProjectRundown } from "../../components/project/project-rundown";
 import { ProjectBackstory } from "../../components/project/project-backstory";
@@ -106,7 +107,19 @@ export default async function ProjectPage({
         </div>
       </section>
 
-      <ProjectHero project={project} />
+      <ProjectHero
+        project={{
+          icon: project.icon,
+          status: project.status,
+          name: project.name,
+          tagline: project.tagline,
+          type: project.type,
+          year: project.year,
+          heroImage: project.heroImage,
+          heroImageAlt: project.heroImageAlt,
+          links: project.links,
+        }}
+      />
 
       <main className="relative z-1">
         <section id="rundown" className="mx-auto w-full max-w-6xl px-6 pt-4 md:px-10 md:pt-8">
@@ -114,6 +127,7 @@ export default async function ProjectPage({
         </section>
 
         <section id="backstory" className="w-full pt-24 md:pt-32">
+          <PauseOffscreen>
           <div className="w-full px-4 md:px-10 lg:px-15">
             <SectionHeading animationSpeed={3} sizeClassName="text-[2.25rem]">
               The Backstory
@@ -122,9 +136,11 @@ export default async function ProjectPage({
           <div className="mx-auto mt-10 w-full max-w-6xl px-6 md:mt-14 md:px-10">
             <ProjectBackstory paragraphs={project.background} year={project.year} />
           </div>
+          </PauseOffscreen>
         </section>
 
         <section id="features" className="w-full pt-24 md:pt-32">
+          <PauseOffscreen>
           <div className="w-full px-4 md:px-10 lg:px-15">
             <SectionHeading animationSpeed={4} align="end" sizeClassName="text-[2.25rem]">
               Under the Hood
@@ -133,9 +149,11 @@ export default async function ProjectPage({
           <div className="mx-auto mt-10 w-full max-w-6xl px-6 md:mt-14 md:px-10">
             <ProjectFeatures features={project.features} />
           </div>
+          </PauseOffscreen>
         </section>
 
         <section id="captures" className="w-full pt-24 md:pt-32">
+          <PauseOffscreen>
           <div className="w-full px-4 md:px-10 lg:px-15">
             <SectionHeading animationSpeed={4} sizeClassName="text-[2.25rem]">
               In the Wild
@@ -149,9 +167,11 @@ export default async function ProjectPage({
               demoAvailable={project.links.demo === true}
             />
           </div>
+          </PauseOffscreen>
         </section>
 
         <section id="stack" className="w-full pt-24 md:pt-32">
+          <PauseOffscreen>
           <div className="w-full px-4 md:px-10 lg:px-15">
             <SectionHeading animationSpeed={4} align="end" sizeClassName="text-[2.25rem]">
               Applied Technologies
@@ -162,17 +182,20 @@ export default async function ProjectPage({
               <ClipPathLinks rows={project.stackRows} />
             </AnimatedContainer>
           </div>
+          </PauseOffscreen>
         </section>
 
         <section id="see-it" className="w-full pt-24 md:pt-32">
+          <PauseOffscreen>
           <div className="w-full px-4 md:px-10 lg:px-15">
             <SectionHeading animationSpeed={3} sizeClassName="text-[2.25rem]">
               See It Yourself
             </SectionHeading>
           </div>
           <div className="mx-auto mt-10 w-full max-w-6xl px-6 md:mt-14 md:px-10">
-            <ProjectActions project={project} />
+            <ProjectActions project={{ name: project.name, private: project.private, links: project.links }} />
           </div>
+          </PauseOffscreen>
         </section>
       </main>
 

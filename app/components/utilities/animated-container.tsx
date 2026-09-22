@@ -27,7 +27,10 @@ export function AnimatedContainer({
 	return (
 		<motion.div
 			initial={{ filter: 'blur(4px)', translateY: initialY, opacity: 0 }}
-			whileInView={{ filter: 'blur(0px)', translateY: 0, opacity: 1 }}
+			// `transitionEnd` clears the inline filter once the entrance is done.
+			// Motion would otherwise leave `filter: blur(0px)` behind, which keeps a
+			// filter layer alive on every wrapped subtree for the life of the page.
+			whileInView={{ filter: 'blur(0px)', translateY: 0, opacity: 1, transitionEnd: { filter: 'none' } }}
 			viewport={{ once: true }}
 			transition={{ delay, duration }}
 			className={className}

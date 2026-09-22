@@ -35,6 +35,7 @@ export default function NotFound() {
                             ]}
                           animationSpeed={0.3}
                           showBorder={false}
+                          glass
                           className="custom-class"
                         >
                           404 Page Not Found 

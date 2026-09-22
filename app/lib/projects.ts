@@ -477,7 +477,7 @@ export const projects: Project[] = [
     status: "completed",
     role: "Solo Internship Project",
     icon: "activity",
-    heroImage: "/project-ai-quotation-prediction-0.png",
+    heroImage: "/project-ai-quotation-prediction-0-v2.webp",
     heroImageAlt: "Abstract illustration of aluminium profiles, glazing, and connected pricing data",
     private: true,
     seoDescription:
@@ -596,7 +596,7 @@ export const projects: Project[] = [
     status: "completed",
     role: "Solo Project",
     icon: "app-window",
-    heroImage: "/project-mactab.webp",
+    heroImage: "/project-mactab-v2.webp",
     heroImageAlt: "MacTab — a macOS-style application switcher for Windows",
     seoDescription:
       "MacTab, a native application switcher for Windows 10 and 11, written in C++20 against Win32 and Windows.UI.Composition. Alt+Tab lists applications instead of windows. The binary is about 800 KB and there is no runtime to install.",

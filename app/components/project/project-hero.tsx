@@ -21,7 +21,15 @@ const typeIcons = {
   "app-window": AppWindowMac,
 } as const;
 
-export function ProjectHero({ project }: { project: Project }) {
+// Only the fields the hero renders: the page passes a trimmed object so the
+// long-form copy, features, and screenshots don't get serialised into the
+// client payload twice.
+export type ProjectHeroData = Pick<
+  Project,
+  "icon" | "status" | "name" | "tagline" | "type" | "year" | "heroImage" | "heroImageAlt" | "links"
+>;
+
+export function ProjectHero({ project }: { project: ProjectHeroData }) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
@@ -138,7 +146,7 @@ export function ProjectHero({ project }: { project: Project }) {
           {...entrance(0.32)}
           className="mt-5 w-fit text-[2.6rem] leading-[1.05] font-unbounded sm:text-6xl md:mt-7 md:text-7xl xl:text-8xl"
         >
-          <GradientText colors={titleColors} animationSpeed={4} showBorder={false}>
+          <GradientText colors={titleColors} animationSpeed={4} showBorder={false} glass>
             {project.name}
           </GradientText>
         </motion.h1>

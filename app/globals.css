@@ -33,6 +33,35 @@ html, body {
   to { background-position: 50% 300%; }
 }
 
+/* PauseOffscreen (utilities/pause-offscreen.tsx) sets this attribute while
+   its subtree is far from the viewport. The gradient-clipped text animations
+   above repaint every frame and can't run on the compositor, so freezing them
+   offscreen saves that work without changing anything on screen. */
+[data-offscreen],
+[data-offscreen] * {
+  animation-play-state: paused !important;
+}
+
+/* Contact page grid drift (ui/bg-infinitegrid.tsx). Moving the whole SVG by
+   exactly one cell and looping is indistinguishable from offsetting the
+   pattern, and it runs on the compositor instead of re-rasterising the SVG
+   every frame. Speed/size live in the component and are passed as vars. */
+@keyframes grid-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(var(--grid-size), var(--grid-size), 0); }
+}
+
+.grid-drift {
+  animation: grid-drift var(--grid-period) linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-drift {
+    animation: none;
+  }
+}
+
 /* ScrollText's folded tail ("Show more" on project backstories). The 0fr→1fr
    grid row animates height:auto without measuring, and visibility flips once
    the fold has closed so hidden copy leaves the a11y tree and tab order.
