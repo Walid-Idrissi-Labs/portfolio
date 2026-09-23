@@ -411,7 +411,9 @@ export const LogoLoop = React.memo<LogoLoopProps>(
           '[--logoloop-logoHeight:28px]',
           '[--logoloop-fadeColorAuto:#ffffff]',
           'dark:[--logoloop-fadeColorAuto:#0b0b0b]',
-          scaleOnHover && 'py-[calc(var(--logoloop-logoHeight)*0.1)]',
+          // overflow-x-hidden also clips vertically, so leave room for the
+          // hover scale plus the click-flash pop and its 16px glow.
+          scaleOnHover && 'py-[calc(var(--logoloop-logoHeight)*0.1+22px)]',
           className
         ),
       [isVertical, scaleOnHover, className]
