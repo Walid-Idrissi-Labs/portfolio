@@ -38,11 +38,11 @@ export default function GlowingEffectSection() {
 
       <GridItem
         area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
-        icon={<BriefcaseBusiness className="h-4 w-4 text-faint_white" />}
-        title="Applyr"
-        description="Job application tracking SaaS with AI-tailored resumes and a job-capturing browser extension."
-        href="/projects/applyr"
-        backgroundImage={applyr}
+        icon={<Truck className="h-4 w-4 text-faint_white" />}
+        title="Shipping CRM"
+        description="A logistics CRM for a shipping company: shipments, public tracking, and invoicing."
+        href="/projects/shipping-crm"
+        backgroundImage={shipping_crm}
         duration={1.8}
         delay={0.34}
       />
@@ -60,11 +60,11 @@ export default function GlowingEffectSection() {
 
       <GridItem
         area="md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]"
-        icon={<Truck className="h-4 w-4 text-faint_white" />}
-        title="Shipping CRM"
-        description="A logistics CRM for a shipping company: shipments, public tracking, and invoicing."
-        href="/projects/shipping-crm"
-        backgroundImage={shipping_crm}
+        icon={<BriefcaseBusiness className="h-4 w-4 text-faint_white" />}
+        title="Applyr"
+        description="Job application tracking SaaS with AI-tailored resumes and a job-capturing browser extension."
+        href="/projects/applyr"
+        backgroundImage={applyr}
         duration={1.8}
         delay={0.58}
       />
