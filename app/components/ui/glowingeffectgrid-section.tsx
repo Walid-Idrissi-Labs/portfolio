@@ -75,7 +75,7 @@ export default function GlowingEffectSection() {
         area="md:[grid-area:4/1/5/7] xl:[grid-area:3/1/4/8]"
         icon={<Calculator className="h-4 w-4 text-faint_white" />}
         title="AI Quotation Prediction"
-        description="Turns aluminium and glazing specifications into explainable, production-ready quote estimates."
+        description="AI quoting software on Django and React: embedding search over supplier history, then deterministic pricing."
         href="/projects/ai-assisted-quotation-prediction-software"
         backgroundImage={ai_quotation}
         duration={1.8}
