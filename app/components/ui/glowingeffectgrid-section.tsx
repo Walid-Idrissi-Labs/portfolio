@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Activity, BriefcaseBusiness, Cloud, Terminal, Truck } from "lucide-react";
+import { Activity, AppWindowMac, BriefcaseBusiness, Calculator, Cloud, Terminal, Truck } from "lucide-react";
 
 import { GlowingEffect } from "../ui/glowingeffectgrid-bit";
 import { AnimatedContainer } from "../utilities/animated-container";
@@ -10,10 +10,12 @@ const tascii = "/project-tascii.webp";
 const applyr = "/project-applyr.webp";
 const sla_monitor = "/project-sla-monitor.webp";
 const shipping_crm = "/project-shipping-crm-0.webp";
+const ai_quotation = "/project-ai-quotation-prediction-0-v2.webp";
+const mactab = "/project-mactab-v2.webp";
 
 export default function GlowingEffectSection() {
   return (
-    <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-136 xl:grid-rows-2">
+    <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-4 lg:gap-4 xl:max-h-206 xl:grid-rows-3">
       <GridItem
         area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
         icon={<Cloud className="h-4 w-4 text-faint_white" />}
@@ -67,6 +69,28 @@ export default function GlowingEffectSection() {
         backgroundImage={applyr}
         duration={1.8}
         delay={0.58}
+      />
+
+      <GridItem
+        area="md:[grid-area:4/1/5/7] xl:[grid-area:3/1/4/8]"
+        icon={<Calculator className="h-4 w-4 text-faint_white" />}
+        title="AI Quotation Prediction"
+        description="Turns aluminium and glazing specifications into explainable, production-ready quote estimates."
+        href="/projects/ai-assisted-quotation-prediction-software"
+        backgroundImage={ai_quotation}
+        duration={1.8}
+        delay={0.7}
+      />
+
+      <GridItem
+        area="md:[grid-area:4/7/5/13] xl:[grid-area:3/8/4/13]"
+        icon={<AppWindowMac className="h-4 w-4 text-faint_white" />}
+        title="MacTab"
+        description="A macOS-style Alt+Tab for Windows, one icon per app, written in C++ on Win32."
+        href="/projects/mactab"
+        backgroundImage={mactab}
+        duration={1.8}
+        delay={0.82}
       />
     </ul>
   );
