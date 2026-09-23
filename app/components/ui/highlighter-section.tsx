@@ -46,43 +46,48 @@ import { HoverBorderGradient } from "../utilities/hoverbordergradient";
 
 import { HighlightGroup, Particles } from "./highlighter";
 
-// Positions (px) inside the 300×270 orbit box, clear of the centre mark.
-// Chips are IBM Plex Mono 12px (~7.2px/char + 18px padding/border), which is
-// what the left offsets are budgeted against. `x`/`y` is where the cursor tip
-// lands on each chip; the cursor visits them in array order.
-const CHIPS = [
-  { key: "system-design", label: "System Design", left: 30, top: 12, x: 92, y: 30 },
-  { key: "aws-cloud", label: "AWS & Cloud", left: 186, top: 12, x: 240, y: 30 },
-  { key: "iac", label: "Infra as Code", left: 150, top: 66, x: 212, y: 84 },
-  { key: "networking", label: "Networking", left: 208, top: 120, x: 257, y: 138 },
-  { key: "full-stack", label: "Full-Stack Dev", left: 160, top: 228, x: 225, y: 246 },
-  { key: "ui-ux", label: "UI-UX", left: 70, top: 228, x: 100, y: 246 },
-  { key: "devops", label: "DevOps & CI/CD", left: 8, top: 174, x: 73, y: 192 },
-  { key: "databases", label: "Databases", left: 14, top: 120, x: 60, y: 138 },
+// The four original chip spots. Each spot stacks its labels in one grid cell
+// (so the chip is sized by its widest label and never resizes) and crossfades
+// to the next label as the cursor leaves it. Every spot must hold the same
+// number of labels. `x`/`y` is where the cursor tip lands; the cursor visits
+// the spots in array order.
+const SPOTS = [
+  { key: "cloud", labels: ["AWS & Cloud", "Infra as Code"], className: "right-12 top-10", x: 200, y: 60 },
+  { key: "stack", labels: ["Full-Stack Dev", "Databases"], className: "left-2 top-20", x: 50, y: 102 },
+  { key: "ops", labels: ["Networking", "DevOps & CI/CD"], className: "bottom-20 right-1", x: 224, y: 170 },
+  { key: "design", labels: ["UI-UX", "System Design"], className: "bottom-12 left-14", x: 88, y: 198 },
 ] as const;
 
+const LABELS_PER_SPOT = SPOTS[0].labels.length;
 const CHIP_IDLE_OPACITY = 0.5;
+const HOP_PERIOD = 1.1;
+const LABEL_FADE = 0.6;
 
-// Built once at module load. Transform + opacity only, so the loop never
+// Built once at module load with absolute times: one pass over the spots per
+// label, so after LABELS_PER_SPOT passes every spot is back on its first label
+// and the repeat is seamless. Transform + opacity only, so the loop never
 // triggers layout.
 const CURSOR_SEQUENCE: AnimationSequence = (() => {
-  const chip = (i: number) => `[data-chip="${CHIPS[i].key}"]`;
+  const chip = (s: number) => `[data-spot="${SPOTS[s].key}"]`;
+  const label = (s: number, l: number) => `[data-label="${SPOTS[s].key}-${l}"]`;
   const sequence: AnimationSequence = [
-    ["#pointer", { x: CHIPS[0].x, y: CHIPS[0].y }, { duration: 0 }],
-    [chip(0), { opacity: 1 }, { duration: 0.3 }],
+    ["#pointer", { x: SPOTS[0].x, y: SPOTS[0].y }, { at: 0, duration: 0 }],
+    [chip(0), { opacity: 1 }, { at: 0, duration: 0.3 }],
   ];
-  for (let i = 1; i <= CHIPS.length; i++) {
-    const next = i % CHIPS.length;
+  const hops = SPOTS.length * LABELS_PER_SPOT;
+  for (let h = 1; h <= hops; h++) {
+    const from = (h - 1) % SPOTS.length;
+    const to = h % SPOTS.length;
+    const pass = Math.floor((h - 1) / SPOTS.length);
+    const moveAt = 0.8 + HOP_PERIOD * (h - 1);
     sequence.push(
-      [
-        "#pointer",
-        { x: CHIPS[next].x, y: CHIPS[next].y },
-        { at: "+0.5", duration: 0.5, ease: "easeInOut" },
-      ],
-      [chip(i - 1), { opacity: CHIP_IDLE_OPACITY }, { at: "-0.3", duration: 0.1 }],
+      ["#pointer", { x: SPOTS[to].x, y: SPOTS[to].y }, { at: moveAt, duration: 0.5, ease: "easeInOut" }],
+      [chip(from), { opacity: CHIP_IDLE_OPACITY }, { at: moveAt + 0.2, duration: 0.1 }],
+      [label(from, pass), { opacity: 0 }, { at: moveAt + 0.2, duration: LABEL_FADE }],
+      [label(from, (pass + 1) % LABELS_PER_SPOT), { opacity: 1 }, { at: moveAt + 0.2, duration: LABEL_FADE }],
     );
-    // The last hop returns to the first chip; the next repeat re-lights it.
-    if (next !== 0) sequence.push([chip(next), { opacity: 1 }, { duration: 0.3 }]);
+    // The last hop returns to the first spot; the next repeat re-lights it.
+    if (h < hops) sequence.push([chip(to), { opacity: 1 }, { at: moveAt + 0.3, duration: 0.3 }]);
   }
   return sequence;
 })();
@@ -137,14 +142,25 @@ export function HighlighterSection() {
                       ref={scope}
                     >
                       <DesignaliMark className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2" />
-                      {CHIPS.map(({ key, label, left, top }) => (
+                      {SPOTS.map(({ key, labels, className }) => (
                         <div
                           key={key}
-                          data-chip={key}
-                          className="absolute whitespace-nowrap font-ibm rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
-                          style={{ left, top }}
+                          data-spot={key}
+                          className={cn(
+                            "absolute grid font-ibm rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50",
+                            className,
+                          )}
                         >
-                          {label}
+                          {labels.map((label, i) => (
+                            <span
+                              key={label}
+                              data-label={`${key}-${i}`}
+                              className="col-start-1 row-start-1 whitespace-nowrap text-center"
+                              style={i === 0 ? undefined : { opacity: 0 }}
+                            >
+                              {label}
+                            </span>
+                          ))}
                         </div>
                       ))}
 
