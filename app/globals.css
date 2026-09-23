@@ -300,33 +300,3 @@ textarea:-webkit-autofill {
     opacity: 0.55;
   }
 }
-
-/* Footer top line (page/footer-section.tsx): while the GitHub / Linkedin flip
-   links are hovered, a slate line draws in from both sides and meets in the
-   middle. One element revealed by two mirrored mask gradients (instead of two
-   halves) so there is no seam or glow dip where the sides meet. */
-@property --footer-line-reveal {
-  syntax: "<length-percentage>";
-  inherits: false;
-  initial-value: 0px;
-}
-
-.footer-line-glow {
-  --footer-line-reveal: -48px;
-  mask-image:
-    linear-gradient(to right, #000 var(--footer-line-reveal), transparent calc(var(--footer-line-reveal) + 48px)),
-    linear-gradient(to left, #000 var(--footer-line-reveal), transparent calc(var(--footer-line-reveal) + 48px));
-  transition: --footer-line-reveal 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-footer:has([data-flip-link]:hover) .footer-line-glow {
-  --footer-line-reveal: 50%;
-  transition-duration: 0.7s;
-  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .footer-line-glow {
-    transition: none;
-  }
-}
