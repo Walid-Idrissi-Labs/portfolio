@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Activity, BriefcaseBusiness, Cloud, Terminal, Truck } from "lucide-react";
+import { Activity, AppWindowMac, BriefcaseBusiness, Calculator, Cloud, Terminal, Truck } from "lucide-react";
 
 import { GlowingEffect } from "../ui/glowingeffectgrid-bit";
 import { AnimatedContainer } from "../utilities/animated-container";
@@ -10,15 +10,17 @@ const tascii = "/project-tascii.webp";
 const applyr = "/project-applyr.webp";
 const sla_monitor = "/project-sla-monitor.webp";
 const shipping_crm = "/project-shipping-crm-0.webp";
+const ai_quotation = "/project-ai-quotation-prediction.webp";
+const mactab = "/project-mactab-v2.webp";
 
 export default function GlowingEffectSection() {
   return (
-    <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-136 xl:grid-rows-2">
+    <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-4 lg:gap-4 xl:max-h-206 xl:grid-rows-3">
       <GridItem
         area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
         icon={<Cloud className="h-4 w-4 text-faint_white" />}
         title="URL Shortener"
-        description="Serverless URL shortener built with AWS and provisioned entirely with Terraform"
+        description="Serverless URL shortener on API Gateway, Lambda and DynamoDB, provisioned entirely in Terraform."
         href="/projects/url-shortener"
         backgroundImage={url_shortener}
         duration={1.8}
@@ -38,11 +40,11 @@ export default function GlowingEffectSection() {
 
       <GridItem
         area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
-        icon={<BriefcaseBusiness className="h-4 w-4 text-faint_white" />}
-        title="Applyr"
-        description="Job application tracking SaaS with AI-tailored resumes and a job-capturing browser extension."
-        href="/projects/applyr"
-        backgroundImage={applyr}
+        icon={<Truck className="h-4 w-4 text-faint_white" />}
+        title="Shipping CRM"
+        description="A logistics CRM for a shipping company: shipments, public tracking, and invoicing."
+        href="/projects/shipping-crm"
+        backgroundImage={shipping_crm}
         duration={1.8}
         delay={0.34}
       />
@@ -60,13 +62,35 @@ export default function GlowingEffectSection() {
 
       <GridItem
         area="md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]"
-        icon={<Truck className="h-4 w-4 text-faint_white" />}
-        title="Shipping CRM"
-        description="A logistics CRM for a shipping company: shipments, public tracking, and invoicing."
-        href="/projects/shipping-crm"
-        backgroundImage={shipping_crm}
+        icon={<BriefcaseBusiness className="h-4 w-4 text-faint_white" />}
+        title="Applyr"
+        description="Job tracking SaaS on Laravel and React: AI-tailored resumes, OCR parsing, and a job-capture browser extension."
+        href="/projects/applyr"
+        backgroundImage={applyr}
         duration={1.8}
         delay={0.58}
+      />
+
+      <GridItem
+        area="md:[grid-area:4/1/5/7] xl:[grid-area:3/1/4/8]"
+        icon={<Calculator className="h-4 w-4 text-faint_white" />}
+        title="AI Quotation Prediction"
+        description="AI quoting software on Django and React: embedding search over supplier history, then deterministic pricing."
+        href="/projects/ai-assisted-quotation-prediction-software"
+        backgroundImage={ai_quotation}
+        duration={1.8}
+        delay={0.7}
+      />
+
+      <GridItem
+        area="md:[grid-area:4/7/5/13] xl:[grid-area:3/8/4/13]"
+        icon={<AppWindowMac className="h-4 w-4 text-faint_white" />}
+        title="MacTab"
+        description="A macOS-style Alt+Tab for Windows, one icon per app, written in C++ on Win32."
+        href="/projects/mactab"
+        backgroundImage={mactab}
+        duration={1.8}
+        delay={0.82}
       />
     </ul>
   );
@@ -124,6 +148,9 @@ const GridItem = ({
               className="object-cover object-center transition-opacity duration-500"
             />
             <div className="absolute inset-0 bg-black/80 transition-opacity duration-500 group-hover:opacity-0" />
+            {/* Bottom scrim — crossfades in as the overlay leaves so the
+                title and description stay legible over bright captures. */}
+            <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black/90 via-black/55 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
           </>
         )}
 
@@ -132,7 +159,7 @@ const GridItem = ({
           <div className="w-fit rounded-lg border border-gray-600 p-2 bg-black/30 backdrop-blur-sm">
             {icon}
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3 [text-shadow:0_1px_10px_rgba(0,0,0,0.6)]">
             <h3 className="-tracking-4 pt-0.5 font-unbounded text-xl/[1.375rem] font-medium text-balance md:text-2xl/[1.875rem] text-faint_white">
               {title}
             </h3>

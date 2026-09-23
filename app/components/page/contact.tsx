@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
-import { ArrowRight, ArrowUpRight, Check, Copy } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import SplitText from "../ui/splittext-bit";
 import { cn } from "../../lib/utils";
@@ -121,23 +121,11 @@ export function ContactExperience() {
 
 /* ------------------------------ info channels ------------------------------ */
 
-function useMarrakechClock() {
+// Shown as plain GMT (UTC) rather than Morocco's legal UTC+1.
+function useGmtClock() {
   const [now, setNow] = React.useState<Date | null>(null);
-  const [offset, setOffset] = React.useState("GMT+1");
 
   React.useEffect(() => {
-    try {
-      const zone = new Intl.DateTimeFormat("en-GB", {
-        timeZone: "Africa/Casablanca",
-        timeZoneName: "shortOffset",
-      })
-        .formatToParts(new Date())
-        .find((part) => part.type === "timeZoneName")?.value;
-      if (zone) setOffset(zone);
-    } catch {
-      /* keep the GMT+1 fallback */
-    }
-
     setNow(new Date());
     const id = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(id);
@@ -146,7 +134,7 @@ function useMarrakechClock() {
   const formatter = React.useMemo(
     () =>
       new Intl.DateTimeFormat("en-GB", {
-        timeZone: "Africa/Casablanca",
+        timeZone: "UTC",
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -155,73 +143,29 @@ function useMarrakechClock() {
     [],
   );
 
-  return { time: now ? formatter.format(now) : null, offset };
+  return now ? formatter.format(now) : null;
 }
 
 function ContactChannels() {
-  const { time, offset } = useMarrakechClock();
-  const [copied, setCopied] = React.useState(false);
-  const copyTimer = React.useRef<number | null>(null);
-
-  React.useEffect(
-    () => () => {
-      if (copyTimer.current) window.clearTimeout(copyTimer.current);
-    },
-    [],
-  );
-
-  const copyEmail = async () => {
-    try {
-      await navigator.clipboard.writeText(EMAIL);
-      setCopied(true);
-      if (copyTimer.current) window.clearTimeout(copyTimer.current);
-      copyTimer.current = window.setTimeout(() => setCopied(false), 2200);
-    } catch {
-      window.location.href = `mailto:${EMAIL}`;
-    }
-  };
+  const time = useGmtClock();
 
   return (
     <div className="grid grid-cols-1 gap-x-10 gap-y-7 sm:grid-cols-2">
-      <button
-        type="button"
-        onClick={copyEmail}
-        title="Copy to clipboard"
-        className="group flex cursor-pointer flex-col items-start gap-2 border-l border-white/10 pl-4 text-left transition-colors duration-300 hover:border-beige_bright/60"
+      <a
+        href={`mailto:${EMAIL}`}
+        className="group flex flex-col items-start gap-2 border-l border-white/10 pl-4 text-left transition-colors duration-300 hover:border-beige_bright/60"
       >
-        <span
-          className={cn(
-            "font-ibm text-[10px] uppercase tracking-[0.3em] transition-colors duration-300",
-            copied ? "text-beige_bright" : "text-neutral-500 group-hover:text-neutral-300",
-          )}
-        >
-          {copied ? "copied to clipboard" : "email — click to copy"}
+        <span className="font-ibm text-[10px] uppercase tracking-[0.3em] text-neutral-500 transition-colors duration-300 group-hover:text-neutral-300">
+          email
         </span>
         <span className="flex items-center gap-2 font-ibm text-sm font-light text-neutral-200 transition-colors duration-300 group-hover:text-beige_bright md:text-[15px]">
           <span className="break-all">{EMAIL}</span>
-
         </span>
-        <span aria-live="polite" className="sr-only">
-          {copied ? "Email copied to clipboard" : ""}
-        </span>
-      </button>
+      </a>
 
       <Channel label="based in" value="Marrakech, Morocco" />
 
-      <Channel label="local time" value={`${time ?? "--:--:--"} ${offset}`} />
-
-      <div className="flex flex-col gap-2 border-l border-white/10 ">
-        <span className="font-ibm text-[10px] uppercase tracking-[0.3em] text-neutral-500">
-          status
-        </span>
-        <span className="flex items-center gap-2 font-ibm text-sm font-light text-neutral-200 md:text-[15px]">
-          <span className="relative flex h-2 w-2">
-            {/* <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-beige_bright opacity-60" /> */}
-            {/* <span className="relative inline-flex h-2 w-2 rounded-full bg-beige_bright" /> */}
-          </span>
-          Open to opportunities
-        </span>
-      </div>
+      <Channel label="local time" value={`${time ?? "--:--:--"} GMT`} />
     </div>
   );
 }
@@ -239,7 +183,7 @@ function Channel({ label, value }: { label: string; value: React.ReactNode }) {
 
 function SocialLinks() {
   return (
-    <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+    <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 md:justify-start">
       {SOCIAL_LINKS.map(({ label, href }) => (
         <a
           key={label}

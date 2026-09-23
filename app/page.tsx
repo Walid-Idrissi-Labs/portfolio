@@ -90,7 +90,7 @@ export default function Home() {
             logoAlt="Walid"
             items={[
               { label: 'About', href: '#about' },
-              { label: 'Projects', href: '#projects' },
+              { label: 'Projects', href: '/projects' },
               { label: 'Contact', href: '/contact' }
             ]}
             activeHref="/"

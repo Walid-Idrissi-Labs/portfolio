@@ -64,12 +64,15 @@ const TECH_COLOR_MAP: Record<string, { colorSrc: string; color: string }> = {
   "/logo-bash.svg": { colorSrc: "/color/logo-bash.svg", color: "#4EAA25" },
   "/logo-three.svg": { colorSrc: "/color/logo-three.svg", color: "#FFFFFF" },
   "/logo-docker.svg": { colorSrc: "/color/logo-docker.svg", color: "#2496ED" },
+  "/logo-kubernetes.svg": { colorSrc: "/color/logo-kubernetes.svg", color: "#326CE5" },
   "/logo-laravel.svg": { colorSrc: "/color/logo-laravel.svg", color: "#FF2D20" },
   "/logo-mysql.svg": { colorSrc: "/color/logo-mysql.svg", color: "#00758F" },
   "/logo-php.svg": { colorSrc: "/color/logo-php.svg", color: "#777BB4" },
   "/logo-css3.svg": { colorSrc: "/color/logo-css3.svg", color: "#1572B6" },
   "/logo-cpp.svg": { colorSrc: "/color/logo-cpp.svg", color: "#00599C" },
   "/logo-windows.svg": { colorSrc: "/color/logo-windows.svg", color: "#0078D4" },
+  "/logo-git.svg": { colorSrc: "/color/logo-git.svg", color: "#F05032" },
+  "/logo-github-actions.svg": { colorSrc: "/color/logo-github-actions.svg", color: "#2088FF" },
 };
 
 const DEFAULT_TYPOGRAPHY_CLASSES: ClipPathLinksTypographyClasses = {
@@ -95,12 +98,15 @@ const techLogoRows: LogoItem[][] = [
   [
     { src: "/logo-postgres.svg", alt: "PostgreSQL", href: "https://www.postgresql.org/", span: "col-span-3 sm:col-span-2", minWidth: "5rem" },
     { src: "/logo-mysql.svg", alt: "MySQL", href: "https://www.mysql.com/", span: "col-span-3 sm:col-span-2", minWidth: "5rem" },
-    { src: "/logo-docker.svg", alt: "Docker", href: "https://www.docker.com/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
+    { src: "/logo-docker.svg", alt: "Docker", href: "https://www.docker.com/", span: "col-span-3 sm:col-span-2", minWidth: "5rem" },
+    { src: "/logo-kubernetes.svg", alt: "Kubernetes", href: "https://kubernetes.io/", span: "col-span-3 sm:col-span-2", minWidth: "5rem" },
     { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-3 sm:col-span-2", minWidth: "5rem" },
     { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/", span: "col-span-4 sm:col-span-2", minWidth: "5rem" },
     { src: "/logo-laravel.svg", alt: "Laravel", href: "https://laravel.com/", span: "col-span-5 sm:col-span-3", minWidth: "5rem" },
     { src: "/logo-html5.svg", alt: "HTML5", href: "https://developer.mozilla.org/en-US/docs/Web/HTML", span: "col-span-6 sm:col-span-2", minWidth: "10rem" },
     { src: "/logo-css3.svg", alt: "CSS3", href: "https://developer.mozilla.org/en-US/docs/Web/CSS", span: "col-span-6 sm:col-span-2", minWidth: "9rem" },
+    { src: "/logo-git.svg", alt: "Git", href: "https://git-scm.com/", span: "col-span-5 sm:col-span-2", minWidth: "5rem" },
+    { src: "/logo-github-actions.svg", alt: "GitHub Actions", href: "https://github.com/features/actions", span: "col-span-7 sm:col-span-3", minWidth: "5rem" },
   ],
 ];
 

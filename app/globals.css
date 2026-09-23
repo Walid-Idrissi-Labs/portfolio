@@ -175,7 +175,7 @@ html, body {
 
   40% {
     transform: scale(1.16);
-    filter: drop-shadow(0 0 16px var(--logo-color, #fff));
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--logo-color, #fff) 45%, transparent));
   }
 
   65% {
@@ -184,7 +184,7 @@ html, body {
 
   100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 5px var(--logo-color, #fff));
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--logo-color, #fff) 30%, transparent));
   }
 }
 
@@ -231,4 +231,72 @@ textarea:-webkit-autofill {
   -webkit-text-fill-color: #f2e6d8;
   caret-color: #f2e6d8;
   transition: background-color 9999s ease-in-out 0s;
+}
+
+/* PillNav intro (page/pillnav-bit.tsx). Pure CSS so the first paint of the
+   server HTML is already the start frame — the old JS intro set these after
+   hydration, so the nav flashed in fully drawn, vanished, then animated. The
+   pill row wipes open with clip-path instead of animating width, so its box
+   (which the adaptive-text observer measures) is stable from the start. */
+@keyframes nav-logo-in {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+@keyframes nav-pills-in {
+  from { clip-path: inset(0 100% 0 0 round 999px); }
+  to { clip-path: inset(0 0 0 0 round 999px); }
+}
+
+.nav-logo-in {
+  animation: nav-logo-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nav-pills-in {
+  animation: nav-pills-in 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-logo-in,
+  .nav-pills-in {
+    animation: none;
+  }
+}
+
+/* PillNav 'white' logo (contact page): ring draws, then the face lands.
+   The ring is rotated so the stroke starts at 12 o'clock; pathLength=1 on the
+   circle makes the dash maths unit-free. */
+.nav-ring {
+  transform: rotate(-90deg);
+}
+
+.nav-ring-draw {
+  stroke-dasharray: 1;
+  animation: nav-ring-draw 1s cubic-bezier(0.65, 0, 0.35, 1) 0.15s both;
+}
+
+.nav-face-in {
+  animation: nav-face-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s both;
+}
+
+@keyframes nav-ring-draw {
+  from { stroke-dashoffset: 1; opacity: 1; }
+  70% { stroke-dashoffset: 0; opacity: 1; }
+  to { stroke-dashoffset: 0; opacity: 0.55; }
+}
+
+@keyframes nav-face-in {
+  from { opacity: 0; transform: translateY(35%) scale(0.7); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-ring-draw,
+  .nav-face-in {
+    animation: none;
+  }
+
+  .nav-ring-draw {
+    opacity: 0.55;
+  }
 }

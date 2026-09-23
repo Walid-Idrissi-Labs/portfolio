@@ -3,23 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "../../lib/utils";
-// The four brand icons below are inlined verbatim from the `dicons` library
+// The brand icons below are inlined verbatim from the `dicons` library
 // (which shipped a ~3.3 MB bundle). Keeping the exact paths/fills/colors means
 // the UI is unchanged while dropping that dependency.
 function DesignaliMark({ className }: { className?: string }) {
   return (
     <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className}>
       <path strokeWidth={0} fill="currentColor" d="M2.8,1.43h7.53c3.47,0,6.15.92,8.04,2.75,1.89,1.84,2.83,4.45,2.83,7.85s-.92,5.98-2.77,7.8c-1.85,1.83-4.49,2.74-7.92,2.74H2.8V1.43Z" />
-    </svg>
-  );
-}
-
-function MailIcon({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path fill="none" d="M19.48,5.87h.52c1.1,0,2,.9,2,2v12c0,1.1-.9,2-2,2H4c-1.1,0-2-.9-2-2V7.87c0-1.1.9-2,2-2h.45" />
-      <path fill="none" d="M22,8.87l-8.97,5.7c-.63.39-1.43.39-2.06,0L2,8.87" />
-      <path d="M11.16,7.29c-.07-.29-.3-.51-.58-.58l-2.5-.64c-.11-.03-.17-.14-.14-.25.02-.07.07-.12.14-.14l2.5-.64c.29-.07.51-.3.58-.58l.64-2.5c.03-.11.14-.17.25-.14.07.02.12.07.14.14l.64,2.5c.07.29.3.51.58.58l2.5.64c.11.03.17.14.14.25-.02.07-.07.12-.14.14l-2.5.64c-.29.07-.51.3-.58.58l-.64,2.5c-.03.11-.14.17-.25.14-.07-.02-.12-.07-.14-.14l-.64-2.5Z" />
     </svg>
   );
 }
@@ -41,15 +31,79 @@ function ArrowUpRightIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-import { useAnimate, useInView, type AnimationPlaybackControls } from "motion/react";
-import { Github  , File} from "lucide-react";
+import {
+  useAnimate,
+  useInView,
+  type AnimationPlaybackControls,
+  type AnimationSequence,
+} from "motion/react";
+import { Github, File, Mail } from "lucide-react";
 
-import { Button, buttonVariants } from "../utilities/button";
+import { buttonVariants } from "../utilities/button";
 
 import { AnimatedContainer } from "../utilities/animated-container";
 import { HoverBorderGradient } from "../utilities/hoverbordergradient";
 
 import { HighlightGroup, Particles } from "./highlighter";
+
+// The four original chip spots. Each spot stacks its labels in one grid cell
+// (so the chip is sized by its widest label and never resizes) and crossfades
+// to the next label as the cursor leaves it. Every spot must hold the same
+// number of labels. `x`/`y` is where the cursor tip lands; the cursor visits
+// the spots in array order.
+const SPOTS = [
+  { key: "cloud", labels: ["AWS & Cloud", "Infra as Code"], className: "right-12 top-10", x: 200, y: 60 },
+  { key: "stack", labels: ["Full-Stack Dev", "Databases"], className: "left-2 top-20", x: 50, y: 102 },
+  { key: "ops", labels: ["Networking", "DevOps & CI/CD"], className: "bottom-20 right-1", x: 224, y: 170 },
+  { key: "design", labels: ["UI-UX", "System Design"], className: "bottom-12 left-14", x: 88, y: 198 },
+] as const;
+
+const LABELS_PER_SPOT = SPOTS[0].labels.length;
+const CHIP_IDLE_OPACITY = 0.5;
+const HOP_PERIOD = 1.1;
+const HOPS = SPOTS.length * LABELS_PER_SPOT;
+// The loop ends when the cursor lands back on the first spot.
+const LOOP_DURATION = 0.8 + HOP_PERIOD * (HOPS - 1) + 0.5;
+const LABEL_SWAP_DELAY = 1; // seconds after the cursor leaves a spot
+const LABEL_FADE = 0.6;
+
+// Shared by the contact links and the Contact Me button.
+const HOVER_GLOW = "duration-200 hover:shadow-[0_0_24px_-2px_rgba(217,217,217,0.65)]";
+
+// The last spot is left on the final hop, so its swap lands past the end of
+// the loop and is wrapped to the start of the next one. It therefore starts
+// on its last label, and swaps to the first shortly after mount.
+const initialLabel = (s: number) => (s === SPOTS.length - 1 ? LABELS_PER_SPOT - 1 : 0);
+
+// Built once at module load with absolute times: one pass over the spots per
+// label, so after LABELS_PER_SPOT passes every spot is back where it started
+// and the repeat is seamless. Label fades use explicit [from, to] keyframes
+// because motion replays each element's track verbatim on repeat. Transform +
+// opacity only, so the loop never triggers layout.
+const CURSOR_SEQUENCE: AnimationSequence = (() => {
+  const chip = (s: number) => `[data-spot="${SPOTS[s].key}"]`;
+  const label = (s: number, l: number) => `[data-label="${SPOTS[s].key}-${l}"]`;
+  const sequence: AnimationSequence = [
+    ["#pointer", { x: SPOTS[0].x, y: SPOTS[0].y }, { at: 0, duration: 0 }],
+    [chip(0), { opacity: 1 }, { at: 0, duration: 0.3 }],
+  ];
+  for (let h = 1; h <= HOPS; h++) {
+    const from = (h - 1) % SPOTS.length;
+    const to = h % SPOTS.length;
+    const pass = Math.floor((h - 1) / SPOTS.length);
+    const moveAt = 0.8 + HOP_PERIOD * (h - 1);
+    const swapAt = (moveAt + LABEL_SWAP_DELAY) % LOOP_DURATION;
+    sequence.push(
+      ["#pointer", { x: SPOTS[to].x, y: SPOTS[to].y }, { at: moveAt, duration: 0.5, ease: "easeInOut" }],
+      [chip(from), { opacity: CHIP_IDLE_OPACITY }, { at: moveAt + 0.2, duration: 0.1 }],
+      [label(from, pass), { opacity: [1, 0] }, { at: swapAt, duration: LABEL_FADE }],
+      [label(from, (pass + 1) % LABELS_PER_SPOT), { opacity: [0, 1] }, { at: swapAt, duration: LABEL_FADE }],
+    );
+    // The last hop returns to the first spot; the next repeat re-lights it.
+    if (h < HOPS) sequence.push([chip(to), { opacity: 1 }, { at: moveAt + 0.3, duration: 0.3 }]);
+  }
+  return sequence;
+})();
 
 export function HighlighterSection() {
   const [scope, animate] = useAnimate();
@@ -57,42 +111,9 @@ export function HighlighterSection() {
   const inView = useInView(scope);
 
   React.useEffect(() => {
-    controlsRef.current = animate(
-      [
-        ["#pointer", { x: 200, y: 60 }, { duration: 0 }],
-        ["#javascript", { opacity: 1 }, { duration: 0.3 }],
-        [
-          "#pointer",
-          { x: 50, y: 102 },
-          { at: "+0.5", duration: 0.5, ease: "easeInOut" },
-        ],
-        ["#javascript", { opacity: 0.4 }, { at: "-0.3", duration: 0.1 }],
-        ["#react-js", { opacity: 1 }, { duration: 0.3 }],
-        [
-          "#pointer",
-          { x: 224, y: 170 },
-          { at: "+0.5", duration: 0.5, ease: "easeInOut" },
-        ],
-        ["#react-js", { opacity: 0.4 }, { at: "-0.3", duration: 0.1 }],
-        ["#typescript", { opacity: 1 }, { duration: 0.3 }],
-        [
-          "#pointer",
-          { x: 88, y: 198 },
-          { at: "+0.5", duration: 0.5, ease: "easeInOut" },
-        ],
-        ["#typescript", { opacity: 0.4 }, { at: "-0.3", duration: 0.1 }],
-        ["#next-js", { opacity: 1 }, { duration: 0.3 }],
-        [
-          "#pointer",
-          { x: 200, y: 60 },
-          { at: "+0.5", duration: 0.5, ease: "easeInOut" },
-        ],
-        ["#next-js", { opacity: 0.5 }, { at: "-0.3", duration: 0.1 }],
-      ],
-      {
-        repeat: Number.POSITIVE_INFINITY,
-      },
-    );
+    controlsRef.current = animate(CURSOR_SEQUENCE, {
+      repeat: Number.POSITIVE_INFINITY,
+    });
     return () => controlsRef.current?.stop();
   }, [animate]);
 
@@ -134,33 +155,30 @@ export function HighlighterSection() {
                       ref={scope}
                     >
                       <DesignaliMark className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2" />
-                      <div
-                        id="next-js"
-                        className="absolute font-ibm bottom-12 left-14 rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
-                      >
-                        UI-UX
-                      </div>
-                      <div
-                        id="react-js"
-                        className="absolute font-ibm left-2 top-20 rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
-                      >
-                        Full-Stack Dev
-                      </div>
-                      <div
-                        id="typescript"
-                        className="absolute font-ibm bottom-20 right-1 rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
-                      >
-                        Networking
-                      </div>
-                      <div
-                        id="javascript"
-                        className="absolute font-ibm right-12 top-10 rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
-                      >
-                        AWS & Cloud
-                      </div>
+                      {SPOTS.map(({ key, labels, className }, s) => (
+                        <div
+                          key={key}
+                          data-spot={key}
+                          className={cn(
+                            "absolute grid font-ibm rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50",
+                            className,
+                          )}
+                        >
+                          {labels.map((label, i) => (
+                            <span
+                              key={label}
+                              data-label={`${key}-${i}`}
+                              className="col-start-1 row-start-1 whitespace-nowrap text-center"
+                              style={i === initialLabel(s) ? undefined : { opacity: 0 }}
+                            >
+                              {label}
+                            </span>
+                          ))}
+                        </div>
+                      ))}
 
-                      {/* Anchored at 0,0 and moved with transforms (the same
-                          coordinates as before) so the loop never triggers layout. */}
+                      {/* Anchored at 0,0 and moved with transforms so the
+                          loop never triggers layout. */}
                       <div id="pointer" className="absolute left-0 top-0">
                         <svg
                           width="16.8"
@@ -202,10 +220,11 @@ export function HighlighterSection() {
                               variant: "outline",
                               size: "icon",
                             }),
+                            HOVER_GLOW,
                           )}
                         >
                           <span className="flex items-center gap-1">
-                            <MailIcon className="h-5 w-5" />
+                            <Mail strokeWidth={1} className="h-5 w-5" />
                           </span>
                         </Link>
 
@@ -217,6 +236,7 @@ export function HighlighterSection() {
                               variant: "outline",
                               size: "icon",
                             }),
+                            HOVER_GLOW,
                           )}
                         >
                           <span className="flex items-center gap-1">
@@ -232,6 +252,7 @@ export function HighlighterSection() {
                               variant: "outline",
                               size: "icon",
                             }),
+                            HOVER_GLOW,
                           )}
                         >
                           <span className="flex items-center gap-1">
@@ -247,6 +268,7 @@ export function HighlighterSection() {
                               variant: "outline",
                               size: "icon",
                             }),
+                            HOVER_GLOW,
                           )}
                         >
                           <span className="flex items-center gap-1">
@@ -254,13 +276,17 @@ export function HighlighterSection() {
                           </span>
                         </Link>
 
-                        <Link href="/contact" target="_blank" >
-                          <Button className="cursor-pointer">
-                            Contact Me
-                            <span>
-                              <ArrowUpRightIcon className="h-4 w-4" />
-                            </span>
-                          </Button>
+                        <Link
+                          href="/contact"
+                          target="_blank"
+                          className={cn(
+                            buttonVariants(),
+                            "[a]:hover:bg-primary",
+                            HOVER_GLOW,
+                          )}
+                        >
+                          Contact Me
+                          <ArrowUpRightIcon className="h-4 w-4" />
                         </Link>
                       </div>
                     </div>

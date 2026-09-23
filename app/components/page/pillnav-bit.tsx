@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { gsap } from 'gsap';
 import { colors } from '../../lib/colors';
 import { liquidGlassStyle } from '../../lib/glass';
@@ -16,6 +17,10 @@ export type PillNavItem = {
 export interface PillNavProps {
   logos: [string, string];
   logoAlt?: string;
+  /** Where the memoji leads — the same on every page. */
+  homeHref?: string;
+  /** 'white': a white ring draws itself around the memoji on load. */
+  logoVariant?: 'glass' | 'white';
   items: PillNavItem[];
   activeHref?: string;
   className?: string;
@@ -65,6 +70,8 @@ const imageLuminance = (img: HTMLImageElement): number | null => {
 const PillNav: React.FC<PillNavProps> = ({
   logos,
   logoAlt = 'Logo',
+  homeHref = '/',
+  logoVariant = 'glass',
   items,
   activeHref,
   className = '',
@@ -92,7 +99,7 @@ const PillNav: React.FC<PillNavProps> = ({
   const hamburgerRef = useRef<HTMLButtonElement | null>(null);
   const mobileMenuRef = useRef<HTMLDivElement | null>(null);
   const navItemsRef = useRef<HTMLDivElement | null>(null);
-  const logoRef = useRef<HTMLAnchorElement | HTMLElement | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const layout = () => {
@@ -153,34 +160,6 @@ const PillNav: React.FC<PillNavProps> = ({
       document.fonts.ready.then(layout).catch(() => {});
     }
 
-    const menu = mobileMenuRef.current;
-    if (menu) {
-      gsap.set(menu, { visibility: 'hidden', opacity: 0, scaleY: 1, y: 0 });
-    }
-
-    if (initialLoadAnimation) {
-      const logo = logoRef.current;
-      const navItems = navItemsRef.current;
-
-      if (logo) {
-        gsap.set(logo, { scale: 0 });
-        gsap.to(logo, {
-          scale: 1,
-          duration: 0.8,
-          ease
-        });
-      }
-
-      if (navItems) {
-        gsap.set(navItems, { width: 0, overflow: 'hidden' });
-        gsap.to(navItems, {
-          width: 'auto',
-          duration: 1.4,
-          ease
-        });
-      }
-    }
-
     const firstLogo = logoLayerRefs.current[0];
     const secondLogo = logoLayerRefs.current[1];
     if (firstLogo && secondLogo) {
@@ -199,7 +178,7 @@ const PillNav: React.FC<PillNavProps> = ({
     }
 
     return () => window.removeEventListener('resize', onResize);
-  }, [items, ease, initialLoadAnimation]);
+  }, [items, ease]);
 
   const handleEnter = (i: number) => {
     const tl = tlRefs.current[i];
@@ -363,9 +342,9 @@ const PillNav: React.FC<PillNavProps> = ({
       build();
     };
 
-    // The pill row width-animates in over ~1.4s on load — measure once it has
-    // settled. Resize rebuilds (which also covers crossing the md breakpoint).
-    const settle = window.setTimeout(init, initialLoadAnimation ? 1600 : 0);
+    // The pill row's box is stable from first paint (its intro is a clip-path
+    // wipe). Resize rebuilds (which also covers crossing the md breakpoint).
+    const settle = window.setTimeout(init, 0);
     window.addEventListener('resize', build);
     document.addEventListener('load', onAnyLoad, true);
     return () => {
@@ -375,57 +354,58 @@ const PillNav: React.FC<PillNavProps> = ({
       document.removeEventListener('load', onAnyLoad, true);
       observer?.disconnect();
     };
-  }, [initialLoadAnimation]);
+  }, []);
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  // Close on navigation, whatever triggered it (back button included).
+  const [menuPath, setMenuPath] = useState(pathname);
+  if (menuPath !== pathname) {
+    setMenuPath(pathname);
+    setIsMobileMenuOpen(false);
+  }
+
+  // While open: Escape, a tap anywhere outside the nav, or scrolling the page
+  // dismisses the menu, the way native dropdowns behave.
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setIsMobileMenuOpen(false);
+      hamburgerRef.current?.focus();
+    };
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (mobileMenuRef.current?.contains(target) || hamburgerRef.current?.contains(target)) return;
+      setIsMobileMenuOpen(false);
+    };
+    const startY = window.scrollY;
+    const onScroll = () => {
+      if (Math.abs(window.scrollY - startY) > 40) setIsMobileMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, [isMobileMenuOpen]);
 
   const toggleMobileMenu = () => {
-    const newState = !isMobileMenuOpen;
-    setIsMobileMenuOpen(newState);
-
-    const hamburger = hamburgerRef.current;
-    const menu = mobileMenuRef.current;
-
-    if (hamburger) {
-      const lines = hamburger.querySelectorAll('.hamburger-line');
-      if (newState) {
-        gsap.to(lines[0], { rotation: 45, y: 3, duration: 0.3, ease });
-        gsap.to(lines[1], { rotation: -45, y: -3, duration: 0.3, ease });
-      } else {
-        gsap.to(lines[0], { rotation: 0, y: 0, duration: 0.3, ease });
-        gsap.to(lines[1], { rotation: 0, y: 0, duration: 0.3, ease });
-      }
-    }
-
-    if (menu) {
-      if (newState) {
-        gsap.set(menu, { visibility: 'visible' });
-        gsap.fromTo(
-          menu,
-          { opacity: 0, y: 10, scaleY: 1 },
-          {
-            opacity: 1,
-            y: 0,
-            scaleY: 1,
-            duration: 0.3,
-            ease,
-            transformOrigin: 'top center'
-          }
-        );
-      } else {
-        gsap.to(menu, {
-          opacity: 0,
-          y: 10,
-          scaleY: 1,
-          duration: 0.2,
-          ease,
-          transformOrigin: 'top center',
-          onComplete: () => {
-            gsap.set(menu, { visibility: 'hidden' });
-          }
-        });
-      }
-    }
-
+    setIsMobileMenuOpen(open => !open);
     onMobileMenuClick?.();
+  };
+
+  // Already home: the memoji scrolls back to the top instead of a no-op
+  // navigation, and drops any #section left in the URL.
+  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    closeMobileMenu();
+    if (pathname !== homeHref) return;
+    e.preventDefault();
+    window.history.replaceState(null, '', homeHref);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const isExternalLink = (href: string) =>
@@ -495,17 +475,52 @@ const PillNav: React.FC<PillNavProps> = ({
         aria-label="Primary"
         style={cssVars}
       >
-        {isRouterLink(items?.[0]?.href) ? (
+        {logoVariant === 'white' ? (
+          // Intro: the ring draws itself clockwise from 12 o'clock, then the
+          // face settles in. All CSS (globals.css, nav-ring-*), so it starts
+          // on first paint.
+          <span className="group relative inline-flex shrink-0 pointer-events-auto">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 100 100"
+              className="nav-ring absolute -inset-1.25 overflow-visible transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                r="49"
+                pathLength={1}
+                fill="none"
+                stroke="#fff"
+                strokeWidth="3"
+                strokeLinecap="round"
+                className="nav-ring-draw"
+              />
+            </svg>
+            <Link
+              href={homeHref}
+              aria-label="Home"
+              onClick={handleHomeClick}
+              onMouseEnter={handleLogoEnter}
+              onMouseLeave={handleLogoLeave}
+              className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative"
+              style={{
+                ...glassStyle,
+                width: 'var(--nav-h)',
+                height: 'var(--nav-h)'
+              }}
+            >
+              <span className="nav-face-in absolute inset-0">{logoLayers}</span>
+            </Link>
+          </span>
+        ) : (
           <Link
-            href={items[0].href}
+            href={homeHref}
             aria-label="Home"
+            onClick={handleHomeClick}
             onMouseEnter={handleLogoEnter}
             onMouseLeave={handleLogoLeave}
-            role="menuitem"
-            ref={el => {
-              logoRef.current = el;
-            }}
-            className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative pointer-events-auto"
+            className={`rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative shrink-0 pointer-events-auto ${initialLoadAnimation ? 'nav-logo-in' : ''}`}
             style={{
               ...glassStyle,
               width: 'var(--nav-h)',
@@ -514,29 +529,11 @@ const PillNav: React.FC<PillNavProps> = ({
           >
             {logoLayers}
           </Link>
-        ) : (
-          <a
-            href={items?.[0]?.href || '#'}
-            aria-label="Home"
-            onMouseEnter={handleLogoEnter}
-            onMouseLeave={handleLogoLeave}
-            ref={el => {
-              logoRef.current = el;
-            }}
-            className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden relative pointer-events-auto"
-            style={{
-              ...glassStyle,
-              width: 'var(--nav-h)',
-              height: 'var(--nav-h)'
-            }}
-          >
-            {logoLayers}
-          </a>
         )}
 
         <div
           ref={navItemsRef}
-          className="relative items-center rounded-full hidden md:flex ml-1 pointer-events-auto"
+          className={`relative items-center rounded-full hidden md:flex ml-1 pointer-events-auto ${initialLoadAnimation ? 'nav-pills-in' : ''}`}
           style={{
             ...glassStyle,
             height: 'var(--nav-h)'
@@ -638,57 +635,69 @@ const PillNav: React.FC<PillNavProps> = ({
           </ul>
         </div>
 
-        <button   //HAMBURGER BUTTON ON MOBILE
+        <button
           ref={hamburgerRef}
+          type="button"
           onClick={toggleMobileMenu}
-          aria-label="Toggle menu"
+          aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer relative pointer-events-auto"
+          aria-controls="mobile-nav-menu"
+          className={`md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer relative shrink-0 pointer-events-auto ${initialLoadAnimation ? 'nav-logo-in' : ''}`}
           style={{
             ...glassStyle,
             width: 'var(--nav-h)',
             height: 'var(--nav-h)'
           }}
         >
+          {/* Lines sit 6px apart center-to-center; ±3px meets them in an X. */}
           <span
-            className="hamburger-line w-5 h-0.5 rounded origin-center transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+            className={`w-5 h-0.5 rounded transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${isMobileMenuOpen ? 'translate-y-[3px] rotate-45' : ''}`}
             style={{ background: colors.beige_bright }}
           />
           <span
-            className="hamburger-line w-5 h-0.5 rounded origin-center transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+            className={`w-5 h-0.5 rounded transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${isMobileMenuOpen ? '-translate-y-[3px] -rotate-45' : ''}`}
             style={{ background: colors.beige_bright }}
           />
         </button>
       </nav>
 
+      {/* Mobile menu. Hidden in the server HTML itself (state-driven classes,
+          not a post-hydration JS tween), so it can never flash on load. */}
       <div
-    //   MOBILE MENU
+        id="mobile-nav-menu"
         ref={mobileMenuRef}
-        className="md:hidden absolute  top-[3em] left-[3em] right-[3em] rounded-[1.75rem] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-998 origin-top text-center pointer-events-auto"
+        className={`md:hidden absolute left-4 right-4 rounded-[1.75rem] p-2 z-998 origin-top transition-[opacity,transform,visibility] duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isMobileMenuOpen
+            ? 'visible opacity-100 translate-y-0 scale-100 pointer-events-auto'
+            : 'invisible opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'
+        }`}
         style={{
-          ...cssVars,
           ...glassStyle,
+          top: 'calc(47px + 10px)',
           backdropFilter: 'blur(24px) saturate(170%)',
           WebkitBackdropFilter: 'blur(24px) saturate(170%)'
         }}
       >
-        <ul className="list-none m-0 p-0 flex flex-col gap-1.75">
-          {items.map(item => {
-            const defaultStyle: React.CSSProperties = {
-              background: 'var(--pill-bg, #fff)',
-              color: 'var(--pill-text, #fff)'
+        <ul className="list-none m-0 p-0 flex flex-col gap-1">
+          {items.map((item, i) => {
+            const isActive = activeHref === item.href;
+            const linkClasses = `flex items-center justify-between min-h-13 px-5 rounded-[1.25rem] font-semibold text-[15px] uppercase tracking-[0.08em] no-underline transition-[background-color,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:bg-white/10 hover:bg-white/6 ${
+              isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
+            } ${isActive ? 'bg-white/6' : ''}`;
+            const linkStyle: React.CSSProperties = {
+              color: isActive ? colors.beige_bright : colors.primary,
+              transitionDelay: isMobileMenuOpen ? `${60 + i * 40}ms` : '0ms'
             };
-            const hoverIn = (e: React.MouseEvent<HTMLAnchorElement>) => {
-              e.currentTarget.style.background = 'var(--base)';
-              e.currentTarget.style.color = 'var(--hover-text, #fff)';
-            };
-            const hoverOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
-              e.currentTarget.style.background = 'var(--pill-bg, #fff)';
-              e.currentTarget.style.color = 'var(--pill-text, #fff)';
-            };
-
-            const linkClasses =
-              'block py-4 px-4 text-[16px] font-medium rounded-[50px] transition-all duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]';
+            const content = (
+              <>
+                {item.label}
+                <span
+                  aria-hidden="true"
+                  className={`h-1.5 w-1.5 rounded-full ${isActive ? '' : 'opacity-0'}`}
+                  style={{ background: colors.beige_bright }}
+                />
+              </>
+            );
 
             return (
               <li key={item.href}>
@@ -696,23 +705,23 @@ const PillNav: React.FC<PillNavProps> = ({
                   <Link
                     href={item.href}
                     className={linkClasses}
-                    style={defaultStyle}
-                    onMouseEnter={hoverIn}
-                    onMouseLeave={hoverOut}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    style={linkStyle}
+                    aria-current={isActive ? 'page' : undefined}
+                    tabIndex={isMobileMenuOpen ? undefined : -1}
+                    onClick={closeMobileMenu}
                   >
-                    {item.label}
+                    {content}
                   </Link>
                 ) : (
                   <a
                     href={item.href}
                     className={linkClasses}
-                    style={defaultStyle}
-                    onMouseEnter={hoverIn}
-                    onMouseLeave={hoverOut}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    style={linkStyle}
+                    aria-current={isActive ? 'page' : undefined}
+                    tabIndex={isMobileMenuOpen ? undefined : -1}
+                    onClick={closeMobileMenu}
                   >
-                    {item.label}
+                    {content}
                   </a>
                 )}
               </li>

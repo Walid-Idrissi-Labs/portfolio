@@ -31,9 +31,10 @@ export default function ContactPage() {
                     <PillNav
                         logos={[walid_1, walid_2]}
                         logoAlt="Walid"
+                        logoVariant="white"
                         items={[
                             { label: "About", href: "/#about" },
-                            { label: "Projects", href: "/#projects" },
+                            { label: "Projects", href: "/projects" },
                             { label: "Contact", href: "/contact" },
                         ]}
                         activeHref="/contact"
