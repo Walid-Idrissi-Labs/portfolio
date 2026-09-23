@@ -29,6 +29,7 @@ const FlipLink = ({ children, href, target }: FlipLinkProps) => {
       href={href}
       target={target}
       rel={target === "_blank" ? "noopener noreferrer" : undefined}
+      data-flip-link
       // text color is inherited from parent section, so no explicit color here
       className="relative block overflow-hidden whitespace-nowrap text-[3.35rem] font-black uppercase sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl font-unbounded"
       style={{

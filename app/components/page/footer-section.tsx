@@ -44,8 +44,8 @@ const footerLinks: FooterSection[] = [
 export function Footer() {
 	return (
 
-		<footer className="md:rounded-t-6xl relative w-full l mx-auto flex flex-col items-center justify-center rounded-t-4xl border-t bg-[radial-gradient(35%_128px_at_50%_0%,theme(backgroundColor.white/8%),transparent)] bg-[#74818C]/5 px-10 py-12 lg:py-16">
-			<div className="bg-foreground/20 absolute top-0 right-1/2 left-1/2 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur" />
+		<footer className="group/footer transition-[border-color,box-shadow] duration-300 has-[[data-flip-link]:hover]:border-[#74818C] has-[[data-flip-link]:hover]:shadow-[0_-4px_24px_-2px_rgba(116,129,140,0.65)] md:rounded-t-6xl relative w-full l mx-auto flex flex-col items-center justify-center rounded-t-4xl border-t bg-[radial-gradient(35%_128px_at_50%_0%,theme(backgroundColor.white/8%),transparent)] bg-[#74818C]/5 px-10 py-12 lg:py-16">
+			<div className="bg-foreground/20 transition-colors duration-300 group-has-[[data-flip-link]:hover]/footer:bg-[#74818C] absolute top-0 right-1/2 left-1/2 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur" />
 
 			<div className="flex w-full flex-col gap-8 pl-5 lg:flex-row lg:items-start lg:gap-0 ">
 				{/* Left: copyright + links */}
