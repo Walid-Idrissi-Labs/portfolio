@@ -70,6 +70,8 @@ const TECH_COLOR_MAP: Record<string, { colorSrc: string; color: string }> = {
   "/logo-css3.svg": { colorSrc: "/color/logo-css3.svg", color: "#1572B6" },
   "/logo-cpp.svg": { colorSrc: "/color/logo-cpp.svg", color: "#00599C" },
   "/logo-windows.svg": { colorSrc: "/color/logo-windows.svg", color: "#0078D4" },
+  "/logo-git.svg": { colorSrc: "/color/logo-git.svg", color: "#F05032" },
+  "/logo-github-actions.svg": { colorSrc: "/color/logo-github-actions.svg", color: "#2088FF" },
 };
 
 const DEFAULT_TYPOGRAPHY_CLASSES: ClipPathLinksTypographyClasses = {
@@ -101,6 +103,8 @@ const techLogoRows: LogoItem[][] = [
     { src: "/logo-laravel.svg", alt: "Laravel", href: "https://laravel.com/", span: "col-span-5 sm:col-span-3", minWidth: "5rem" },
     { src: "/logo-html5.svg", alt: "HTML5", href: "https://developer.mozilla.org/en-US/docs/Web/HTML", span: "col-span-6 sm:col-span-2", minWidth: "10rem" },
     { src: "/logo-css3.svg", alt: "CSS3", href: "https://developer.mozilla.org/en-US/docs/Web/CSS", span: "col-span-6 sm:col-span-2", minWidth: "9rem" },
+    { src: "/logo-git.svg", alt: "Git", href: "https://git-scm.com/", span: "col-span-5 sm:col-span-2", minWidth: "5rem" },
+    { src: "/logo-github-actions.svg", alt: "GitHub Actions", href: "https://github.com/features/actions", span: "col-span-7 sm:col-span-3", minWidth: "5rem" },
   ],
 ];
 

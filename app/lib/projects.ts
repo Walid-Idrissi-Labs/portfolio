@@ -109,10 +109,13 @@ export const projects: Project[] = [
     ],
     stackRows: [
       [
-        { src: "/logo-aws.svg", alt: "AWS", href: "https://aws.amazon.com/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
-        { src: "/logo-terraform.svg", alt: "Terraform", href: "https://www.terraform.io/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
-        { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
-        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
+        { src: "/logo-aws.svg", alt: "AWS", href: "https://aws.amazon.com/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-terraform.svg", alt: "Terraform", href: "https://www.terraform.io/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
+      ],
+      [
+        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
+        { src: "/logo-git.svg", alt: "Git", href: "https://git-scm.com/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
       ],
     ],
     screenshots: [
@@ -199,8 +202,9 @@ export const projects: Project[] = [
     ],
     stackRows: [
       [
-        { src: "/logo-go.svg", alt: "Go", href: "https://go.dev/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
-        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
+        { src: "/logo-go.svg", alt: "Go", href: "https://go.dev/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-git.svg", alt: "Git", href: "https://git-scm.com/", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
       ],
     ],
     screenshots: [
@@ -281,6 +285,10 @@ export const projects: Project[] = [
         { src: "/logo-php.svg", alt: "PHP", href: "https://www.php.net/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
         { src: "/logo-javascript.svg", alt: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
         { src: "/logo-postgres.svg", alt: "PostgreSQL", href: "https://www.postgresql.org/", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
+      ],
+      [
+        { src: "/logo-git.svg", alt: "Git", href: "https://git-scm.com/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
+        { src: "/logo-github-actions.svg", alt: "GitHub Actions", href: "https://github.com/features/actions", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
       ],
     ],
     screenshots: [
@@ -410,9 +418,10 @@ export const projects: Project[] = [
         { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
       ],
       [
-        { src: "/logo-react.svg", alt: "React", href: "https://react.dev/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
-        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
-        { src: "/logo-javascript.svg", alt: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-react.svg", alt: "React", href: "https://react.dev/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
+        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
+        { src: "/logo-javascript.svg", alt: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
+        { src: "/logo-git.svg", alt: "Git", href: "https://git-scm.com/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
       ],
     ],
     screenshots: [
@@ -510,9 +519,10 @@ export const projects: Project[] = [
     ],
     stackRows: [
       [
-        { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
-        { src: "/logo-react.svg", alt: "React", href: "https://react.dev/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
-        { src: "/logo-tailwind.svg", alt: "Tailwind CSS", href: "https://tailwindcss.com/", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
+        { src: "/logo-react.svg", alt: "React", href: "https://react.dev/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
+        { src: "/logo-tailwind.svg", alt: "Tailwind CSS", href: "https://tailwindcss.com/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
+        { src: "/logo-git.svg", alt: "Git", href: "https://git-scm.com/", span: "col-span-6 sm:col-span-3", minWidth: "5rem" },
       ],
     ],
     screenshots: [],
@@ -575,6 +585,8 @@ export const projects: Project[] = [
         { src: "/logo-javascript.svg", alt: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
       ],
       [
+        { src: "/logo-git.svg", alt: "Git", href: "https://git-scm.com/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
+        { src: "/logo-github-actions.svg", alt: "GitHub Actions", href: "https://github.com/features/actions", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
       ],
     ],
     screenshots: [
@@ -638,8 +650,9 @@ export const projects: Project[] = [
         { src: "/logo-windows.svg", alt: "Win32", href: "https://learn.microsoft.com/en-us/windows/win32/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
       ],
       [
-        { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
-        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-6", minWidth: "5rem" },
+        { src: "/logo-python.svg", alt: "Python", href: "https://www.python.org/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-bash.svg", alt: "Bash", href: "https://www.gnu.org/software/bash/", span: "col-span-6 sm:col-span-4", minWidth: "5rem" },
+        { src: "/logo-git.svg", alt: "Git", href: "https://git-scm.com/", span: "col-span-12 sm:col-span-4", minWidth: "5rem" },
       ],
     ],
     screenshots: [
