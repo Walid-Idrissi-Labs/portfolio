@@ -33,10 +33,13 @@ const imageLogos = [
   { src: "/logo-bash.svg",       alt: "Bash",        colorSrc: "/color/logo-bash.svg",       color: "#4EAA25" },
   { src: "/logo-three.svg",      alt: "Three.js",    colorSrc: "/color/logo-three.svg",      color: "#FFFFFF" },
   { src: "/logo-docker.svg",     alt: "Docker",      colorSrc: "/color/logo-docker.svg",     color: "#2496ED" },
+  { src: "/logo-kubernetes.svg", alt: "Kubernetes",  colorSrc: "/color/logo-kubernetes.svg", color: "#326CE5" },
   { src: "/logo-laravel.svg",    alt: "Laravel",     colorSrc: "/color/logo-laravel.svg",    color: "#FF2D20" },
   { src: "/logo-mysql.svg",      alt: "MySQL",       colorSrc: "/color/logo-mysql.svg",      color: "#00758F" },
   { src: "/logo-php.svg",        alt: "PHP",         colorSrc: "/color/logo-php.svg",        color: "#777BB4" },
   { src: "/logo-css3.svg",       alt: "CSS3",        colorSrc: "/color/logo-css3.svg",       color: "#1572B6" },
+  { src: "/logo-git.svg",        alt: "Git",         colorSrc: "/color/logo-git.svg",        color: "#F05032" },
+  { src: "/logo-github-actions.svg", alt: "GitHub Actions", colorSrc: "/color/logo-github-actions.svg", color: "#2088FF" },
   // { src : "" , alt:"null" } // placeholder to make the loop smoother, it will be hidden with css
 
 ];
