@@ -41,7 +41,12 @@ function ArrowUpRightIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-import { useAnimate, useInView, type AnimationPlaybackControls } from "motion/react";
+import {
+  useAnimate,
+  useInView,
+  type AnimationPlaybackControls,
+  type AnimationSequence,
+} from "motion/react";
 import { Github  , File} from "lucide-react";
 
 import { Button, buttonVariants } from "../utilities/button";
@@ -51,48 +56,56 @@ import { HoverBorderGradient } from "../utilities/hoverbordergradient";
 
 import { HighlightGroup, Particles } from "./highlighter";
 
+// Positions (px) inside the 300×270 orbit box, clear of the centre mark.
+// Chips are IBM Plex Mono 12px (~7.2px/char + 18px padding/border), which is
+// what the left offsets are budgeted against. `x`/`y` is where the cursor tip
+// lands on each chip; the cursor visits them in array order.
+const CHIPS = [
+  { key: "system-design", label: "System Design", left: 30, top: 12, x: 92, y: 30 },
+  { key: "aws-cloud", label: "AWS & Cloud", left: 186, top: 12, x: 240, y: 30 },
+  { key: "iac", label: "Infra as Code", left: 150, top: 66, x: 212, y: 84 },
+  { key: "networking", label: "Networking", left: 208, top: 120, x: 257, y: 138 },
+  { key: "full-stack", label: "Full-Stack Dev", left: 160, top: 228, x: 225, y: 246 },
+  { key: "ui-ux", label: "UI-UX", left: 70, top: 228, x: 100, y: 246 },
+  { key: "devops", label: "DevOps & CI/CD", left: 8, top: 174, x: 73, y: 192 },
+  { key: "databases", label: "Databases", left: 14, top: 120, x: 60, y: 138 },
+] as const;
+
+const CHIP_IDLE_OPACITY = 0.5;
+
+// Built once at module load. Transform + opacity only, so the loop never
+// triggers layout.
+const CURSOR_SEQUENCE: AnimationSequence = (() => {
+  const chip = (i: number) => `[data-chip="${CHIPS[i].key}"]`;
+  const sequence: AnimationSequence = [
+    ["#pointer", { x: CHIPS[0].x, y: CHIPS[0].y }, { duration: 0 }],
+    [chip(0), { opacity: 1 }, { duration: 0.3 }],
+  ];
+  for (let i = 1; i <= CHIPS.length; i++) {
+    const next = i % CHIPS.length;
+    sequence.push(
+      [
+        "#pointer",
+        { x: CHIPS[next].x, y: CHIPS[next].y },
+        { at: "+0.5", duration: 0.5, ease: "easeInOut" },
+      ],
+      [chip(i - 1), { opacity: CHIP_IDLE_OPACITY }, { at: "-0.3", duration: 0.1 }],
+    );
+    // The last hop returns to the first chip; the next repeat re-lights it.
+    if (next !== 0) sequence.push([chip(next), { opacity: 1 }, { duration: 0.3 }]);
+  }
+  return sequence;
+})();
+
 export function HighlighterSection() {
   const [scope, animate] = useAnimate();
   const controlsRef = React.useRef<AnimationPlaybackControls | null>(null);
   const inView = useInView(scope);
 
   React.useEffect(() => {
-    controlsRef.current = animate(
-      [
-        ["#pointer", { x: 200, y: 60 }, { duration: 0 }],
-        ["#javascript", { opacity: 1 }, { duration: 0.3 }],
-        [
-          "#pointer",
-          { x: 50, y: 102 },
-          { at: "+0.5", duration: 0.5, ease: "easeInOut" },
-        ],
-        ["#javascript", { opacity: 0.4 }, { at: "-0.3", duration: 0.1 }],
-        ["#react-js", { opacity: 1 }, { duration: 0.3 }],
-        [
-          "#pointer",
-          { x: 224, y: 170 },
-          { at: "+0.5", duration: 0.5, ease: "easeInOut" },
-        ],
-        ["#react-js", { opacity: 0.4 }, { at: "-0.3", duration: 0.1 }],
-        ["#typescript", { opacity: 1 }, { duration: 0.3 }],
-        [
-          "#pointer",
-          { x: 88, y: 198 },
-          { at: "+0.5", duration: 0.5, ease: "easeInOut" },
-        ],
-        ["#typescript", { opacity: 0.4 }, { at: "-0.3", duration: 0.1 }],
-        ["#next-js", { opacity: 1 }, { duration: 0.3 }],
-        [
-          "#pointer",
-          { x: 200, y: 60 },
-          { at: "+0.5", duration: 0.5, ease: "easeInOut" },
-        ],
-        ["#next-js", { opacity: 0.5 }, { at: "-0.3", duration: 0.1 }],
-      ],
-      {
-        repeat: Number.POSITIVE_INFINITY,
-      },
-    );
+    controlsRef.current = animate(CURSOR_SEQUENCE, {
+      repeat: Number.POSITIVE_INFINITY,
+    });
     return () => controlsRef.current?.stop();
   }, [animate]);
 
@@ -134,33 +147,19 @@ export function HighlighterSection() {
                       ref={scope}
                     >
                       <DesignaliMark className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2" />
-                      <div
-                        id="next-js"
-                        className="absolute font-ibm bottom-12 left-14 rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
-                      >
-                        UI-UX
-                      </div>
-                      <div
-                        id="react-js"
-                        className="absolute font-ibm left-2 top-20 rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
-                      >
-                        Full-Stack Dev
-                      </div>
-                      <div
-                        id="typescript"
-                        className="absolute font-ibm bottom-20 right-1 rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
-                      >
-                        Networking
-                      </div>
-                      <div
-                        id="javascript"
-                        className="absolute font-ibm right-12 top-10 rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
-                      >
-                        AWS & Cloud
-                      </div>
+                      {CHIPS.map(({ key, label, left, top }) => (
+                        <div
+                          key={key}
+                          data-chip={key}
+                          className="absolute whitespace-nowrap font-ibm rounded-3xl border border-slate-600 bg-slate-800 px-2 py-1.5 text-xs opacity-50"
+                          style={{ left, top }}
+                        >
+                          {label}
+                        </div>
+                      ))}
 
-                      {/* Anchored at 0,0 and moved with transforms (the same
-                          coordinates as before) so the loop never triggers layout. */}
+                      {/* Anchored at 0,0 and moved with transforms so the
+                          loop never triggers layout. */}
                       <div id="pointer" className="absolute left-0 top-0">
                         <svg
                           width="16.8"
