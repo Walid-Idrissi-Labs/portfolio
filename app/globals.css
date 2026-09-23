@@ -175,7 +175,7 @@ html, body {
 
   40% {
     transform: scale(1.16);
-    filter: drop-shadow(0 0 16px var(--logo-color, #fff));
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--logo-color, #fff) 45%, transparent));
   }
 
   65% {
@@ -184,7 +184,7 @@ html, body {
 
   100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 5px var(--logo-color, #fff));
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--logo-color, #fff) 30%, transparent));
   }
 }
 
