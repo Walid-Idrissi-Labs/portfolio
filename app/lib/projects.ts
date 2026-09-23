@@ -236,7 +236,7 @@ export const projects: Project[] = [
   {
     slug: "applyr",
     name: "Applyr",
-    tagline: "A workspace built for hiring momentum,  applications, resumes, and follow-ups in one easy to use app.",
+    tagline: "A job-hunt SaaS built as a Laravel REST API and a React SPA, with AI-tailored resumes, OCR parsing, and Chrome and Firefox extensions that capture listings in one click.",
     type: "Full-Stack SaaS",
     year: "2026",
     status: "in-progress",

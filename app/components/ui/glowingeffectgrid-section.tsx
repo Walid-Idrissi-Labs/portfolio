@@ -64,7 +64,7 @@ export default function GlowingEffectSection() {
         area="md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]"
         icon={<BriefcaseBusiness className="h-4 w-4 text-faint_white" />}
         title="Applyr"
-        description="Job application tracking SaaS with AI-tailored resumes and a job-capturing browser extension."
+        description="Job tracking SaaS on Laravel and React: AI-tailored resumes, OCR parsing, and a job-capture browser extension."
         href="/projects/applyr"
         backgroundImage={applyr}
         duration={1.8}
