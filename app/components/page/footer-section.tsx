@@ -41,11 +41,17 @@ const footerLinks: FooterSection[] = [
 	},
 ];
 
+const FOOTER_LINE_HALF =
+	"pointer-events-none absolute -top-px bottom-0 w-1/2 border-t border-[#74818C] shadow-[0_-4px_24px_-2px_rgba(116,129,140,0.65)] transition-[clip-path] duration-400 ease-in-out group-has-[[data-flip-link]:hover]/footer:duration-600 group-has-[[data-flip-link]:hover]/footer:ease-[cubic-bezier(0.22,1,0.36,1)] group-has-[[data-flip-link]:hover]/footer:[clip-path:inset(-40px_0_0_-40px)]";
+
 export function Footer() {
 	return (
 
-		<footer className="group/footer transition-[border-color,box-shadow] duration-300 has-[[data-flip-link]:hover]:border-[#74818C] has-[[data-flip-link]:hover]:shadow-[0_-4px_24px_-2px_rgba(116,129,140,0.65)] md:rounded-t-6xl relative w-full l mx-auto flex flex-col items-center justify-center rounded-t-4xl border-t bg-[radial-gradient(35%_128px_at_50%_0%,theme(backgroundColor.white/8%),transparent)] bg-[#74818C]/5 px-10 py-12 lg:py-16">
-			<div className="bg-foreground/20 transition-colors duration-300 group-has-[[data-flip-link]:hover]/footer:bg-[#74818C] absolute top-0 right-1/2 left-1/2 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur" />
+		<footer className="group/footer md:rounded-t-6xl relative w-full l mx-auto flex flex-col items-center justify-center rounded-t-4xl border-t bg-[radial-gradient(35%_128px_at_50%_0%,theme(backgroundColor.white/8%),transparent)] bg-[#74818C]/5 px-10 py-12 lg:py-16">
+			{/* Slate line drawn in from both sides while GitHub / Linkedin is hovered */}
+			<div aria-hidden className={`${FOOTER_LINE_HALF} left-0 rounded-tl-4xl md:rounded-tl-6xl [clip-path:inset(-40px_calc(100%+40px)_0_-40px)]`} />
+			<div aria-hidden className={`${FOOTER_LINE_HALF} right-0 rounded-tr-4xl md:rounded-tr-6xl [clip-path:inset(-40px_-40px_0_calc(100%+40px))]`} />
+			<div className="bg-foreground/20 transition-colors duration-300 group-has-[[data-flip-link]:hover]/footer:bg-[#74818C] group-has-[[data-flip-link]:hover]/footer:delay-300 absolute top-0 right-1/2 left-1/2 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur" />
 
 			<div className="flex w-full flex-col gap-8 pl-5 lg:flex-row lg:items-start lg:gap-0 ">
 				{/* Left: copyright + links */}
