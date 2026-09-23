@@ -148,6 +148,9 @@ const GridItem = ({
               className="object-cover object-center transition-opacity duration-500"
             />
             <div className="absolute inset-0 bg-black/80 transition-opacity duration-500 group-hover:opacity-0" />
+            {/* Bottom scrim — crossfades in as the overlay leaves so the
+                title and description stay legible over bright captures. */}
+            <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black/90 via-black/55 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
           </>
         )}
 
@@ -156,7 +159,7 @@ const GridItem = ({
           <div className="w-fit rounded-lg border border-gray-600 p-2 bg-black/30 backdrop-blur-sm">
             {icon}
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3 [text-shadow:0_1px_10px_rgba(0,0,0,0.6)]">
             <h3 className="-tracking-4 pt-0.5 font-unbounded text-xl/[1.375rem] font-medium text-balance md:text-2xl/[1.875rem] text-faint_white">
               {title}
             </h3>
