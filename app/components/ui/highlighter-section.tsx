@@ -3,23 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "../../lib/utils";
-// The four brand icons below are inlined verbatim from the `dicons` library
+// The brand icons below are inlined verbatim from the `dicons` library
 // (which shipped a ~3.3 MB bundle). Keeping the exact paths/fills/colors means
 // the UI is unchanged while dropping that dependency.
 function DesignaliMark({ className }: { className?: string }) {
   return (
     <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className}>
       <path strokeWidth={0} fill="currentColor" d="M2.8,1.43h7.53c3.47,0,6.15.92,8.04,2.75,1.89,1.84,2.83,4.45,2.83,7.85s-.92,5.98-2.77,7.8c-1.85,1.83-4.49,2.74-7.92,2.74H2.8V1.43Z" />
-    </svg>
-  );
-}
-
-function MailIcon({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path fill="none" d="M19.48,5.87h.52c1.1,0,2,.9,2,2v12c0,1.1-.9,2-2,2H4c-1.1,0-2-.9-2-2V7.87c0-1.1.9-2,2-2h.45" />
-      <path fill="none" d="M22,8.87l-8.97,5.7c-.63.39-1.43.39-2.06,0L2,8.87" />
-      <path d="M11.16,7.29c-.07-.29-.3-.51-.58-.58l-2.5-.64c-.11-.03-.17-.14-.14-.25.02-.07.07-.12.14-.14l2.5-.64c.29-.07.51-.3.58-.58l.64-2.5c.03-.11.14-.17.25-.14.07.02.12.07.14.14l.64,2.5c.07.29.3.51.58.58l2.5.64c.11.03.17.14.14.25-.02.07-.07.12-.14.14l-2.5.64c-.29.07-.51.3-.58.58l-.64,2.5c-.03.11-.14.17-.25.14-.07-.02-.12-.07-.14-.14l-.64-2.5Z" />
     </svg>
   );
 }
@@ -47,9 +37,9 @@ import {
   type AnimationPlaybackControls,
   type AnimationSequence,
 } from "motion/react";
-import { Github  , File} from "lucide-react";
+import { Github, File, Mail } from "lucide-react";
 
-import { Button, buttonVariants } from "../utilities/button";
+import { buttonVariants } from "../utilities/button";
 
 import { AnimatedContainer } from "../utilities/animated-container";
 import { HoverBorderGradient } from "../utilities/hoverbordergradient";
@@ -204,7 +194,7 @@ export function HighlighterSection() {
                           )}
                         >
                           <span className="flex items-center gap-1">
-                            <MailIcon className="h-5 w-5" />
+                            <Mail strokeWidth={1} className="h-5 w-5" />
                           </span>
                         </Link>
 
@@ -253,13 +243,16 @@ export function HighlighterSection() {
                           </span>
                         </Link>
 
-                        <Link href="/contact" target="_blank" >
-                          <Button className="cursor-pointer">
-                            Contact Me
-                            <span>
-                              <ArrowUpRightIcon className="h-4 w-4" />
-                            </span>
-                          </Button>
+                        <Link
+                          href="/contact"
+                          target="_blank"
+                          className={cn(
+                            buttonVariants(),
+                            "duration-300 [a]:hover:bg-white hover:-translate-y-0.5 hover:shadow-[0_6px_20px_-6px_rgba(217,217,217,0.45)] active:translate-y-0",
+                          )}
+                        >
+                          Contact Me
+                          <ArrowUpRightIcon className="h-4 w-4" />
                         </Link>
                       </div>
                     </div>
