@@ -2,7 +2,40 @@
 
 import { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "../../lib/utils";
-import { animate } from "motion/react";
+import { animate, type AnimationPlaybackControls } from "motion/react";
+import { isCoarsePointer, prefersReducedMotion } from "../../lib/device";
+
+// One shared pointermove/scroll subscription for every card on the page,
+// instead of one pair of listeners per card. Each card registers a callback
+// and the dispatcher fans the event out.
+type MoveListener = (e?: { x: number; y: number }) => void;
+const listeners = new Set<MoveListener>();
+let detachShared: (() => void) | null = null;
+
+function subscribeToMoves(listener: MoveListener) {
+  listeners.add(listener);
+  if (!detachShared) {
+    const onPointerMove = (e: PointerEvent) => {
+      const point = { x: e.clientX, y: e.clientY };
+      listeners.forEach((fn) => fn(point));
+    };
+    const onScroll = () => listeners.forEach((fn) => fn());
+    document.body.addEventListener("pointermove", onPointerMove, { passive: true });
+    // On touch devices the "last pointer position" is a stale tap, so every
+    // scroll frame would re-aim the glow at nothing. Skip the scroll hook there.
+    const followScroll = !isCoarsePointer();
+    if (followScroll) window.addEventListener("scroll", onScroll, { passive: true });
+    detachShared = () => {
+      document.body.removeEventListener("pointermove", onPointerMove);
+      if (followScroll) window.removeEventListener("scroll", onScroll);
+      detachShared = null;
+    };
+  }
+  return () => {
+    listeners.delete(listener);
+    if (listeners.size === 0) detachShared?.();
+  };
+}
 
 interface GlowingEffectProps {
   blur?: number;
@@ -33,6 +66,9 @@ const GlowingEffect = memo(
     const lastPosition = useRef({ x: 0, y: 0 });
     const animationFrameRef = useRef<number>(0);
     const isVisibleRef = useRef(true);
+    // The in-flight angle tween. It is stopped before a new one starts so
+    // pointer moves never stack hundreds of concurrent animations per card.
+    const controlsRef = useRef<AnimationPlaybackControls | null>(null);
 
     const handleMove = useCallback(
       (e?: MouseEvent | { x: number; y: number }) => {
@@ -85,9 +121,12 @@ const GlowingEffect = memo(
             90;
 
           const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
+          // Sub-degree changes are invisible; don't restart the tween for them.
+          if (Math.abs(angleDiff) < 0.5) return;
           const newAngle = currentAngle + angleDiff;
 
-          animate(currentAngle, newAngle, {
+          controlsRef.current?.stop();
+          controlsRef.current = animate(currentAngle, newAngle, {
             duration: movementDuration,
             ease: [0.16, 1, 0.3, 1],
             onUpdate: (value) => {
@@ -100,28 +139,23 @@ const GlowingEffect = memo(
     );
 
     useEffect(() => {
-      if (disabled) return;
-
-      const handleScroll = () => handleMove();
-      const handlePointerMove = (e: PointerEvent) => handleMove(e);
+      if (disabled || prefersReducedMotion()) return;
 
       const observer = new IntersectionObserver(([entry]) => {
         isVisibleRef.current = entry.isIntersecting;
       });
       if (containerRef.current) observer.observe(containerRef.current);
 
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      document.body.addEventListener("pointermove", handlePointerMove, {
-        passive: true,
-      });
+      const unsubscribe = subscribeToMoves(handleMove);
 
       return () => {
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
         }
+        controlsRef.current?.stop();
+        controlsRef.current = null;
         observer.disconnect();
-        window.removeEventListener("scroll", handleScroll);
-        document.body.removeEventListener("pointermove", handlePointerMove);
+        unsubscribe();
       };
     }, [handleMove, disabled]);
 

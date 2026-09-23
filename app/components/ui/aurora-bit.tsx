@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
 
+import { isCoarsePointer, isLowEndDevice, prefersReducedMotion } from '../../lib/device';
+
 const VERT = `#version 300 es
 in vec2 position;
 void main() {
@@ -168,8 +170,10 @@ export default function Aurora(props: AuroraProps) {
 
     // Render the noise at a fraction of the element size and let CSS upscale:
     // the shader is soft/blurry, so ~0.8x is visually close to native while
-    // processing ~36% fewer fragments per frame.
-    const RENDER_SCALE = 0.8;
+    // processing ~36% fewer fragments per frame. Phones and weak GPUs drop to
+    // half resolution, which is still invisible on this kind of soft noise.
+    const RENDER_SCALE = isCoarsePointer() || isLowEndDevice() ? 0.5 : 0.8;
+    const reducedMotion = prefersReducedMotion();
     function resize() {
       if (!ctn) return;
       const width = ctn.offsetWidth;
@@ -181,7 +185,18 @@ export default function Aurora(props: AuroraProps) {
       gl.canvas.style.height = `${height}px`;
       program.uniforms.uResolution.value = [renderWidth, renderHeight];
     }
-    window.addEventListener('resize', resize);
+    // Debounced: mobile browsers fire resize while the URL bar shows/hides,
+    // and every call reallocates the drawing buffer.
+    let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+    const onResize = () => {
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        resizeTimer = null;
+        resize();
+        if (reducedMotion) renderOnce();
+      }, 150);
+    };
+    window.addEventListener('resize', onResize);
 
     // Recompute color uniforms only when the stops array changes instead of
     // reparsing three hex colors on every frame.
@@ -220,8 +235,18 @@ export default function Aurora(props: AuroraProps) {
     // aurora sits in the hero, so this stops all GPU/CPU work once the user
     // scrolls past it (rAF already pauses when the tab is hidden).
     let running = false;
+    // Reduced motion: draw a single still frame instead of animating.
+    const renderOnce = () => {
+      const { time = 0, speed = 1.0 } = propsRef.current;
+      program.uniforms.uTime.value = time * speed * 0.1;
+      renderer.render({ scene: mesh });
+    };
     const start = () => {
       if (running) return;
+      if (reducedMotion) {
+        renderOnce();
+        return;
+      }
       running = true;
       animateId = requestAnimationFrame(update);
     };
@@ -242,7 +267,8 @@ export default function Aurora(props: AuroraProps) {
     return () => {
       observer.disconnect();
       stop();
-      window.removeEventListener('resize', resize);
+      if (resizeTimer !== null) clearTimeout(resizeTimer);
+      window.removeEventListener('resize', onResize);
       if (ctn && gl.canvas.parentNode === ctn) {
         ctn.removeChild(gl.canvas);
       }

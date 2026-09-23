@@ -7,6 +7,10 @@ interface GradientTextProps {
   animationSpeed?: number;
   showBorder?: boolean;
   direction?: 'horizontal' | 'vertical' | 'diagonal';
+  /** Frosted-glass backdrop. Only worth paying for when something other than
+   *  flat black sits behind the heading (blurring solid black is a no-op that
+   *  still costs a backdrop-filter pass every frame). */
+  glass?: boolean;
 }
 
 // Renders animated gradient text with a pure CSS animation (keyframes in
@@ -21,6 +25,7 @@ export default function GradientText({
   animationSpeed = 8,
   showBorder = false,
   direction = 'horizontal',
+  glass = false,
 }: GradientTextProps) {
   const gradientAngle =
     direction === 'horizontal' ? 'to right' : direction === 'vertical' ? 'to bottom' : 'to bottom right';
@@ -36,7 +41,7 @@ export default function GradientText({
 
   return (
     <div
-      className={`relative flex flex-row items-center justify-center rounded-[1.25rem] font-medium backdrop-blur transition-shadow duration-500 overflow-hidden cursor-pointer ${showBorder ? 'py-1 px-2' : ''} ${className}`}
+      className={`relative flex flex-row items-center justify-center rounded-[1.25rem] font-medium ${glass ? 'backdrop-blur' : ''} transition-shadow duration-500 overflow-hidden cursor-pointer ${showBorder ? 'py-1 px-2' : ''} ${className}`}
     >
       {showBorder && (
         <div className="absolute inset-0 z-0 pointer-events-none rounded-[1.25rem]" style={gradientStyle}>

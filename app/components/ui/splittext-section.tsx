@@ -17,7 +17,7 @@ export default function SplitTextSection() {
             to={{ opacity: 1, y: 0 }}
             threshold={0.1}
             rootMargin="-100px"
-            tag="div"
+            tag="h1"
             textAlign="center"
         >
             <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2">

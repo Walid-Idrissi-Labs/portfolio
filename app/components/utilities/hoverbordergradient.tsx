@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import { cn } from '../../lib/utils'
+import { prefersReducedMotion } from '../../lib/device'
 
 type Direction = 'TOP' | 'LEFT' | 'BOTTOM' | 'RIGHT'
 
@@ -58,7 +59,7 @@ export function HoverBorderGradient({
   }, [])
 
   useEffect(() => {
-    if (!hovered && inView) {
+    if (!hovered && inView && !prefersReducedMotion()) {
       const interval = setInterval(() => {
         setDirection((prevState) => rotateDirection(prevState))
       }, duration * 1000)
@@ -84,24 +85,28 @@ export function HoverBorderGradient({
       >
         {children}
       </div>
-      <motion.div
-        className={cn(
-          'absolute inset-0 z-0 flex-none overflow-hidden rounded-[inherit]'
-        )}
-        style={{
-          filter: 'blur(20px)',
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-        }}
-        initial={{ background: movingMap[direction] }}
-        animate={{
-          background: hovered
-            ? [movingMap[direction], highlight]
-            : movingMap[direction],
-        }}
-        transition={{ ease: 'linear', duration: duration ?? 1 }}
-      />
+      {/* The glow is drawn at quarter size with a quarter of the blur radius
+          and scaled up 4x on the compositor. The gradients are percentage
+          based, so the result is the same blurred glow as a full-size
+          blur(20px) layer, rasterised with 1/16 of the pixels each frame. */}
+      <div className='pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[inherit]'>
+        <motion.div
+          className='absolute left-0 top-0 h-1/4 w-1/4'
+          style={{
+            filter: 'blur(5px)',
+            scale: 4,
+            originX: 0,
+            originY: 0,
+          }}
+          initial={{ background: movingMap[direction] }}
+          animate={{
+            background: hovered
+              ? [movingMap[direction], highlight]
+              : movingMap[direction],
+          }}
+          transition={{ ease: 'linear', duration: duration ?? 1 }}
+        />
+      </div>
       <div className='absolute inset-1 z-1 flex-none rounded-[inherit] bg-black' />
     </Element>
   )

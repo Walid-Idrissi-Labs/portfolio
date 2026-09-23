@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { MoveRight } from "lucide-react";
 
@@ -17,13 +18,71 @@ import { HighlighterSection } from "./components/ui/highlighter-section";
 import { ClipPathLinks } from "./components/ui/skils-clippathlinks";
 import { Footer } from "./components/page/footer-section";
 import { AnimatedContainer } from "./components/utilities/animated-container";
+import { PauseOffscreen } from "./components/utilities/pause-offscreen";
+import { GITHUB_URL, LINKEDIN_URL, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./lib/site";
+
+export const metadata: Metadata = {
+  title: { absolute: `${SITE_NAME} | Software Engineering Student` },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: `${SITE_NAME} | Software Engineering Student`,
+    description: SITE_DESCRIPTION,
+    url: "/",
+  },
+};
 
 const walid_1 = "/walid_memoji_face1.webp";
 const walid_2 = "/walid_memoji_facewmac.webp";
 
+// Structured data (schema.org) so search engines can tie the site to its
+// owner and his profiles.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Walid Idrissi",
+      publisher: { "@id": `${SITE_URL}/#person` },
+    },
+    {
+      "@type": "Person",
+      "@id": `${SITE_URL}/#person`,
+      name: "Walid Idrissi",
+      alternateName: "Walid Idrissi Labkhati",
+      url: SITE_URL,
+      image: `${SITE_URL}/walid_memoji_facewmac.webp`,
+      jobTitle: "Software Engineering Student",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Marrakech",
+        addressCountry: "MA",
+      },
+      affiliation: { "@type": "CollegeOrUniversity", name: "Cadi Ayyad University" },
+      knowsAbout: [
+        "Software Engineering",
+        "Cloud Computing",
+        "Amazon Web Services",
+        "Serverless Architecture",
+        "Infrastructure as Code",
+        "Computer Networks",
+        "Full-Stack Web Development",
+      ],
+      sameAs: [GITHUB_URL, LINKEDIN_URL],
+    },
+  ],
+};
+
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        // Escaping "<" keeps the JSON from ever closing the script tag early.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
       <section className="fixed inset-x-0 top-0 flex items-center justify-center px-6 xl:px-16 z-90">
         <div className="flex justify-around px-1 lg:px-1 font-ibm font-weight-500">
           <PillNav
@@ -62,15 +121,18 @@ export default function Home() {
         <div className="z-10 relative w-full h-full flex flex-col items-center justify-center outline-green-500">
           <BackgroundBeamsSection />
 
-          <SectionHeading animationSpeed={3}>The Big Picture</SectionHeading>
+          <PauseOffscreen className="w-full flex flex-col items-center">
+            {/* The only heading with something other than flat black behind it. */}
+            <SectionHeading animationSpeed={3} glass>The Big Picture</SectionHeading>
 
-          <section className="z-1 flex justify-center items-center h-full w-full mt-3 md:mt-4 outline-cyan-500">
-            <div className="flex flex-col mx-auto w-[90vw] md:flex-row px-2 sm:px-6 md:px-10 pt-6 pb-2 md:py-40 outline-purple-600">
-              <AnimatedContainer duration={2} initialY={100}>
-                <AccordionSection />
-              </AnimatedContainer>
-            </div>
-          </section>
+            <section className="z-1 flex justify-center items-center h-full w-full mt-3 md:mt-4 outline-cyan-500">
+              <div className="flex flex-col mx-auto w-[90vw] md:flex-row px-2 sm:px-6 md:px-10 pt-6 pb-2 md:py-40 outline-purple-600">
+                <AnimatedContainer duration={2} initialY={100}>
+                  <AccordionSection />
+                </AnimatedContainer>
+              </div>
+            </section>
+          </PauseOffscreen>
         </div>
       </section>
 
@@ -81,7 +143,7 @@ export default function Home() {
       </section>
 
       <section id="projects">
-        <div className="min-h-[55vh] pt-4 md:pt-6 w-full px-4 md:px-6 lg:px-8 flex flex-col justify-center items-center outline-green-500">
+        <PauseOffscreen className="min-h-[55vh] pt-4 md:pt-6 w-full px-4 md:px-6 lg:px-8 flex flex-col justify-center items-center outline-green-500">
           <SectionHeading animationSpeed={4} align="end" sizeClassName="text-[2.25rem]">
             Project Catalogue
           </SectionHeading>
@@ -102,25 +164,25 @@ export default function Home() {
               strokeWidth={1.5}
             />
           </Link>
-        </div>
+        </PauseOffscreen>
       </section>
 
       <section id="contact">
-        <div className="min-h-[15vh] pt-30 md:pt-6 w-full px-7 md:px-10 lg:px-15 flex flex-col justify-center items-center outline-green-500">
+        <PauseOffscreen className="min-h-[15vh] pt-30 md:pt-6 w-full px-7 md:px-10 lg:px-15 flex flex-col justify-center items-center outline-green-500">
           <SectionHeading animationSpeed={4}>Get in Touch</SectionHeading>
 
           <div className="flex w-[90vw] max-w-4xl flex-col items-center justify-center px-2 py-12 md:my-5 md:h-[40vh] md:px-0 lg:my-15 outline-red-500">
             <HighlighterSection />
           </div>
-        </div>
+        </PauseOffscreen>
       </section>
 
       <section id="skills">
-        <div className="min-h-[15vh] pt-30 md:pt-6 w-full px-7 md:px-10 lg:px-15 flex flex-col justify-center items-center outline-green-500">
+        <PauseOffscreen className="min-h-[15vh] pt-30 md:pt-6 w-full px-7 md:px-10 lg:px-15 flex flex-col justify-center items-center outline-green-500">
           <SectionHeading animationSpeed={4} align="end" sizeClassName="text-[2.5rem]">
             Applied Technologies
           </SectionHeading>
-        </div>
+        </PauseOffscreen>
 
         <div className="mx-auto my-15 py-10 flex w-[90vw] items-center justify-center px-2 md:px-4 outline-red-500">
           <AnimatedContainer duration={1.8} className="w-full">
@@ -130,7 +192,9 @@ export default function Home() {
       </section>
 
       <section id="info">
-        <div className="min-h-[15vh] pt-4 md:pt-6 w-full px-7 md:px-10 lg:px-15 flex flex-col justify-center items-center outline-green-500">
+        {/* Heading and keyword gradients share a 6s period; pausing them
+            together keeps them in phase. */}
+        <PauseOffscreen className="min-h-[15vh] pt-4 md:pt-6 w-full px-7 md:px-10 lg:px-15 flex flex-col justify-center items-center outline-green-500">
           <SectionHeading animationSpeed={2}>More About me</SectionHeading>
 
           <div className="mt-10 mb-50 md:my-6 lg:mb-30 xl:my-10 lg:w[80vw] xl:w-[75vw] lg:my-4 mx-auto outline-red-500">
@@ -143,7 +207,7 @@ export default function Home() {
               />
             </AnimatedContainer>
           </div>
-        </div>
+        </PauseOffscreen>
       </section>
 
       <footer>

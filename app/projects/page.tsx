@@ -4,7 +4,7 @@ import Link from "next/link";
 import PillNav from "../components/page/pillnav-bit";
 import GradientText from "../components/page/gradienttext-bit";
 import { Footer } from "../components/page/footer-section";
-import Aurora from "../components/ui/aurora-bit";
+import AuroraSection from "../components/ui/aurora-section";
 import StaticBackgroundBeamsSection from "../components/ui/staticbackgroundbeams-section";
 import { AnimatedContainer } from "../components/utilities/animated-container";
 import { CatalogueIndex } from "../components/catalogue/catalogue-index";
@@ -16,12 +16,18 @@ const walid_1 = "/walid_memoji_face1.webp";
 const walid_2 = "/walid_memoji_facewmac.webp";
 
 const titleColors = [colors.beige_dark, colors.slate, colors.beige_bright];
-const auroraColors = [colors.beige_bright, "#ffffff", colors.slate];
 
 export const metadata: Metadata = {
-  title: "Project Catalogue — Walid Idrissi",
+  title: "Software Engineering Projects",
   description:
     "The full index of projects by Walid Idrissi — cloud architecture, terminal tools, and full-stack work, each with its own case study.",
+  alternates: { canonical: "/projects" },
+  openGraph: {
+    title: "Software Engineering Projects | Walid Idrissi",
+    description:
+      "Cloud architecture, terminal tools, and full-stack projects by Walid Idrissi, each with a detailed engineering case study.",
+    url: "/projects",
+  },
 };
 
 export default function CataloguePage() {
@@ -64,7 +70,7 @@ export default function CataloguePage() {
           {/* Same waves as the home hero, turned way down: calmer motion,
               lower crest, and faded so the header stays quiet. */}
           <div className="absolute inset-0 opacity-40">
-            <Aurora colorStops={auroraColors} blend={0.99} amplitude={0.22} speed={0.55} />
+            <AuroraSection blend={0.99} amplitude={0.22} speed={0.55} />
           </div>
           <StaticBackgroundBeamsSection />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black" />
@@ -91,7 +97,7 @@ export default function CataloguePage() {
           </AnimatedContainer>
           <AnimatedContainer duration={1.4} delay={0.15} initialY={22}>
             <h1 className="mt-4 w-fit font-unbounded text-[2.4rem] leading-[1.05] sm:text-6xl md:mt-6 md:text-7xl">
-              <GradientText colors={titleColors} animationSpeed={4} showBorder={false}>
+              <GradientText colors={titleColors} animationSpeed={4} showBorder={false} glass>
                 Project Catalogue
               </GradientText>
             </h1>

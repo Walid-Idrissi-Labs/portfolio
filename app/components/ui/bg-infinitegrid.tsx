@@ -2,13 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { cn } from "../../lib/utils";
-import {
-  motion,
-  useMotionValue,
-  useMotionTemplate,
-  useAnimationFrame,
-  type MotionValue,
-} from "motion/react";
+import { motion, useMotionValue, useMotionTemplate } from "motion/react";
 
 type InfiniteGridProps = {
   className?: string;
@@ -19,6 +13,15 @@ type InfiniteGridProps = {
 const GRID_SPEED = 30;
 const GRID_SIZE = 40;
 
+// The drift is a CSS keyframe (`.grid-drift` in globals.css): the SVG is one
+// cell larger than its box, starts one cell up-left, and slides by exactly one
+// cell before looping. That is pixel-identical to offsetting the pattern every
+// frame, but runs on the compositor instead of re-rasterising the SVG.
+const driftVars = {
+  "--grid-size": `${GRID_SIZE}px`,
+  "--grid-period": `${GRID_SIZE / GRID_SPEED}s`,
+} as React.CSSProperties;
+
 export const InfiniteGrid = ({ className }: InfiniteGridProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -26,12 +29,22 @@ export const InfiniteGrid = ({ className }: InfiniteGridProps) => {
   const mouseY = useMotionValue(0);
 
   useEffect(() => {
-    const updateMouse = (clientX: number, clientY: number) => {
+    // Coalesce pointer events to one mask update per frame.
+    let frame: number | null = null;
+    let pending = { x: 0, y: 0 };
+
+    const flush = () => {
+      frame = null;
       const container = containerRef.current;
       if (!container) return;
       const { left, top } = container.getBoundingClientRect();
-      mouseX.set(clientX - left);
-      mouseY.set(clientY - top);
+      mouseX.set(pending.x - left);
+      mouseY.set(pending.y - top);
+    };
+
+    const updateMouse = (clientX: number, clientY: number) => {
+      pending = { x: clientX, y: clientY };
+      if (frame === null) frame = requestAnimationFrame(flush);
     };
 
     const handlePointerMove = (e: PointerEvent) => {
@@ -44,30 +57,15 @@ export const InfiniteGrid = ({ className }: InfiniteGridProps) => {
       updateMouse(touch.clientX, touch.clientY);
     };
 
-    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("touchmove", handleTouchMove, { passive: true });
 
     return () => {
+      if (frame !== null) cancelAnimationFrame(frame);
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("touchmove", handleTouchMove);
     };
   }, [mouseX, mouseY]);
-
-  const gridOffsetX = useMotionValue(0);
-  const gridOffsetY = useMotionValue(0);
-  const lastTime = useRef<number | null>(null);
-
-  useAnimationFrame((time) => {
-    if (lastTime.current === null) {
-      lastTime.current = time;
-      return;
-    }
-    const delta = (time - lastTime.current) / 1000;
-    lastTime.current = time;
-    const step = GRID_SPEED * delta;
-    gridOffsetX.set((gridOffsetX.get() + step) % GRID_SIZE);
-    gridOffsetY.set((gridOffsetY.get() + step) % GRID_SIZE);
-  });
 
   const maskImage = useMotionTemplate`radial-gradient(300px circle at ${mouseX}px ${mouseY}px, black, transparent)`;
 
@@ -78,15 +76,16 @@ export const InfiniteGrid = ({ className }: InfiniteGridProps) => {
         "relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-black",
         className
       )}
+      style={driftVars}
     >
-      <div className="absolute inset-0 z-0 opacity-[0.1]">
-        <GridPattern offsetX={gridOffsetX} offsetY={gridOffsetY} />
+      <div className="absolute inset-0 z-0 opacity-[0.1] overflow-hidden">
+        <GridPattern id="grid-pattern-base" />
       </div>
       <motion.div
-        className="absolute inset-0 z-0 opacity-40"
+        className="absolute inset-0 z-0 opacity-40 overflow-hidden"
         style={{ maskImage, WebkitMaskImage: maskImage }}
       >
-        <GridPattern offsetX={gridOffsetX} offsetY={gridOffsetY} />
+        <GridPattern id="grid-pattern-spot" />
       </motion.div>
 
       <div className="absolute inset-0 pointer-events-none z-0">
@@ -98,18 +97,19 @@ export const InfiniteGrid = ({ className }: InfiniteGridProps) => {
   );
 };
 
-const GridPattern = ({ offsetX, offsetY }: { offsetX: MotionValue<number>; offsetY: MotionValue<number> }) => {
+const GridPattern = ({ id }: { id: string }) => {
   return (
-    <svg className="w-full h-full">
+    <svg
+      className="grid-drift absolute"
+      style={{
+        left: -GRID_SIZE,
+        top: -GRID_SIZE,
+        width: `calc(100% + ${GRID_SIZE}px)`,
+        height: `calc(100% + ${GRID_SIZE}px)`,
+      }}
+    >
       <defs>
-        <motion.pattern
-          id="grid-pattern"
-          width={GRID_SIZE}
-          height={GRID_SIZE}
-          patternUnits="userSpaceOnUse"
-          x={offsetX}
-          y={offsetY}
-        >
+        <pattern id={id} width={GRID_SIZE} height={GRID_SIZE} patternUnits="userSpaceOnUse">
           <path
             d={`M ${GRID_SIZE} 0 L 0 0 0 ${GRID_SIZE}`}
             fill="none"
@@ -117,9 +117,9 @@ const GridPattern = ({ offsetX, offsetY }: { offsetX: MotionValue<number>; offse
             strokeWidth="1"
             className="text-muted-foreground"
           />
-        </motion.pattern>
+        </pattern>
       </defs>
-      <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+      <rect width="100%" height="100%" fill={`url(#${id})`} />
     </svg>
   );
 };
