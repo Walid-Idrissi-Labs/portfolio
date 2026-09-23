@@ -61,12 +61,22 @@ const SPOTS = [
 const LABELS_PER_SPOT = SPOTS[0].labels.length;
 const CHIP_IDLE_OPACITY = 0.5;
 const HOP_PERIOD = 1.1;
+const HOPS = SPOTS.length * LABELS_PER_SPOT;
+// The loop ends when the cursor lands back on the first spot.
+const LOOP_DURATION = 0.8 + HOP_PERIOD * (HOPS - 1) + 0.5;
+const LABEL_SWAP_DELAY = 1; // seconds after the cursor leaves a spot
 const LABEL_FADE = 0.6;
 
+// The last spot is left on the final hop, so its swap lands past the end of
+// the loop and is wrapped to the start of the next one. It therefore starts
+// on its last label, and swaps to the first shortly after mount.
+const initialLabel = (s: number) => (s === SPOTS.length - 1 ? LABELS_PER_SPOT - 1 : 0);
+
 // Built once at module load with absolute times: one pass over the spots per
-// label, so after LABELS_PER_SPOT passes every spot is back on its first label
-// and the repeat is seamless. Transform + opacity only, so the loop never
-// triggers layout.
+// label, so after LABELS_PER_SPOT passes every spot is back where it started
+// and the repeat is seamless. Label fades use explicit [from, to] keyframes
+// because motion replays each element's track verbatim on repeat. Transform +
+// opacity only, so the loop never triggers layout.
 const CURSOR_SEQUENCE: AnimationSequence = (() => {
   const chip = (s: number) => `[data-spot="${SPOTS[s].key}"]`;
   const label = (s: number, l: number) => `[data-label="${SPOTS[s].key}-${l}"]`;
@@ -74,20 +84,20 @@ const CURSOR_SEQUENCE: AnimationSequence = (() => {
     ["#pointer", { x: SPOTS[0].x, y: SPOTS[0].y }, { at: 0, duration: 0 }],
     [chip(0), { opacity: 1 }, { at: 0, duration: 0.3 }],
   ];
-  const hops = SPOTS.length * LABELS_PER_SPOT;
-  for (let h = 1; h <= hops; h++) {
+  for (let h = 1; h <= HOPS; h++) {
     const from = (h - 1) % SPOTS.length;
     const to = h % SPOTS.length;
     const pass = Math.floor((h - 1) / SPOTS.length);
     const moveAt = 0.8 + HOP_PERIOD * (h - 1);
+    const swapAt = (moveAt + LABEL_SWAP_DELAY) % LOOP_DURATION;
     sequence.push(
       ["#pointer", { x: SPOTS[to].x, y: SPOTS[to].y }, { at: moveAt, duration: 0.5, ease: "easeInOut" }],
       [chip(from), { opacity: CHIP_IDLE_OPACITY }, { at: moveAt + 0.2, duration: 0.1 }],
-      [label(from, pass), { opacity: 0 }, { at: moveAt + 0.2, duration: LABEL_FADE }],
-      [label(from, (pass + 1) % LABELS_PER_SPOT), { opacity: 1 }, { at: moveAt + 0.2, duration: LABEL_FADE }],
+      [label(from, pass), { opacity: [1, 0] }, { at: swapAt, duration: LABEL_FADE }],
+      [label(from, (pass + 1) % LABELS_PER_SPOT), { opacity: [0, 1] }, { at: swapAt, duration: LABEL_FADE }],
     );
     // The last hop returns to the first spot; the next repeat re-lights it.
-    if (h < hops) sequence.push([chip(to), { opacity: 1 }, { at: moveAt + 0.3, duration: 0.3 }]);
+    if (h < HOPS) sequence.push([chip(to), { opacity: 1 }, { at: moveAt + 0.3, duration: 0.3 }]);
   }
   return sequence;
 })();
@@ -142,7 +152,7 @@ export function HighlighterSection() {
                       ref={scope}
                     >
                       <DesignaliMark className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2" />
-                      {SPOTS.map(({ key, labels, className }) => (
+                      {SPOTS.map(({ key, labels, className }, s) => (
                         <div
                           key={key}
                           data-spot={key}
@@ -156,7 +166,7 @@ export function HighlighterSection() {
                               key={label}
                               data-label={`${key}-${i}`}
                               className="col-start-1 row-start-1 whitespace-nowrap text-center"
-                              style={i === 0 ? undefined : { opacity: 0 }}
+                              style={i === initialLabel(s) ? undefined : { opacity: 0 }}
                             >
                               {label}
                             </span>
