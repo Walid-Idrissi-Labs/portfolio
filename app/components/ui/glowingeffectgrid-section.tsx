@@ -10,7 +10,7 @@ const tascii = "/project-tascii.webp";
 const applyr = "/project-applyr.webp";
 const sla_monitor = "/project-sla-monitor.webp";
 const shipping_crm = "/project-shipping-crm-0.webp";
-const ai_quotation = "/project-ai-quotation-prediction-0-v2.webp";
+const ai_quotation = "/project-ai-quotation-prediction.webp";
 const mactab = "/project-mactab-v2.webp";
 
 export default function GlowingEffectSection() {
