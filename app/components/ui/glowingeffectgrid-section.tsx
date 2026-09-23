@@ -20,7 +20,7 @@ export default function GlowingEffectSection() {
         area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
         icon={<Cloud className="h-4 w-4 text-faint_white" />}
         title="URL Shortener"
-        description="Serverless URL shortener built with AWS and provisioned entirely with Terraform"
+        description="Serverless URL shortener on API Gateway, Lambda and DynamoDB, provisioned entirely in Terraform."
         href="/projects/url-shortener"
         backgroundImage={url_shortener}
         duration={1.8}

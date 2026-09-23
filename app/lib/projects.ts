@@ -69,7 +69,7 @@ export const projects: Project[] = [
   {
     slug: "url-shortener",
     name: "URL Shortener",
-    tagline: "A serverless link shortener on AWS, provisioned end to end with Terraform.",
+    tagline: "A serverless link shortener on API Gateway, Lambda and DynamoDB, built entirely in Terraform with least-privilege IAM and zero idle cost.",
     type: "Cloud Architecture",
     year: "2026",
     status: "completed",
