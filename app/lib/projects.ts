@@ -480,7 +480,7 @@ export const projects: Project[] = [
   {
     slug: "ai-assisted-quotation-prediction-software",
     name: "AI-Assisted Quotation Prediction Software",
-    tagline: "A quotation intelligence system that turns technical aluminium and glazing specifications into explainable, production-ready estimates.",
+    tagline: "A Django and React quoting system that predicts supplier costs with embedding search over historical data, then prices every quote through a deterministic engine.",
     type: "Full-Stack AI Software",
     year: "2026",
     status: "completed",
