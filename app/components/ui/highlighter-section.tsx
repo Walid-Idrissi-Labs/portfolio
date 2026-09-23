@@ -67,6 +67,9 @@ const LOOP_DURATION = 0.8 + HOP_PERIOD * (HOPS - 1) + 0.5;
 const LABEL_SWAP_DELAY = 1; // seconds after the cursor leaves a spot
 const LABEL_FADE = 0.6;
 
+// Shared by the contact links and the Contact Me button.
+const HOVER_GLOW = "duration-200 hover:shadow-[0_0_24px_-2px_rgba(217,217,217,0.65)]";
+
 // The last spot is left on the final hop, so its swap lands past the end of
 // the loop and is wrapped to the start of the next one. It therefore starts
 // on its last label, and swaps to the first shortly after mount.
@@ -217,6 +220,7 @@ export function HighlighterSection() {
                               variant: "outline",
                               size: "icon",
                             }),
+                            HOVER_GLOW,
                           )}
                         >
                           <span className="flex items-center gap-1">
@@ -232,6 +236,7 @@ export function HighlighterSection() {
                               variant: "outline",
                               size: "icon",
                             }),
+                            HOVER_GLOW,
                           )}
                         >
                           <span className="flex items-center gap-1">
@@ -247,6 +252,7 @@ export function HighlighterSection() {
                               variant: "outline",
                               size: "icon",
                             }),
+                            HOVER_GLOW,
                           )}
                         >
                           <span className="flex items-center gap-1">
@@ -262,6 +268,7 @@ export function HighlighterSection() {
                               variant: "outline",
                               size: "icon",
                             }),
+                            HOVER_GLOW,
                           )}
                         >
                           <span className="flex items-center gap-1">
@@ -274,7 +281,8 @@ export function HighlighterSection() {
                           target="_blank"
                           className={cn(
                             buttonVariants(),
-                            "duration-200 [a]:hover:bg-primary hover:shadow-[0_0_24px_-2px_rgba(217,217,217,0.65)]",
+                            "[a]:hover:bg-primary",
+                            HOVER_GLOW,
                           )}
                         >
                           Contact Me
