@@ -43,12 +43,15 @@ const footerLinks: FooterSection[] = [
 
 // Two mirrored mask layers grow from the left and right edges until they
 // overlap in the middle; one masked element, so no seam where the sides meet.
+// Kept cheap: not rendered on touch screens (tap leaves :hover stuck), only a
+// 73px strip (40px glow room + 1px border + 32px corner) is ever repainted,
+// and it's visibility:hidden at rest so it isn't painted at all.
 const FOOTER_LINE_REVEAL =
-	"pointer-events-none absolute inset-x-0 -top-[41px] bottom-0 " +
+	"pointer-events-none absolute inset-x-0 -top-[41px] h-[73px] hidden pointer-fine:block invisible " +
 	"[mask-image:linear-gradient(to_right,#000_calc(100%-48px),transparent),linear-gradient(to_left,#000_calc(100%-48px),transparent)] " +
 	"[mask-position:left,right] [mask-repeat:no-repeat] [mask-size:0%_100%] " +
-	"[transition-property:mask-size] duration-450 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none " +
-	"group-has-[[data-flip-link]:hover]/footer:[mask-size:calc(50%+48px)_100%] " +
+	"[transition-property:mask-size,visibility] duration-450 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none " +
+	"group-has-[[data-flip-link]:hover]/footer:visible group-has-[[data-flip-link]:hover]/footer:[mask-size:calc(50%+48px)_100%] " +
 	"group-has-[[data-flip-link]:hover]/footer:duration-700 group-has-[[data-flip-link]:hover]/footer:ease-[cubic-bezier(0.22,1,0.36,1)]";
 
 export function Footer() {
@@ -58,9 +61,9 @@ export function Footer() {
 			{/* Slate line drawn in from both sides while GitHub / Linkedin is hovered.
 			    The wrapper reaches 40px above the footer so the mask doesn't cut the glow. */}
 			<div aria-hidden className={FOOTER_LINE_REVEAL}>
-				<div className="md:rounded-t-6xl absolute inset-x-0 top-10 bottom-0 rounded-t-4xl border-t border-[#74818C] shadow-[0_-4px_24px_-2px_rgba(116,129,140,0.65)]" />
+				<div className="absolute inset-x-0 top-10 bottom-0 rounded-t-4xl border-t border-[#74818C] shadow-[0_-4px_24px_-2px_rgba(116,129,140,0.65)]" />
 			</div>
-			<div className="bg-foreground/20 transition-colors duration-300 group-has-[[data-flip-link]:hover]/footer:bg-[#74818C] group-has-[[data-flip-link]:hover]/footer:delay-300 absolute top-0 right-1/2 left-1/2 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur" />
+			<div className="bg-foreground/20 transition-colors duration-300 pointer-fine:group-has-[[data-flip-link]:hover]/footer:bg-[#74818C] pointer-fine:group-has-[[data-flip-link]:hover]/footer:delay-300 absolute top-0 right-1/2 left-1/2 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur" />
 
 			<div className="flex w-full flex-col gap-8 pl-5 lg:flex-row lg:items-start lg:gap-0 ">
 				{/* Left: copyright + links */}
