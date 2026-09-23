@@ -264,7 +264,7 @@ export function HighlighterSection() {
                           target="_blank"
                           className={cn(
                             buttonVariants(),
-                            "duration-300 [a]:hover:bg-primary hover:shadow-[0_0_20px_-4px_rgba(217,217,217,0.5)]",
+                            "duration-150 [a]:hover:bg-primary hover:shadow-[0_0_28px_0_rgba(217,217,217,0.8)]",
                           )}
                         >
                           Contact Me
