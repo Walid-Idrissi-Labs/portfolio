@@ -478,12 +478,14 @@ const PillNav: React.FC<PillNavProps> = ({
         {logoVariant === 'white' ? (
           // Intro: the ring draws itself clockwise from 12 o'clock, then the
           // face settles in. All CSS (globals.css, nav-ring-*), so it starts
-          // on first paint.
+          // on first paint. The ring's size is explicit because an <svg> is a
+          // replaced element: WebKit won't stretch one from insets alone like
+          // Chrome does, so iOS drew it off-center.
           <span className="group relative inline-flex shrink-0 pointer-events-auto">
             <svg
               aria-hidden="true"
               viewBox="0 0 100 100"
-              className="nav-ring absolute -inset-1.25 overflow-visible transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+              className="nav-ring absolute -top-1.25 -left-1.25 size-[calc(100%+0.625rem)] overflow-visible transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
             >
               <circle
                 cx="50"
