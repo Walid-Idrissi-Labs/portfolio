@@ -3,6 +3,8 @@ import withBundleAnalyzer from "@next/bundle-analyzer";
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  // Keep `next dev` from writing rule files into the repo root.
+  agentRules: false,
   images: {
     // Serve modern formats (AVIF first, WebP fallback) for optimized images.
     formats: ["image/avif", "image/webp"],
