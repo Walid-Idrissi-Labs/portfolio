@@ -212,7 +212,7 @@ export default function Home() {
 
       <footer>
         <div className="relative flex flex-col justify-end pt-20 mt-60 w-screen h-auto">
-          <Footer />
+          <Footer home />
         </div>
       </footer>
     </>

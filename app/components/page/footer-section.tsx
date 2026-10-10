@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { FileIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
 
 import {RevealLinks} from "../ui/reveallinks-bit"
@@ -54,7 +55,7 @@ const FOOTER_LINE_REVEAL =
 	"group-has-[[data-flip-link]:hover]/footer:visible group-has-[[data-flip-link]:hover]/footer:[mask-size:calc(50%+48px)_100%] " +
 	"group-has-[[data-flip-link]:hover]/footer:duration-700 group-has-[[data-flip-link]:hover]/footer:ease-[cubic-bezier(0.22,1,0.36,1)]";
 
-export function Footer() {
+export function Footer({ home = false }: { home?: boolean }) {
 	return (
 
 		<footer className="group/footer md:rounded-t-6xl relative w-full l mx-auto flex flex-col items-center justify-center rounded-t-4xl border-t bg-[radial-gradient(35%_128px_at_50%_0%,theme(backgroundColor.white/8%),transparent)] bg-[#74818C]/5 px-10 py-12 lg:py-16">
@@ -81,19 +82,26 @@ export function Footer() {
 								<div className="mb-10 md:mb-0">
 									<h2 className="text-md font-unbounded font-medium">{section.label}</h2>
 									<ul className="text-muted-foreground mt-4 space-y-2 text-sm font-ibm font-light">
-										{section.links.map((link) => (
-											<li key={link.title}>
-												<a
-													href={link.href}
-													target={link.target}
-													rel={link.target === '_blank' ? 'noopener noreferrer' : undefined}
-													className="hover:text-foreground inline-flex items-center transition-all duration-300"
-												>
-													{link.icon && <link.icon className="me-1 size-4" />}
-													{link.title}
-												</a>
-											</li>
-										))}
+										{section.links.map((link) => {
+											// On the home page a bare #anchor scrolls on every click. From other
+											// pages next/link is needed: after a full page load the animation
+											// library resets the scroll and the visitor is left near the top.
+											const href = home ? link.href.replace(/^\/#/, '#') : link.href;
+											const Anchor = href.startsWith('/') ? Link : 'a';
+											return (
+												<li key={link.title}>
+													<Anchor
+														href={href}
+														target={link.target}
+														rel={link.target === '_blank' ? 'noopener noreferrer' : undefined}
+														className="hover:text-foreground inline-flex items-center transition-all duration-300"
+													>
+														{link.icon && <link.icon className="me-1 size-4" />}
+														{link.title}
+													</Anchor>
+												</li>
+											);
+										})}
 									</ul>
 								</div>
 							</AnimatedContainer>
