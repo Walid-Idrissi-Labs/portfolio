@@ -130,13 +130,20 @@ export default function Aurora(props: AuroraProps) {
     const ctn = ctnDom.current;
     if (!ctn) return;
 
-    const renderer = new Renderer({
-      alpha: true,
-      premultipliedAlpha: true,
-      // Antialiasing only smooths triangle edges; this shader covers the whole
-      // canvas with one fullscreen triangle, so there are no on-screen edges.
-      antialias: false
-    });
+    let renderer: Renderer;
+    try {
+      renderer = new Renderer({
+        alpha: true,
+        premultipliedAlpha: true,
+        // Antialiasing only smooths triangle edges; this shader covers the whole
+        // canvas with one fullscreen triangle, so there are no on-screen edges.
+        antialias: false
+      });
+    } catch {
+      // No WebGL (blocked or unsupported): the constructor throws. Skip the
+      // effect instead of taking the whole page down with it.
+      return;
+    }
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
     gl.enable(gl.BLEND);
