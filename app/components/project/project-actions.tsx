@@ -9,9 +9,8 @@ import { HoverBorderGradient } from "../utilities/hoverbordergradient";
 import { Input } from "../utilities/input";
 import { Label } from "../utilities/label";
 import { Textarea } from "../utilities/textarea";
+import { EMAIL_LIMIT, EMAIL_PATTERN, MESSAGE_LIMIT } from "../../lib/form-rules";
 import type { Project } from "../../lib/projects";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Trimmed to what the actions need (see ProjectHeroData for the reasoning).
 export type ProjectActionsData = Pick<Project, "name" | "private" | "links">;
@@ -120,6 +119,7 @@ export function ProjectActions({ project }: { project: ProjectActionsData }) {
                   id="demo-email"
                   type="email"
                   required
+                  maxLength={EMAIL_LIMIT}
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="you@company.com"
@@ -136,6 +136,7 @@ export function ProjectActions({ project }: { project: ProjectActionsData }) {
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
                   rows={3}
+                  maxLength={MESSAGE_LIMIT}
                   placeholder={`what would you like to see in ${project.name}?`}
                   className="rounded-lg border-white/10 bg-black/40 font-ibm text-sm text-faint_white placeholder:text-neutral-600"
                 />

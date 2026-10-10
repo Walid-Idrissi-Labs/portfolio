@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { EMAIL_LIMIT, EMAIL_PATTERN, MESSAGE_LIMIT } from "../../lib/form-rules";
+import { projects } from "../../lib/projects";
+import { rateLimited } from "../../lib/rate-limit";
 import { getResend } from "../../lib/resend";
 
 const escapeHtml = (value: string) =>
@@ -8,10 +11,14 @@ const escapeHtml = (value: string) =>
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export async function POST(req: Request) {
     try {
+        if (rateLimited(req)) {
+            return NextResponse.json(
+                { error: "Too Many Requests" }, { status: 429 }
+            );
+        }
+
         const body = await req.json();
         const { project, email, note } = body;
 
@@ -24,6 +31,17 @@ export async function POST(req: Request) {
         if (!EMAIL_PATTERN.test(email)) {
             return NextResponse.json(
                 { error: "Invalid Email" }, { status: 400 }
+            );
+        }
+
+        // The form can't send these, but nothing forces a caller to use the form.
+        if (
+            !projects.some((known) => known.name === project) ||
+            email.length > EMAIL_LIMIT ||
+            (typeof note === "string" && note.length > MESSAGE_LIMIT)
+        ) {
+            return NextResponse.json(
+                { error: "Invalid Fields" }, { status: 400 }
             );
         }
 
