@@ -28,12 +28,6 @@ export async function POST(req: Request) {
             );
         }
 
-        if (!EMAIL_PATTERN.test(email)) {
-            return NextResponse.json(
-                { error: "Invalid Email" }, { status: 400 }
-            );
-        }
-
         // The form can't send these, but nothing forces a caller to use the form.
         if (
             !projects.some((known) => known.name === project) ||
@@ -42,6 +36,12 @@ export async function POST(req: Request) {
         ) {
             return NextResponse.json(
                 { error: "Invalid Fields" }, { status: 400 }
+            );
+        }
+
+        if (!EMAIL_PATTERN.test(email)) {
+            return NextResponse.json(
+                { error: "Invalid Email" }, { status: 400 }
             );
         }
 

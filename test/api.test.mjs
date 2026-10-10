@@ -82,6 +82,13 @@ test("bad input is refused and no mail goes out", async () => {
   assert.equal(sent, 2);
 });
 
+test("a huge email is refused at once", { timeout: 5000 }, async () => {
+  // The email pattern takes about a minute on this input, so the length check must run first.
+  const huge = `a@${".".repeat(200_000)} `;
+  assert.equal((await post("/api/send", { ...message, email: huge })).status, 400);
+  assert.equal((await post("/api/request-demo", { ...demo, email: huge })).status, 400);
+});
+
 test("a failed send is reported, not shown as a success", async () => {
   mailFails = true;
   assert.equal((await post("/api/send", message)).status, 500);
