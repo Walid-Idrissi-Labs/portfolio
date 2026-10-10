@@ -21,12 +21,12 @@ const footerLinks: FooterSection[] = [
 	{
 		label: 'Navigation Links',
 		links: [
-			{ title: 'Home', href: '#' },
-			{ title: 'About', href: '#about' },
-			{ title: 'Projects', href: '#projects' },
-			{ title: 'Contact', href: '#contact' },
-			{ title: 'Skills', href: '#skills' },
-			{ title: 'More About me', href: '#info' },
+			{ title: 'Home', href: '/#top' },
+			{ title: 'About', href: '/#about' },
+			{ title: 'Projects', href: '/#projects' },
+			{ title: 'Contact', href: '/#contact' },
+			{ title: 'Skills', href: '/#skills' },
+			{ title: 'More About me', href: '/#info' },
 		],
 	},
 	{

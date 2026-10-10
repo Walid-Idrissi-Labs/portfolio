@@ -8,11 +8,10 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import SplitText from "../ui/splittext-bit";
 import { cn } from "../../lib/utils";
 import { colors } from "../../lib/colors";
+import { EMAIL_LIMIT, EMAIL_PATTERN, MESSAGE_LIMIT, NAME_LIMIT } from "../../lib/form-rules";
 import { liquidGlassStyle } from "../../lib/glass";
 
 const EMAIL = "walid.idrissi.labs@gmail.com";
-const MESSAGE_LIMIT = 1000;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const SOCIAL_LINKS = [
   { label: "GitHub", href: "https://github.com/walid-idrissi-labs" },
@@ -353,6 +352,7 @@ function ContactForm() {
                     name="name"
                     type="text"
                     autoComplete="name"
+                    maxLength={NAME_LIMIT}
                     placeholder=""
                     value={values.name}
                     onChange={handleChange}
@@ -369,6 +369,7 @@ function ContactForm() {
                     name="email"
                     type="email"
                     autoComplete="email"
+                    maxLength={EMAIL_LIMIT}
                     placeholder=""
                     value={values.email}
                     onChange={handleChange}
