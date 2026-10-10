@@ -1,5 +1,5 @@
-const WINDOW_MS = 10 * 60 * 1000;
-const MAX_REQUESTS = 5;
+const WINDOW_MS = 24 * 60 * 60 * 1000;
+const MAX_REQUESTS = 10;
 const hits = new Map<string, { start: number; count: number }>();
 
 // shortcut: counted in one server instance's memory, so a flood spread over many

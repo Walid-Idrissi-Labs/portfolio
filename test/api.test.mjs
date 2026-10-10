@@ -96,8 +96,8 @@ test("a failed send is reported, not shown as a success", async () => {
   mailFails = false;
 });
 
-test("one address is cut off after 5 requests", async () => {
+test("one address is cut off after 10 requests", async () => {
   const statuses = [];
-  for (let i = 0; i < 6; i++) statuses.push((await post("/api/send", message, "10.9.9.9")).status);
-  assert.deepEqual(statuses, [200, 200, 200, 200, 200, 429]);
+  for (let i = 0; i < 11; i++) statuses.push((await post("/api/send", message, "10.9.9.9")).status);
+  assert.deepEqual(statuses, [...Array(10).fill(200), 429]);
 });
