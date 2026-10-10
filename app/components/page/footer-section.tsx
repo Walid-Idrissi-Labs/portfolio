@@ -1,5 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
 import { FileIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
 
 import {RevealLinks} from "../ui/reveallinks-bit"
@@ -84,7 +83,7 @@ export function Footer() {
 									<ul className="text-muted-foreground mt-4 space-y-2 text-sm font-ibm font-light">
 										{section.links.map((link) => (
 											<li key={link.title}>
-												<Link
+												<a
 													href={link.href}
 													target={link.target}
 													rel={link.target === '_blank' ? 'noopener noreferrer' : undefined}
@@ -92,7 +91,7 @@ export function Footer() {
 												>
 													{link.icon && <link.icon className="me-1 size-4" />}
 													{link.title}
-												</Link>
+												</a>
 											</li>
 										))}
 									</ul>
