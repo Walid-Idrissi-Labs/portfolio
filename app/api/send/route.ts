@@ -25,12 +25,14 @@ export async function POST(req : Request){
 
 
         //confirmation email to me; escape user input so it can't inject HTML
-        await getResend().emails.send({
+        const {error} = await getResend().emails.send({
             from : 'Portfolio Contact Form <onboarding@resend.dev>',
             to : process.env.PERSONNAL_MAIL_ADDRESS!,
             subject : `Portfolio Contact from ${name}`,
             html : `<h1>New message from ${escapeHtml(name)} (${escapeHtml(email)})</h1><p>${escapeHtml(message)}</p>`
         });
+        //resend returns a failed send instead of throwing it
+        if (error) throw error;
 
         
 

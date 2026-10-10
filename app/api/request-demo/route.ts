@@ -33,13 +33,15 @@ export async function POST(req: Request) {
                 : "<p><i>No extra details provided.</i></p>";
 
         // Demo request to me; replyTo lets me answer the visitor directly.
-        await getResend().emails.send({
+        const { error } = await getResend().emails.send({
             from: "Portfolio Demo Request <onboarding@resend.dev>",
             to: process.env.PERSONNAL_MAIL_ADDRESS!,
             replyTo: email,
             subject: `Demo request — ${project}`,
             html: `<h1>Demo request for ${escapeHtml(project)}</h1><p>From: ${escapeHtml(email)}</p>${safeNote}`,
         });
+        // Resend returns a failed send instead of throwing it.
+        if (error) throw error;
 
         return NextResponse.json({ success: true });
     }
